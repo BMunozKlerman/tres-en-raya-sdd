@@ -2,151 +2,185 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Qué es este repositorio
+## About This Repository
 
-Tarea 1 del Diploma de Postítulo en Ingeniería de Software (DCC, Universidad de Chile): un tres en raya (tic-tac-toe) con interfaz web, construido íntegramente con el flujo SDD (Spec-Driven Development) de Spec Kit — `constitution → specify → plan → tasks → implement`. Trabajo en grupo de 4 personas.
+Assignment 1 of the Postgraduate Diploma in Software Engineering (DCC, Universidad de Chile):
+a tic-tac-toe game with a web interface, built entirely using the SDD (Spec-Driven Development)
+workflow of Spec Kit — `constitution → specify → plan → tasks → implement`. Team of 4.
 
-Se evalúa: proceso 60%, producto 30%, presentación 10%. La calidad de las specs, la trazabilidad de cada cambio y el uso correcto del agente pesan más que el código en sí.
+Grading: process 60%, product 30%, presentation 10%. Spec quality, change traceability, and
+correct agent use matter more than the code itself.
 
-## Requisitos funcionales
+## Language Convention
 
-**RF-1 Modos de juego**
-- Humano vs humano (mismo dispositivo).
-- Humano vs agente.
+All generated artifacts MUST be written in English:
+`spec.md`, `plan.md`, `tasks.md`, `traceability.md`, `README.md`, file and folder names,
+code identifiers, test names, commit messages, and code comments.
 
-**RF-2 Niveles del agente** (deben ser distinguibles jugando, no solo en el código):
-- **sencillo**: elige entre las jugadas legales sin evaluar consecuencias; sin memoria.
-- **medio**: gana si puede ganar en este turno, bloquea si el rival ganaría en el siguiente; tiene memoria de la partida en curso.
-- **complejo**: nunca pierde una partida clásica; tiene memoria persistente entre partidas.
+**Exception 1 — Game UI**: The player-facing game interface is shown in Spanish (the Class 6
+demo is in Spanish). The code and tests that cover it remain in English.
 
-**RF-3 Modalidades**
-- **clásica**: una ficha por turno en una casilla vacía; empate al llenarse el tablero; la victoria tiene precedencia sobre el empate si ambas se detectan en la novena jugada.
-- **continua**: cada jugador tiene exactamente 3 fichas; hay una fase de colocación y luego una fase de movimiento hacia una casilla vacía; en esta modalidad **no existe el empate**.
+**Exception 2 — Interface spec mapping**: `specs/003-interface/spec.md` MUST include a table
+mapping the 5 mandatory interface criteria from the assignment (written in Spanish) to their
+English CA-I-nn IDs, quoting the original Spanish text so the correspondence is auditable.
 
-**RF-4 Interfaz**
-- Configuración de modo/nivel/ficha/modalidad antes de iniciar la partida.
-- Reinicio disponible en cualquier momento.
-- Marcador visible de la sesión.
+## Functional Requirements
 
-**No funcionales**
-- El agente debe responder en menos de 1 segundo, en cualquier nivel.
-- El README debe permitir ejecutar el proyecto en 3 pasos o menos.
-- Operable con mouse; operable por teclado es un objetivo deseable, no obligatorio.
+**RF-1 Game modes**
+- Human vs. human (same device).
+- Human vs. agent.
 
-## Reglas del proceso — no negociables
+**RF-2 Agent levels** (must be distinguishable in play, not just in code):
+- **simple**: picks among legal moves without evaluating consequences; no memory.
+- **medium**: wins if it can win this turn, blocks if the opponent would win next turn;
+  remembers the current game.
+- **complex**: never loses a classic game; has persistent memory across games.
 
-1. **La spec es la fuente de verdad.** Código, plan y tareas son derivados de ella. Ningún cambio de comportamiento empieza tocando código directamente.
-2. **Depuración spec-first.** Un bug se reproduce primero como un test que falla (ese RED se commitea fallando), se diagnostica como un criterio incompleto o mal definido, se corrige `spec.md`, y solo entonces se regenera el código afectado. Nunca se parcha el código a mano.
-3. **Cobertura total por criterio.** Todo criterio de aceptación (CA) debe estar cubierto por al menos un test cuyo nombre contenga el CA-ID correspondiente.
-4. **Un commit por tarea**, con tests en verde antes de commitear. Nada de commits monolíticos ni squash: el historial de commits es la evidencia del proceso.
-5. **Ediciones manuales solo para detalles sin comportamiento** (texto, CSS). Deben quedar registradas en la tabla correspondiente del README.
-6. **Todo uso de IA fuera del flujo SDD se declara en el README.**
+**RF-3 Modes**
+- **classic**: one piece per turn on an empty cell; draw when the board is full; win takes
+  precedence over draw if both are detected on the ninth move.
+- **continuous**: each player has exactly 3 pieces; there is a placement phase then a movement
+  phase (move a piece to an empty cell); **no draw exists** in this mode.
 
-## Convenciones de nomenclatura
+**RF-4 Interface**
+- Mode / level / piece / game-mode configuration before starting a game.
+- Restart available at any time.
+- Visible session scoreboard.
 
-- User story: `US-<área>-<n>`
-- Criterio de aceptación: `CA-<área>-<nn>`
-- Tarea: `T-NNN`
-- Commit: `T-NNN: descripción (CA-X-NN, ...)`
+**Non-functional**
+- The agent must respond in under 1 second at any level.
+- README must allow running the project in 3 steps or fewer.
+- Mouse-operable; full keyboard operation is a desirable goal, not mandatory.
+
+## Process Rules — Non-Negotiable
+
+1. **The spec is the source of truth.** Code, plan, and tasks are derived from it. No
+   behavioral change starts by touching code directly.
+2. **Spec-first debugging.** A bug is first reproduced as a failing test (that RED commit is
+   pushed failing), diagnosed as an incomplete or wrong criterion, corrected in `spec.md`, and
+   only then is the affected code regenerated. Never patch code by hand.
+3. **Full coverage per criterion.** Every acceptance criterion (CA) must be covered by at least
+   one test whose name contains the corresponding CA-ID.
+4. **One commit per task**, with tests green before committing. No monolithic commits or squash:
+   the commit history is the process evidence.
+5. **Manual edits only for non-behavioral details** (UI text, CSS). Must be recorded in the
+   manual-edits table in `README.md`.
+6. **All AI usage outside the SDD flow must be declared in `README.md`.**
+
+## Naming Conventions
+
+- User story: `US-<area>-<n>`
+- Acceptance criterion: `CA-<area>-<nn>`
+- Task: `T-NNN`
+- Commit: `T-NNN: description (CA-X-NN, ...)`
 - Test: `describe('CA-X-NN', ...)`
-- Áreas: `M` motor · `A` agentes · `I` interfaz · `N` no funcionales
+- Areas: `M` engine · `A` agents · `I` interface · `N` non-functional
 
-### Formato EARS para criterios
+### EARS Format for Criteria
 
-- `EL SISTEMA SHALL <r>`
-- `WHEN <e>, EL SISTEMA SHALL <r>`
-- `WHILE <s>, EL SISTEMA SHALL <r>`
-- `IF <c>, THEN EL SISTEMA SHALL <r>`
-- `WHERE <f>, EL SISTEMA SHALL <r>`
+- `THE SYSTEM SHALL <response>`
+- `WHEN <event>, THE SYSTEM SHALL <response>`
+- `WHILE <state>, THE SYSTEM SHALL <response>`
+- `IF <condition>, THEN THE SYSTEM SHALL <response>`
+- `WHERE <feature>, THE SYSTEM SHALL <response>`
 
-Un criterio = una respuesta observable. Palabras vagas prohibidas: *correctamente, intuitivo, rápido, razonable*. Si no se puede nombrar la aserción del test en una frase, el criterio es ambiguo y hay que reescribirlo.
+One criterion = one observable response. **Prohibited words (P4)**: *correctly, intuitive,
+fast, reasonable, appropriate, user-friendly*. If the test assertion cannot be named in one
+sentence, the criterion is ambiguous and must be rewritten.
 
-## Stack y arquitectura
+## Stack and Architecture
 
-- **Vite** + **JavaScript vanilla** (ES modules) + **Vitest**. Sin frameworks de UI ni dependencias de runtime.
-- `src/engine.js` — motor puro: reglas, modalidades, fases. Sin DOM.
-- `src/agents.js` — agentes puros (los 3 niveles). Sin DOM.
-- `src/ui.js` — render y manejo de eventos.
+- **Vite** + **JavaScript vanilla** (ES modules) + **Vitest**. No UI frameworks, no runtime
+  dependencies.
+- `src/engine.js` — pure engine: rules, modes, phases. No DOM.
+- `src/agents.js` — pure agents (3 levels). No DOM.
+- `src/ui.js` — rendering and event handling.
 
-Regla de dependencia: la UI depende del motor y de los agentes; el motor y los agentes **no conocen la UI**.
+Dependency rule: UI depends on engine and agents; engine and agents **do not know about UI**.
 
-Estado inmutable: una jugada ilegal retorna un error y deja el estado intacto (no lo muta).
+Immutable state: an illegal move returns an error and leaves the state intact (no mutation).
 
 ```
-estado = {
-  tablero: Array(9) de 'X' | 'O' | null,
-  turno,
-  modalidad,
-  fase,
-  fichasColocadas,
-  resultado
+state = {
+  board: Array(9) of 'X' | 'O' | null,
+  turn,
+  mode,
+  phase,
+  piecesPlaced,
+  result
 }
 ```
 
-### Contratos
+### Contracts
 
-- `jugadasLegales(estado) -> Jugada[]`
-- `aplicarJugada(estado, jugada) -> estado' | {error, motivo}`
-- `elegirJugada(estado, nivel, memoria) -> {jugada, memoria'}` — determinista.
+- `legalMoves(state) -> Move[]`
+- `applyMove(state, move) -> state' | {error, reason}`
+- `chooseMove(state, level, memory) -> {move, memory'}` — deterministic.
 
-## Secuencia de trabajo (Spec Kit)
+## Work Sequence (Spec Kit)
 
-Una feature a la vez, en este orden: `001-motor-de-juego → 002-agentes → 003-interfaz`.
+One feature at a time, in this order: `001-engine → 002-agents → 003-interface`.
 
-Por feature:
-1. `/speckit.specify` → commit
-2. `/speckit.clarify` → commit
-3. `/speckit.plan` → commit
-4. `/speckit.tasks` → `/speckit.analyze` → commit
-5. `/speckit.implement` **una tarea por invocación** (nunca sin argumentos)
+Per feature:
+1. `/speckit-specify` → commit
+2. `/speckit-clarify` → commit
+3. `/speckit-plan` → commit
+4. `/speckit-tasks` → `/speckit-analyze` → commit
+5. `/speckit-implement` **one task per invocation** (never without arguments)
 
-### Dentro de cada `/speckit.implement`
+### Inside each `/speckit-implement`
 
-1. Escribir el test RED con el CA-ID en el `describe`, demostrar que falla.
-2. Commit `test(...)` con el test fallando.
-3. Implementación mínima para que pase.
-4. Suite completa en verde.
+1. Write the RED test with the CA-ID in the `describe`; show it fails.
+2. Commit `test(...)` with the failing test.
+3. Minimum production code to make it pass.
+4. Full suite green.
 5. Commit `T-NNN`.
-6. Registrar en `traceability.md`: TaskID, CA-IDs cubiertos, y el SHA **real** del commit.
-7. Detenerse y reportar. No encadenar la siguiente tarea sin instrucción explícita.
+6. Record in `traceability.md`: TaskID, CA-IDs covered, and the **real** SHA of the commit.
+7. Stop and report. Do not chain the next task without explicit instruction.
 
-## Qué NO hacer
+## What NOT to Do
 
-- No escribir código de producción fuera de `/speckit.implement`.
-- No elegir tecnología dentro de una spec (eso va en el plan).
-- No describir algoritmos (minimax, poda alfa-beta, memoización) en la spec de agentes — la spec describe comportamiento observable; la técnica va en el plan.
-- No parchar a mano un bug de comportamiento.
-- No agregar funcionalidad que ningún criterio pida.
-- No inventar SHA en `traceability.md`.
-- No hacer squash de commits.
-- No usar `/speckit.implement` sin argumentos.
-- Si una tarea es insuficiente o contradice la spec: detenerse y reportar, no improvisar.
+- Do not write production code outside `/speckit-implement`.
+- Do not choose technology inside a spec (that goes in the plan).
+- Do not describe algorithms (minimax, alpha-beta pruning, memoization) in the agents spec —
+  the spec describes observable behavior; the technique goes in the plan.
+- Do not patch a behavioral bug by hand.
+- Do not add functionality that no criterion requests.
+- Do not invent SHAs in `traceability.md`.
+- Do not squash commits.
+- Do not use `/speckit-implement` without arguments.
+- If a task is insufficient or contradicts the spec: stop and report, do not improvise.
 
-## Decisiones pendientes del grupo — BLOQUEANTES
+## Pending Group Decisions — BLOCKING
 
-Estas preguntas afectan directamente cómo se escriben las specs de motor y agentes para la modalidad continua. **Mientras una fila siga sin resolver, no se debe avanzar sobre esa parte de la spec** — hay que preguntar y detenerse, nunca decidir por cuenta propia.
+These questions directly affect how the engine and agents specs are written for continuous mode.
+**While a row remains unresolved, do not advance on that part of the spec** — ask and stop,
+never decide on your own.
 
-| # | Pregunta | Decisión | Fecha |
-|---|----------|----------|-------|
-| 1 | En fase de movimiento, ¿a cualquier casilla vacía o solo adyacente? | _pendiente_ | |
-| 2 | ¿Qué pasa si una posición se repite indefinidamente? | _pendiente_ | |
-| 3 | ¿Se puede volver en el turno siguiente a la casilla recién dejada? | _pendiente_ | |
-| 4 | ¿Quién abre la fase de movimiento tras la 6ª colocación? | _pendiente_ | |
-| 5 | ¿Los 3 niveles juegan también en modalidad continua? | _pendiente_ | |
-| 6 | "Memoria persistente": ¿solo la sesión del navegador o entre recargas? | _pendiente_ | |
-| 7 | ¿Cómo se observa la memoria, si minimax ya juega óptimo sin ella? | _pendiente_ | |
-| 8 | ¿Qué significa "óptimo" en continua, donde el árbol no termina ni hay empate? | _pendiente_ | |
+| # | Question | Decision | Date |
+|---|----------|----------|------|
+| 1 | Movement phase: any empty cell or only adjacent? | _pending_ | |
+| 2 | What happens if a position repeats indefinitely? | _pending_ | |
+| 3 | Can a player return the next turn to the cell just vacated? | _pending_ | |
+| 4 | Who opens the movement phase after the 6th placement? | _pending_ | |
+| 5 | Do all 3 levels also play in continuous mode? | _pending_ | |
+| 6 | "Persistent memory": browser session only or across reloads? | _pending_ | |
+| 7 | How is memory observable if minimax already plays optimally without it? | _pending_ | |
+| 8 | What does "optimal" mean in continuous mode, where the tree never ends and there is no draw? | _pending_ | |
 
-## Estado actual
+## Current Status
 
-- [ ] `specify init` ejecutado
-- [ ] `/speckit.constitution` commiteado
-- [ ] Spec 001-motor-de-juego (specify/clarify/plan/tasks/analyze)
-- [ ] Spec 002-agentes (specify/clarify/plan/tasks/analyze)
-- [ ] Spec 003-interfaz (specify/clarify/plan/tasks/analyze)
-- [ ] `traceability.md` con SHA reales al día
-- [ ] README probado en frío (clon limpio, 3 pasos o menos)
+- [x] `specify init` executed
+- [ ] `/speckit-constitution` committed
+- [ ] Spec 001-engine (specify/clarify/plan/tasks/analyze)
+- [ ] Spec 002-agents (specify/clarify/plan/tasks/analyze)
+- [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
+- [ ] `traceability.md` with real SHAs up to date
+- [ ] README cold-tested (fresh clone, 3 steps or fewer)
 
-### Bitácora de sesión
+### Session Log
 
-- 2026-07-26: Repositorio inicializado, CLAUDE.md creado. Pendientes las 8 decisiones bloqueantes del grupo antes de correr `/speckit.constitution`.
+- 2026-07-26: Repository initialized, CLAUDE.md created. 8 blocking decisions pending before
+  running `/speckit-constitution`.
+- 2026-07-26: Constitution v1.0.0 drafted (P1–P9). Language convention added: all artifacts
+  in English; game UI in Spanish (Class 6 demo). spec-template.md adapted to EARS + CA-IDs.
