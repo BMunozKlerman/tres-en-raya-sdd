@@ -382,19 +382,33 @@ never decide on your own.
       Decision D11) bounds every action control to 480px, the same cap `.board` already declares;
       closed by T-109/T-110 via a shared `.action-button` CSS class. Both logged in `docs/bugs.md`;
       `spec.md` grew to 36 `CA-I-nn` criteria (38 total with `CA-N-02`/`CA-N-03`). `tasks.md` grew
-      to 54 tasks — CA-N-03 renumbered `T-111`/`T-112` (not yet run), traceability closure
-      renumbered `T-113`. `npm run verify:traceability` reports only `CA-N-03` as orphaned —
-      expected, its task has not run yet.
-- [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
-      column still `—` for all 38 rows — filled in during `T-113`).
+      to 54 tasks — CA-N-03 renumbered `T-111`/`T-112`, traceability closure renumbered `T-113`.
+      Both since run (commits `d7f278f`/`0f9d583`/`3e4601e`) in a prior session not narrated here
+      in full — `003-interface` was closed at 38/38 `CA-I-nn`+`CA-N-nn` criteria before being
+      reopened again for BUG-015/016/017 below.
+- [x] `traceability.md` with real SHAs up to date for `003-interface` — filled for all 38 rows
+      during `T-113`, then extended with 3 more rows (CA-I-37/CA-I-38/CA-I-39) during `T-122`
+      (see below). 41 rows total for `003-interface`, all with real SHAs.
 - [ ] `manual-verification.md`'s procedure executed at least once (rendered-layout half of
       CA-I-28–CA-I-32 and CA-I-36, computed touch targets for CA-I-31, action-control width for
       CA-I-36, focus-contrast for CA-I-17) and logged in that file's Results Log.
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
+- [x] `003-interface` reopened a second time (BUG-015/016/017, this session) after further manual
+      play-testing following `T-113`'s closure — see Session Log below. `npm test` 131/131 green;
+      `npm run verify:traceability` reports 78/78 CA-IDs fully traced across all three features
+      (20 + 17 + 41).
+- [ ] **BUG-018 candidate, not yet diagnosed or confirmed**: coverage gap found while auditing for
+      the same shared-fixture bias that caused BUG-017 — no test in `tests/interface/` ever
+      asserts `dataset.cellState === 'opponent'` (every assertion checks `'empty'`, `'own'`, or
+      `!== 'empty'`). `render.js`'s `mark === state.config.marks.player1 ? 'own' : 'opponent'`
+      looks correct by inspection and the `'opponent'` value is already part of `dom-contract.md`
+      (fixed under BUG-009), so this is a coverage hole, not a confirmed defect like BUG-017 — to
+      be diagnosed and closed (or dismissed) in a future session.
 
-**Next step**: `/speckit-implement T-111` for `003-interface` (CA-N-03, full game completable via
-keyboard alone — last functional task before closure), then `T-113` (traceability closure) and
-`manual-verification.md`'s procedure before `003-interface` is reported complete.
+**Next step**: diagnose and close (or dismiss) the BUG-018 candidate above; then
+`manual-verification.md`'s procedure (now also covering CA-I-37/38/39's discoverability/focus
+behavior alongside the six previously-deferred criteria) and a cold README test before
+`003-interface` is reported fully complete.
 
 ### Session Log
 
@@ -908,3 +922,48 @@ keyboard alone — last functional task before closure), then `T-113` (traceabil
   orphaned — expected, `T-111`/`T-112` have not run yet. **Next step: `/speckit-implement T-111`,
   then `T-113`, then the `manual-verification.md` run (now covering seven criteria) before
   `003-interface` is reported complete.**
+- 2026-07-27: Further manual play-testing after `003-interface`'s `T-113` closure surfaced three
+  more gaps, diagnosed together before any code changed, per the same spec-first discipline as
+  BUG-008–BUG-014. **BUG-015** (spec gap): every configuration `<select>`'s populated options
+  (`human`/`agent`, `classic`/`continuous`, and the three agent levels) rendered their literal
+  English identifier as visible text — `CLAUDE.md`'s Spanish game-UI convention had only ever
+  been acknowledged as a descriptive `spec.md` Assumptions note, never translated into a testable
+  criterion. New **CA-I-37** requires Spanish option text per an explicit mapping (`human`→
+  "Humano", `agent`→"Agente", `classic`→"Clásica", `continuous`→"Continua", `simple`→"Simple",
+  `medium`→"Medio", `complex`→"Complejo"; `value`s unchanged, marks `X`/`O` not translated);
+  closed by T-114 (RED, `b3e5799`) / T-115 (GREEN, `82725d8`). **BUG-016** (spec gap): keyboard
+  navigation works once a cell already has focus (Tab reaches it, arrows move the selection), but
+  nothing tells a player this is how the board is operated, and nothing places focus on the board
+  automatically after starting a game. Two new criteria, kept separate so each is independently
+  testable: **CA-I-38** (a static visible instruction naming the arrow-key/Enter/Space
+  interaction), closed by T-116 (RED, `9705534`) / T-117 (GREEN, `dc729b5`); and **CA-I-39**
+  (keyboard focus moves to `[data-cell="0"]`, with an identifying `aria-label`, on the
+  `CONFIGURATION → IN_GAME` transition only — not on any later render), closed by T-118 (RED,
+  `1b3e28c`) / T-119 (GREEN, `205d458`). **BUG-017** (implementation defect, no new CA-ID): `CA-I-12`
+  already required the `WAITING_FOR_AGENT` transition "when it becomes the agent's turn," with no
+  condition on a prior human move — but `events.js`'s `maybeHandOffToAgent()` was only ever
+  invoked from the board's `click` listener, never from `[data-start-button]`'s, so choosing mark
+  `O` against an agent (agent = `X`, agent opens) left the board waiting indefinitely. Root cause
+  of the miss: every existing fixture in `us-i2-waiting-state.test.js` hardcoded
+  `marks.player1: 'X'` and always triggered a human `click` first, so the "agent opens" branch of
+  an already-correct criterion was never exercised — `CA-ID` coverage counting cannot detect an
+  unexercised branch of a criterion that has at least one passing test. Closed by T-120 (RED,
+  `2953129`) / T-121 (GREEN, `4f347cc`) — `events.js`'s `[data-start-button]` handler now calls
+  `maybeHandOffToAgent()` (plus the `rerender()` its synchronous `WAITING_FOR_AGENT` `setState`
+  needs) right after the transition. All three logged in `docs/bugs.md`; `spec.md`,
+  `contracts/dom-contract.md`, and `tasks.md`/`traceability.md` updated together in one docs
+  commit (`81de691`) before any RED/GREEN pair, per `CLAUDE.md`'s rule for same-review artifact
+  corrections. `T-122` (commit `ae9023a`) recorded the three new rows' real SHAs in
+  `traceability.md`. `npm test` 131/131 green at close; `npm run verify:traceability` exits 0 for
+  all three features (78/78 CA-IDs: 20 + 17 + 41). As explicitly requested, the fixture-bias audit
+  that closed BUG-017 was extended to the rest of `003-interface`'s test suite before closing this
+  block: it surfaced one more candidate of the same shared-assumption class — no test anywhere in
+  `tests/interface/` asserts `dataset.cellState === 'opponent'` (every assertion checks
+  `'empty'`, `'own'`, or `!== 'empty'`), even though `render.js`'s `mark === config.marks.player1
+  ? 'own' : 'opponent'` branch looks correct by inspection and `'opponent'` is already part of
+  `dom-contract.md` (fixed under BUG-009). Logged as **BUG-018 — coverage gap, not a confirmed
+  defect** (unlike BUG-017, no incorrect behavior has been observed, only an untested branch);
+  left undiagnosed and unclosed per explicit instruction, for a future session. **Next step**:
+  diagnose and close (or dismiss) BUG-018, then run `manual-verification.md`'s procedure (now
+  also covering CA-I-38/CA-I-39's discoverability/focus behavior) and a cold README test before
+  `003-interface` is reported fully complete.
