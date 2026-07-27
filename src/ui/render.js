@@ -143,9 +143,19 @@ function renderStatus(root, state) {
   resultIndicator.textContent = result ? (result === 'draw' ? 'Empate' : `Gana ${result}`) : '';
 }
 
+const SCORE_LABELS = { X: 'X', O: 'O', draw: 'Empates' };
+
 function renderScoreboard(root, state) {
   const scoreboard = root.querySelector('[data-scoreboard]');
   ['X', 'O', 'draw'].forEach((key) => {
+    let labelEl = scoreboard.querySelector(`[data-score-label="${key}"]`);
+    if (!labelEl) {
+      labelEl = document.createElement('span');
+      labelEl.setAttribute('data-score-label', key);
+      labelEl.textContent = SCORE_LABELS[key];
+      scoreboard.appendChild(labelEl);
+    }
+
     let scoreEl = scoreboard.querySelector(`[data-score="${key}"]`);
     if (!scoreEl) {
       scoreEl = document.createElement('span');
