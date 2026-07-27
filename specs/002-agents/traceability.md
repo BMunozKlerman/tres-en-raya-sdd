@@ -65,6 +65,14 @@ evaluated — far under the ~700 ms threshold. `HORIZON_DEPTH` was left at 6; se
 Search Horizon for the full measurement log. CA-N-01's own calibration pass (T-055/T-056) is
 independent and measures the same constant against its own worst-case positions.
 
+## CA-N-01 — confirmation, no production code (T-056)
+
+`tests/agents/performance.test.js` measures all 6 combinations (2 worst-case positions × 3
+levels) with a cold transposition table; all passed on first run, well under the 1000 ms ceiling
+(complex's worst measurement was ~12 ms — see the T-048 calibration log in `plan.md`). No change
+to `HORIZON_DEPTH` was needed; it reconciles with T-048's independent calibration for CA-A-09,
+both landing on the starting value of 6.
+
 ## CA-A-13 — corollary confirmation, no production code (T-054)
 
 CA-A-13's 20-game simulation (`tests/agents/us-a2-simulation.test.js`) passed on first run, with
