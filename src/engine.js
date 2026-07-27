@@ -98,5 +98,14 @@ export function legalMoves(state) {
     );
   }
 
-  return [];
+  const moves = [];
+  for (let from = 0; from < 9; from += 1) {
+    if (state.board[from] !== state.turn) continue;
+    for (let to = 0; to < 9; to += 1) {
+      if (state.board[to] === null) {
+        moves.push({ type: 'move', from, to });
+      }
+    }
+  }
+  return moves;
 }
