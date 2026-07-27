@@ -14,7 +14,7 @@
 ## Requirement Completeness
 
 - [x] No [NEEDS CLARIFICATION] markers remain
-- [ ] Requirements are testable and unambiguous
+- [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
 - [x] All acceptance scenarios are defined
@@ -46,8 +46,11 @@
   in 001-engine (a shared ID can be marked "traced" by one level's commit while the others
   remain unimplemented). Everything after the split point was renumbered accordingly.
 - 2026-07-27 review: CA-A-06 (medium level memory, formerly CA-A-05) was found to make the
-  medium level's memory capability formally unobservable — it asserts the decision never
-  depends on memory, which leaves RF-2's "memory limited to the game in progress" capability
-  without any test that could ever fail. **"Requirements are testable and unambiguous" is
-  unchecked above until this criterion is rewritten** — see Clarifications in `spec.md` for the
-  pending options.
+  medium level's memory capability formally unobservable — it asserted the decision never
+  depends on memory, which left RF-2's "memory limited to the game in progress" capability
+  without any test that could ever fail. Resolved the same day by group decision (option C):
+  CA-A-06 now asserts only that a move returned at the start of a new game does not depend on
+  memory carried over from a previous game — a decision of absence of behavior, following the
+  same pattern as 001-engine's D2, since the medium level's win/block algorithm needs no history
+  to decide. Options A (mirroring D7's decision metrics) and B (a stored tie-break requirement)
+  were discarded for inventing behavior no criterion requests. See Clarifications in `spec.md`.

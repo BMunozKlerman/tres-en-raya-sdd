@@ -40,11 +40,20 @@ not access the user interface."
   Yes — added, for the same reason: the criterion is stated purely in terms of
   `legalMoves`/`applyMove`/`result`, independent of whether the move is a placement or a
   movement.
-
-**Outstanding from this session (not yet integrated)**: CA-A-06 (medium level, memory) is
-flagged pending correction — see its Notes cell below and `traceability` discussion in the
-current review. Its EARS text is unchanged from the original draft until a replacement wording
-is chosen.
+- Q: CA-A-06 (medium level, memory) asserted the decision is independent of memory in every
+  case, leaving RF-2's "memory limited to the game in progress" capability with no observable
+  effect at all — which of the three replacement wordings on the table (A: mirror D7's
+  `nodesEvaluated`/`resolvedFromMemory` metrics; B: require a repeated tie-break choice recorded
+  in memory; C: narrow the claim to non-persistence across games) should be adopted? → A: Option
+  C, chosen by group decision. CA-A-06 now asserts only that a move returned at the start of a
+  new game does not depend on any memory value produced by a previous game. This is recorded as
+  a decision of absence of behavior, the same pattern 001-engine's D2 used for the absence of a
+  repetition rule: the medium level's win-this-turn/block-next-turn algorithm needs no history
+  at all to decide, so RF-2's "memory limited to the game in progress" capability is satisfied by
+  boundedness, not by use. Option A was discarded because it would have added the
+  `nodesEvaluated`/`resolvedFromMemory` instrumentation RF-2 requires only for the complex level;
+  Option B was discarded because it would have invented a tie-break behavior among equally good
+  moves that no criterion requests.
 
 ## User Stories *(mandatory)*
 
@@ -76,7 +85,7 @@ game and reuses memory across games in a session.
 | CA-A-03 | WHEN `chooseMove` is invoked for the medium level on a non-terminal state, in classic or continuous mode, during the placement phase or the movement phase, THE SYSTEM SHALL return a move contained in `legalMoves(state)`. | Base legality guarantee for the medium level (D5). Split from the original combined criterion — see Clarifications and CA-A-01's note. |
 | CA-A-04 | IF a legal move exists for the medium level that would set `result` to the current player's mark, THEN THE SYSTEM SHALL return one such move. | Win-this-turn detection (RF-2). Phase-agnostic: applies identically in classic and continuous mode, placement and movement phase. |
 | CA-A-05 | IF no legal move exists for the medium level that would set `result` to the current player's mark, AND exactly one legal opponent move would set `result` to the opponent's mark on the opponent's next turn, THEN THE SYSTEM SHALL return a move after which no legal opponent move sets `result` to the opponent's mark. | Block-next-turn detection (RF-2), single-threat case. Phase-agnostic. The double-threat case is CA-A-16. |
-| CA-A-06 | WHEN `chooseMove` is invoked for the medium level on the same state with two different memory values, THE SYSTEM SHALL return the same move for both invocations. | ⚠️ **Pending correction** (see current review): this text asserts the decision is independent of memory in every case, which leaves RF-2's "memory limited to the game in progress" capability with no observable effect at all — the same problem D7 solved for the complex level by exposing decision metrics. A replacement wording is being chosen; this text is provisional. |
+| CA-A-06 | WHEN `chooseMove` is invoked for the medium level on the initial state of a new game, once with a memory value carried over from a previous game and once with an empty memory value, THE SYSTEM SHALL return the same move for both invocations. | Non-persistence of memory across games (RF-2, medium level), narrowed by group decision — option C (see Clarifications). Recorded as a decision of absence of behavior, the same pattern as 001-engine's D2: the medium level's win-this-turn/block-next-turn algorithm needs no history at all to decide, so RF-2's "memory limited to the game in progress" capability is satisfied by boundedness, not by use. This replaces the original wording, which claimed memory-independence for every state and left the requirement with no possible test failure. |
 | CA-A-07 | WHEN `chooseMove` is invoked for the complex level on a non-terminal state, in classic or continuous mode, during the placement phase or the movement phase, THE SYSTEM SHALL return a move contained in `legalMoves(state)`. | Base legality guarantee for the complex level (D5). Split from the original combined criterion — see Clarifications and CA-A-01's note. |
 | CA-A-08 | WHEN the complex level plays a complete classic-mode game against any sequence of legal opponent moves, THE SYSTEM SHALL end that game with a result that is never the opponent's mark. | Classic-mode optimality (D8). Classic mode's state space is small enough to verify by exhaustive game-tree traversal, not sampling. |
 | CA-A-09 | WHEN the complex level selects a move in continuous mode, THE SYSTEM SHALL return a move after which no legal opponent move, within the search horizon, sets `result` to the opponent's mark. | Continuous-mode optimality is bounded by a search horizon (D8) because the game tree is unbounded (no draw, no repetition rule — see 001-engine D2). The horizon depth is a plan-level parameter calibrated against CA-N-01. Phase-agnostic: stated purely in terms of `legalMoves`/`applyMove`/`result`, independent of whether the move is a placement or a movement — see Clarifications. |
@@ -154,9 +163,8 @@ governance amendment.
 ### Pending Decisions [NEEDS CLARIFICATION]
 
 None — group decisions D5–D8 above resolve every open question raised for this feature. No
-`[NEEDS CLARIFICATION]` markers remain in this spec. (CA-A-06's wording is flagged pending
-correction in a live review — see Clarifications above — but is not an unresolved ambiguity in
-the requirement itself: the defect and its fix options are already identified.)
+`[NEEDS CLARIFICATION]` markers remain in this spec. CA-A-06's wording, previously flagged
+pending correction, was resolved by group decision (option C) — see Clarifications above.
 
 ## Requirements *(mandatory)*
 
@@ -169,7 +177,7 @@ the requirement itself: the defect and its fix options are already identified.)
 | CA-A-03 | US-A-1 | WHEN `chooseMove` is invoked for the medium level on a non-terminal state, in classic or continuous mode, during the placement phase or the movement phase, THE SYSTEM SHALL return a move contained in `legalMoves(state)`. | ✅ ready |
 | CA-A-04 | US-A-1 | IF a legal move exists for the medium level that would set `result` to the current player's mark, THEN THE SYSTEM SHALL return one such move. | ✅ ready |
 | CA-A-05 | US-A-1 | IF no legal move exists for the medium level that would set `result` to the current player's mark, AND exactly one legal opponent move would set `result` to the opponent's mark on the opponent's next turn, THEN THE SYSTEM SHALL return a move after which no legal opponent move sets `result` to the opponent's mark. | ✅ ready |
-| CA-A-06 | US-A-1 | WHEN `chooseMove` is invoked for the medium level on the same state with two different memory values, THE SYSTEM SHALL return the same move for both invocations. | ⚠️ pending correction |
+| CA-A-06 | US-A-1 | WHEN `chooseMove` is invoked for the medium level on the initial state of a new game, once with a memory value carried over from a previous game and once with an empty memory value, THE SYSTEM SHALL return the same move for both invocations. | ✅ ready |
 | CA-A-07 | US-A-1 | WHEN `chooseMove` is invoked for the complex level on a non-terminal state, in classic or continuous mode, during the placement phase or the movement phase, THE SYSTEM SHALL return a move contained in `legalMoves(state)`. | ✅ ready |
 | CA-A-08 | US-A-1 | WHEN the complex level plays a complete classic-mode game against any sequence of legal opponent moves, THE SYSTEM SHALL end that game with a result that is never the opponent's mark. | ✅ ready |
 | CA-A-09 | US-A-1 | WHEN the complex level selects a move in continuous mode, THE SYSTEM SHALL return a move after which no legal opponent move, within the search horizon, sets `result` to the opponent's mark. | ✅ ready |
@@ -191,9 +199,9 @@ the requirement itself: the defect and its fix options are already identified.)
   `nodesEvaluated` (a count), and `resolvedFromMemory` (a boolean). The last two fields exist
   solely to make memory reuse observable (D7); their exact production is a plan-level concern.
 - **Memory**: an opaque, level-scoped value threaded between `chooseMove` calls by the caller.
-  Unused by the simple level (CA-A-02); scoped to the current game for the medium level
-  (CA-A-06, pending correction — see Clarifications); persists across games within a session
-  for the complex level (D6, CA-A-10).
+  Unused by the simple level (CA-A-02); does not persist across games for the medium level
+  (CA-A-06) — a decision of absence of behavior, since the level's algorithm needs no history to
+  decide; persists across games within a session for the complex level (D6, CA-A-10).
 - **Session**: the lifetime of the running page. Memory for the complex level persists for the
   duration of a session and is discarded on reload (D6).
 - **Search Horizon**: a bounded depth limit applied to the complex level's move search in
