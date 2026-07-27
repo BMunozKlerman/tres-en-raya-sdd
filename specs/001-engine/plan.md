@@ -201,7 +201,13 @@ This script is **Task T-001** — the first thing built in the project.
 3. TEST_IDS  ← scan tests/engine/**/*.test.js for /CA-M-\d+/ in describe/it strings
                FAIL immediately if tests/engine/ does not exist
 
-4. COMMIT_IDS← git log --pretty=format:"%s" | extract /CA-M-\d+/
+4. COMMIT_IDS← git log --pretty=format:"%s"
+               | keep only subjects matching /^T-\d+:/ or /^test\(.+\):/
+               | extract /CA-M-\d+/ from the kept subjects
+               (subjects that do not match either prefix — e.g. "docs: ...",
+               "chore: ..." — are excluded before extraction, even if they
+               happen to mention a CA-ID in passing; only commits that follow
+               the task/RED naming convention count as implementation evidence)
 
 5. For each id in SPEC_IDS:
      orphaned_in = []
@@ -214,6 +220,17 @@ This script is **Task T-001** — the first thing built in the project.
 6. if exit_code = 0 → print "OK: all {n} CA-IDs fully traced"
    else              → exit(1)
 ```
+
+**Rationale for the commit-subject filter (2026-07-26, tooling correction)**: the first
+implementation run of the verifier (T-003–T-010) showed that unfiltered substring matching
+over `git log` accepts any commit whose subject happens to mention a `CA-ID` — including
+`docs:` commits that only discuss or correct the spec, not implement it. That is not evidence
+of coverage; it is a false positive that would let an unimplemented criterion look traced.
+Restricting `COMMIT_IDS` to subjects matching the task convention (`T-NNN: ...` or
+`test(CA-X-NN): ...`, per `CLAUDE.md` § Naming Conventions) keeps the verifier honest about
+what it is actually checking: that an implementation or RED-test commit exists, not merely
+that the ID was typed somewhere in history. This is itself a spec-first correction under P3/P7
+— the algorithm changed here, in the plan, before the script was touched.
 
 ### Failure messages (exact format)
 
