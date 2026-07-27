@@ -64,3 +64,52 @@ describe('CA-I-29 — single column below 768px, min-width breakpoint', () => {
     );
   });
 });
+
+describe('CA-I-30 — board container is square (aspect-ratio 1/1)', () => {
+  it('declares aspect-ratio 1 / 1 and a relative width/max-width', () => {
+    const rule = ruleFor('.board', css);
+    expect(rule).not.toBeNull();
+    expect(/aspect-ratio\s*:\s*1\s*\/\s*1/.test(rule)).toBe(true);
+    const hasRelativeWidth = /(?:^|\s)(width|max-width)\s*:\s*(min\(|max\(|clamp\(|\d+(\.\d+)?(%|vw))/.test(
+      rule,
+    );
+    expect(hasRelativeWidth).toBe(true);
+    const fixedPxWidths = [...rule.matchAll(/(?<!max-|min-)width\s*:\s*(\d+)px/g)];
+    expect(fixedPxWidths.length).toBe(0);
+  });
+});
+
+describe('CA-I-31 — interactive controls declare 44x44px minimum', () => {
+  it('every interactive-control selector declares min-width/min-height of at least 44px', () => {
+    ['button', '.cell', 'select'].forEach((selector) => {
+      const rule = ruleFor(selector, css);
+      expect(rule, `expected a rule for ${selector}`).not.toBeNull();
+      const minWidthMatch = rule.match(/min-width\s*:\s*(\d+)px/);
+      const minHeightMatch = rule.match(/min-height\s*:\s*(\d+)px/);
+      expect(minWidthMatch, `${selector} has no min-width`).not.toBeNull();
+      expect(minHeightMatch, `${selector} has no min-height`).not.toBeNull();
+      expect(Number(minWidthMatch[1])).toBeGreaterThanOrEqual(44);
+      expect(Number(minHeightMatch[1])).toBeGreaterThanOrEqual(44);
+    });
+  });
+});
+
+describe('CA-I-32 — configuration controls not clipped or overflow-hidden', () => {
+  it('the configuration container has no overflow:hidden paired with a narrow fixed width', () => {
+    const rule = ruleFor('.config-panel', css);
+    expect(rule).not.toBeNull();
+    const hasOverflowHidden = /overflow\s*:\s*hidden/.test(rule);
+    const hasNarrowFixedWidth = /(?<!max-|min-)width\s*:\s*(\d+)px/.test(rule) &&
+      Number(rule.match(/(?<!max-|min-)width\s*:\s*(\d+)px/)[1]) < 320;
+    expect(hasOverflowHidden && hasNarrowFixedWidth).toBe(false);
+  });
+
+  it('no interactive control forces white-space: nowrap', () => {
+    ['button', '.cell', 'select', '.config-panel'].forEach((selector) => {
+      const rule = ruleFor(selector, css);
+      if (rule) {
+        expect(/white-space\s*:\s*nowrap/.test(rule)).toBe(false);
+      }
+    });
+  });
+});
