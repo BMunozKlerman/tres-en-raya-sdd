@@ -10,6 +10,13 @@ export function createGame(mode = 'classic') {
 }
 
 export function applyMove(state, move) {
+  if (state.result !== null) {
+    return { error: true, reason: 'game_over' };
+  }
+  if (move.player !== state.turn) {
+    return { error: true, reason: 'wrong_turn' };
+  }
+
   const newBoard = [...state.board];
   newBoard[move.cell] = move.player;
   const newPiecesPlaced = state.piecesPlaced + 1;
