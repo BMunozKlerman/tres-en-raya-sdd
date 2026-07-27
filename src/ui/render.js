@@ -206,7 +206,7 @@ function buildStructure(root) {
     </div>
     <div class="scoreboard" data-scoreboard></div>
     <button data-restart-button type="button">restart</button>
-    <p data-live-region role="status" aria-live="polite"></p>
+    <p class="sr-only" data-live-region role="status" aria-live="polite"></p>
   `;
 }
 
