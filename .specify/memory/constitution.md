@@ -37,6 +37,35 @@ Follow-up TODOs:
   - TODO(INTERFACE_MAPPING): specs/003-interface/spec.md must include a table mapping the
     5 mandatory interface criteria (in Spanish, from the assignment) to their English CA-I-nn
     IDs, quoting the original Spanish text for auditability.
+
+--------------------------------------------------------------------------------
+Version change: 1.0.0 → 2.0.0
+Bump rationale: MAJOR — P2's `chooseMove` contract redefined (return shape widened, determinism
+scope narrowed) to match `specs/002-agents`'s group decision D7 and the `simple` level's
+non-deterministic technique (D-R-01); a backward-incompatible change to an existing principle's
+normative contract, not a clarification.
+Date: 2026-07-27
+
+Principle modified:
+  P2 · Pure Layered Architecture — `chooseMove` contract only; layering rules and the
+  immutable-state requirement are unchanged.
+
+Motivated by: specs/002-agents/spec.md (D7), specs/002-agents/plan.md, specs/002-agents/
+contracts/agents-api.md, specs/002-agents/research.md (D-R-01). Flagged by /speckit-analyze on
+002-agents (2026-07-27) as a CRITICAL finding: the constitution still asserted the original
+3-field, always-deterministic `chooseMove` contract while `plan.md` and `contracts/agents-api.md`
+had already implemented the wider, partially non-deterministic one, with the exception left
+undocumented anywhere the Governance procedure requires.
+
+Templates reviewed:
+  ✅ .specify/templates/plan-template.md — no change needed (Constitution Check gates are filled
+     at execution time, not hardcoded to a specific chooseMove shape).
+  ✅ .specify/templates/spec-template.md — no change needed.
+  ✅ .specify/templates/tasks-template.md — no change needed.
+
+Follow-up TODOs: none — CLAUDE.md's Contracts section already carries this shape (commit
+`ab6d6b9`, 2026-07-27), ahead of this constitutional amendment.
+--------------------------------------------------------------------------------
 -->
 
 # Tic-Tac-Toe SDD — Project Constitution
@@ -78,7 +107,13 @@ MUST return `{error, reason}` and leave the original state intact (no mutation).
 **Public engine contracts**:
 - `legalMoves(state) → Move[]`
 - `applyMove(state, move) → state' | {error, reason}`
-- `chooseMove(state, level, memory) → {move, memory'}` — MUST be deterministic.
+- `chooseMove(state, level, memory, options?) → {move, memory, nodesEvaluated,
+  resolvedFromMemory}` — MUST be deterministic for the `medium` and `complex` levels. The
+  `simple` level is non-deterministic by design (uniform random pick over `legalMoves(state)`;
+  see `specs/002-agents/spec.md` CA-A-02 and `research.md` D-R-01) and accepts an optional 4th
+  `options.random` parameter as a test-determinism seam, defaulting to `Math.random`.
+  `nodesEvaluated` and `resolvedFromMemory` exist to make agent memory reuse observable
+  (`specs/002-agents/spec.md` D7 — see Amendment History below).
 
 **Rationale**: The separation ensures the engine and agents are testable in Vitest without a
 browser, and that the UI can be replaced without affecting game logic.
@@ -295,4 +330,20 @@ Any exception to a principle MUST:
 - At the final presentation: every team member MUST be able to cite the CA-ID of any
   criterion asked and point to its test and commit.
 
-**Version**: 1.0.0 | **Ratified**: 2026-07-26 | **Last Amended**: 2026-07-26
+### Amendment History
+
+- **2.0.0 (2026-07-27)** — P2's `chooseMove` contract redefined: return shape widened to
+  `{move, memory, nodesEvaluated, resolvedFromMemory}` with an optional 4th `options` parameter,
+  and the blanket "MUST be deterministic" narrowed to the `medium` and `complex` levels only.
+  Motivated by `specs/002-agents/spec.md`'s group decision D7 (memory reuse must be observable
+  via `nodesEvaluated`/`resolvedFromMemory`, since minimax already plays optimally with or
+  without a cache) and the `simple` level's technique (uniform random pick, D-R-01 in
+  `research.md`), which is deliberately non-deterministic and could not satisfy the original
+  blanket MUST. Flagged as a CRITICAL constitution conflict by `/speckit-analyze` run against
+  `002-agents` on 2026-07-27 — `plan.md` and `contracts/agents-api.md` had already implemented
+  the new shape without an amendment to this document, and without recording an exception in
+  `plan.md`'s Complexity Tracking section either. Resolved by this amendment, per the Amendment
+  Procedure above, rather than by diluting or reinterpreting P2. MAJOR bump: backward-incompatible
+  redefinition of an existing principle's contract.
+
+**Version**: 2.0.0 | **Ratified**: 2026-07-26 | **Last Amended**: 2026-07-27
