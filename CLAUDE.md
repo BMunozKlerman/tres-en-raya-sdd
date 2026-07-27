@@ -215,28 +215,37 @@ never decide on your own.
       feature). `src/agents.js` now implements all three levels (simple: uniform random;
       medium: win-then-block rule; complex: minimax + alpha-beta, `HORIZON_DEPTH=6`, transposition
       table). **002-agents is closed.**
-- [x] Spec 003-interface — `/speckit-specify` **and** `/speckit-clarify` both done
-      (2026-07-27). `spec.md` now holds 4 user stories (US-I-1..4) and **32 `CA-I-nn`
-      criteria** (the 5 mandatory assignment criteria, verbatim from §2.5, mapped to their
-      Spanish original in a dedicated table; configuration; scoreboard; restart; full keyboard
-      operation; color-independent information; agent memory-reuse observability; responsive
-      design 320–1440px; minimum waiting-state duration; draw indicator; explicit
-      `WAITING_FOR_AGENT` transition criteria) plus `CA-N-02`/`CA-N-03` cited from the
-      constitution. Checklist passed, 0 `NEEDS CLARIFICATION` markers. `/speckit-clarify` was
-      audit-only (D9/D10 not reopened) and grew the spec from 28 to 32 criteria — see Session
-      Log for the full Q&A. **Blocked on `001-engine`**: CA-I-04 cites `state.winningLine`,
-      which does not exist in `src/engine.js` yet (BUG-007). `/speckit-plan` for 003-interface
-      should not start until that field lands.
-- [ ] **`001-engine` reopened, not fully closed** — `CA-M-12` amended (`spec.md`,
-      `data-model.md`, `contracts/engine-api.md`) to also return `winningLine`; **T-058 (RED)
-      and T-059 (GREEN) are written in `tasks.md` but not yet run** — `src/engine.js` is
-      unchanged. **BUG-007 (`docs/bugs.md`) is Open** until those two tasks close it.
-- [ ] `traceability.md` with real SHAs up to date
-- [ ] README cold-tested (fresh clone, 3 steps or fewer)
+- [x] `001-engine` reopening closed — T-058 (RED, commit `71d9e29`) and T-059 (GREEN, commit
+      `cef0a5b`) implemented, one commit per task, RED before GREEN. `src/engine.js` now sets
+      `winningLine` in both the placement and movement paths of `applyMove`, and `createGame`
+      includes `winningLine: null`. `npm test` 64/64 green; `npm run verify:traceability` exits 0
+      (37/37 CA-IDs across both features). BUG-007 closed (`docs/bugs.md`); CA-M-12's
+      `⚠️ amended, pending T-058/T-059` marker cleared to `✅ ready` in `spec.md`; real SHAs
+      recorded in `specs/001-engine/traceability.md`. **`001-engine` is closed again.**
+- [x] Spec 003-interface — `/speckit-specify`, `/speckit-clarify`, **and `/speckit-plan`** all
+      done. `spec.md` holds 4 user stories (US-I-1..4) and **32 `CA-I-nn` criteria** (the 5
+      mandatory assignment criteria, verbatim from §2.5, mapped to their Spanish original in a
+      dedicated table; configuration; scoreboard; restart; full keyboard operation;
+      color-independent information; agent memory-reuse observability; responsive design
+      320–1440px; minimum waiting-state duration; draw indicator; explicit `WAITING_FOR_AGENT`
+      transition criteria) plus `CA-N-02`/`CA-N-03` cited from the constitution. Checklist
+      passed, 0 `NEEDS CLARIFICATION` markers. `/speckit-clarify` was audit-only (D9/D10 not
+      reopened) and grew the spec from 28 to 32 criteria. `/speckit-plan` (2026-07-27) generated
+      `plan.md`, `research.md` (D-I-01..D-I-08), `data-model.md`, `contracts/app-state-api.md`,
+      `contracts/dom-contract.md`, `quickstart.md`, `manual-verification.md`, and the
+      `traceability.md` skeleton (34 CA-IDs, no SHAs invented) — see Session Log for the full
+      set of decisions (UI module split, jsdom test strategy, mobile-first CSS, manual
+      verification procedure for the 6 layout-dependent criteria). **One documented exception
+      to constitution P1** recorded in `plan.md`'s Complexity Tracking: `jsdom` added as a
+      devDependency (required by Vitest's `jsdom` test environment, not by Vite/Vitest's core
+      itself), justified there per P1's explicit-approval clause and Governance's Exceptions
+      procedure — not one of the four absolute non-negotiables, so a documented exception is
+      permitted. **003-interface spec and plan are both complete.**
+- [ ] `specs/003-interface/tasks.md` — not yet generated.
+- [ ] `traceability.md` with real SHAs up to date for `003-interface` (skeleton only so far).
+- [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-implement T-058` (then T-059) to close BUG-007 and land
-`state.winningLine` in `src/engine.js`; only after that, resume 003-interface with
-`/speckit-plan`.
+**Next step**: `/speckit-tasks` for `003-interface`.
 
 ### Session Log
 
@@ -456,3 +465,37 @@ never decide on your own.
   `/speckit-implement T-058` (to close BUG-007) at some point before `003-interface` is
   implemented, since its UI work depends on the field existing; then continue `003-interface`
   with `/speckit-plan`.
+- 2026-07-27: T-058 (RED, commit `71d9e29`) and T-059 (GREEN, commit `cef0a5b`) implemented, one
+  commit per task, RED before GREEN. `src/engine.js` now sets `winningLine` (the matching line's
+  three cell indices, or `null`) in both the placement and movement paths of `applyMove`, and
+  `createGame` includes `winningLine: null`. `npm test` 64/64 green; `npm run
+  verify:traceability` exits 0 (`001-engine: OK: all 20 CA-IDs`, `002-agents: OK: all 17
+  CA-IDs`, 37/37 combined). Follow-up docs commit closed BUG-007 in `docs/bugs.md`, recorded
+  both real SHAs in `specs/001-engine/traceability.md`'s CA-M-12 (amended) row, cleared the
+  `⚠️ amended, pending T-058/T-059` marker to `✅ ready` in `spec.md`'s Functional Requirements
+  table, and checked off T-058/T-059 in `tasks.md` — all four edits grouped in one commit per
+  `CLAUDE.md`'s rule for process-artifact corrections outside the task cycle. **`001-engine` is
+  closed again; `003-interface`'s CA-I-04 dependency is unblocked.**
+- 2026-07-27: `/speckit-plan` run for `003-interface`. Generated `plan.md`, `research.md`
+  (decisions D-I-01 through D-I-08), `data-model.md`, `contracts/app-state-api.md`,
+  `contracts/dom-contract.md`, `quickstart.md`, `manual-verification.md`, and the
+  `traceability.md` skeleton (34 rows: 32 `CA-I-nn` + `CA-N-02`/`CA-N-03`, no SHAs invented).
+  Key decisions: the UI layer is split into `src/ui/{app-state,render,events}.js` (bootstrapped
+  by `src/ui.js`) for Single Responsibility, consuming only the published engine/agents
+  contracts for Dependency Inversion — Liskov Substitution and Interface Segregation recorded as
+  not applicable, since no class hierarchy exists in this codebase; mobile-first CSS with one
+  `min-width: 768px` breakpoint (D10) and a square board via `aspect-ratio`; a single
+  `vitest.config.js` with UI test files opting into a `jsdom` environment via a per-file
+  `// @vitest-environment jsdom` pragma, keeping `001-engine`/`002-agents` on the `node`
+  environment; and, per explicit group instruction, no Playwright/browser-mode dependency for
+  the 6 criteria jsdom cannot fully verify (CA-I-17 partially, CA-I-28–CA-I-32) — instead a
+  structural/behavioral automated proxy plus an authoritative manual verification procedure
+  (`manual-verification.md`), with limitations disclosed the same way `001-engine`'s CA-M-17
+  note discloses its own test-strategy gap. **`jsdom` as a devDependency is recorded as a
+  documented exception to constitution P1** in `plan.md`'s Complexity Tracking section (P1 is
+  not one of the four absolute non-negotiables, so a documented exception is permitted there,
+  per P1's explicit-approval clause and Governance § Exceptions) — corrected into that section
+  in a same-day follow-up commit after first being justified only in `research.md`, per explicit
+  review request. Also corrected two stale `spec.md` status markers left over from before
+  BUG-007 closed (CA-I-04's row, the Assumptions note). **003-interface spec and plan are both
+  complete. Next step: `/speckit-tasks` for `003-interface`.**
