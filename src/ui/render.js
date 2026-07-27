@@ -1,4 +1,5 @@
 import { isConfigComplete } from './app-state.js';
+import { legalMoves } from '../engine.js';
 
 function renderConfigControls(root, state) {
   const locked = state.uiState !== 'CONFIGURATION';
@@ -44,6 +45,13 @@ function renderBoard(root, state) {
   const board = root.querySelector('[data-board]');
   const marks = state.engineState ? state.engineState.board : Array(9).fill(null);
   const winningLine = state.engineState ? state.engineState.winningLine : null;
+  const inMovementPhase = state.engineState && state.engineState.phase === 'movement';
+  const moves = inMovementPhase ? legalMoves(state.engineState) : [];
+  const destinations = state.movementSelection !== null
+    ? moves.filter((move) => move.from === state.movementSelection).map((move) => move.to)
+    : [];
+  const movableFrom = new Set(moves.map((move) => move.from));
+
   for (let i = 0; i < 9; i += 1) {
     const cell = board.querySelector(`[data-cell="${i}"]`);
     cell.disabled = state.uiState !== 'IN_GAME';
@@ -56,6 +64,24 @@ function renderBoard(root, state) {
     } else {
       delete cell.dataset.winning;
       cell.textContent = '';
+    }
+
+    if (inMovementPhase && movableFrom.has(i)) {
+      cell.dataset.movable = 'true';
+    } else {
+      delete cell.dataset.movable;
+    }
+
+    if (i === state.movementSelection) {
+      cell.dataset.selected = 'true';
+    } else {
+      delete cell.dataset.selected;
+    }
+
+    if (destinations.includes(i)) {
+      cell.dataset.destination = 'true';
+    } else {
+      delete cell.dataset.destination;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { startGame, applyPlayerMove } from './app-state.js';
+import { startGame, applyPlayerMove, selectOwnMark } from './app-state.js';
 import { render } from './render.js';
 
 export function attachEvents(root, getState, setState) {
@@ -60,6 +60,15 @@ export function attachEvents(root, getState, setState) {
     const state = getState();
     if (state.uiState !== 'IN_GAME') return;
     const index = Number(cell.dataset.cell);
+
+    if (state.engineState.phase === 'movement') {
+      if (state.engineState.board[index] === state.engineState.turn) {
+        setState(selectOwnMark(state, index));
+      }
+      rerender();
+      return;
+    }
+
     setState(
       applyPlayerMove(state, { type: 'place', player: state.engineState.turn, cell: index })
     );

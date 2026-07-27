@@ -55,4 +55,14 @@ export function applyPlayerMove(state, move) {
   };
 }
 
+export function selectOwnMark(state, cell) {
+  if (state.uiState !== 'IN_GAME' || state.engineState.phase !== 'movement') return state;
+  if (state.engineState.board[cell] !== state.engineState.turn) return state;
+
+  return {
+    ...state,
+    movementSelection: cell === state.movementSelection ? null : cell,
+  };
+}
+
 export { isConfigComplete };
