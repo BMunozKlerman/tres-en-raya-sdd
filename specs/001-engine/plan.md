@@ -245,6 +245,31 @@ Exit code 1 if any orphan is found; exit code 0 otherwise.
 The script uses only Node.js built-ins: `node:fs`, `node:path`, `node:child_process`.
 No npm dependencies.
 
+**Generalized to scan every feature (2026-07-27, tooling correction, BUG-006)**: this design was
+written when `001-engine` was the only feature, so steps 1–4 above hardcode `specs/001-engine/`,
+`tests/engine/`, and the literal `CA-M-\d+` pattern. `specs/002-agents/plan.md`'s Constitution
+Check claimed, without re-reading the script, that this same hardcoded script "already scans any
+`CA-\d+` pattern across specs/tasks/tests/git log; no change needed for the `CA-A-nn` prefix" —
+that claim was false on both counts (the regex was `CA-M-\d+` literally, and the paths pointed
+only at `001-engine`), and nothing caught it until `002-agents`'s T-057 (traceability closure)
+actually depended on the script covering `CA-A-*` IDs. See `docs/bugs.md` BUG-006.
+
+`scripts/verify-traceability.mjs` now iterates every `specs/<NNN-name>/` directory that has both
+a `spec.md` and a `tasks.md` (a feature with only `spec.md` hasn't reached `/speckit-implement`
+yet and is skipped, not treated as an error), derives each feature's tests directory from its
+name (`NNN-name` → `tests/<name>`, matching this project's existing `tests/engine`/`tests/agents`
+convention), and uses the generic pattern `CA-[A-Z]+-\d+` throughout. It reports one block per
+feature (`<featureDir>:` header, then that feature's own orphans or its own `OK` line) so an
+orphan is immediately attributable to the feature that owns it, followed by a final combined
+total. `SPEC_IDS` and `TASKS_IDS` extraction was also tightened to only count a `CA-ID` that
+opens a markdown table row (`| CA-X-NN | ...`) — `spec.md` and `tasks.md` both contain prose that
+mentions a sibling or cross-feature `CA-ID` in passing (e.g. `002-agents/spec.md` citing
+`CA-M-12` as a parametrization example), and the original unfiltered substring match would count
+those as if that file were defining the criterion, producing false orphans the moment the
+generalized scan started reading text it had never read before. `TEST_IDS` and `COMMIT_IDS`
+extraction is unchanged (`describe`/`it` strings and commit subjects don't carry this kind of
+prose cross-reference in practice).
+
 ## Project Structure
 
 ### Documentation (this feature)

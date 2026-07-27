@@ -23,6 +23,64 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-006: `plan.md` claimed the traceability verifier already covered `002-agents`; it never did
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Detection**: While closing T-057 (traceability closure for `002-agents`), reading
+`scripts/verify-traceability.mjs` before relying on its `OK: all 20 CA-IDs fully traced` output
+showed the script was hardcoded end to end to `001-engine`: `SPEC_PATH`, `TASKS_PATH`, and
+`TESTS_DIR` all pointed literally at `specs/001-engine/...` and `tests/engine/`, and its
+`CA_ID_RE` was `/CA-M-\d+/g` — a pattern that cannot match `CA-A-*` IDs even if the paths had been
+right. Every `npm run verify:traceability` run during this implementation session (T-034–T-056)
+had therefore only ever re-checked `001-engine`'s already-closed 20 criteria; it never once
+inspected `specs/002-agents/`, `tests/agents/`, or any `CA-A-*`/`CA-N-01` ID.
+
+**Diagnosis**: Not a spec-first bug — `spec.md`'s CA-A-* criteria were all correctly written.
+The defect was `specs/002-agents/plan.md`'s Constitution Check table (P6 row), which asserted:
+"`scripts/verify-traceability.mjs` (built in `001-engine`) already scans any `CA-\d+` pattern
+across specs/tasks/tests/git log; no change needed for the `CA-A-nn` prefix — ✅ Pass." That
+sentence was written and marked "Pass" without re-reading the script it described, and it is
+false in two independent ways at once (wrong regex, wrong paths). `/speckit-analyze` on
+`002-agents` (2026-07-27, see BUG-003) did not catch this, and structurally could not have: it
+cross-checks spec/plan/tasks/traceability/contracts/constitution *against each other* for
+internal consistency — it has no step that executes or reads `scripts/verify-traceability.mjs`
+itself to verify a claim made *about* the tool's behavior. The gap survived an entire planning
+cycle and 23 implementation tasks because nothing in the process actually depended on the
+script covering `002-agents` until T-057, the one task whose entire job is to run it.
+
+**Fix**: `scripts/verify-traceability.mjs` generalized to iterate every `specs/<NNN-name>/`
+directory containing both a `spec.md` and a `tasks.md` (skipping a feature that hasn't reached
+`/speckit-implement` yet, rather than erroring), deriving each feature's tests directory from its
+name (`NNN-name` → `tests/<name>`) and using the generic `CA-[A-Z]+-\d+` pattern. Reports per
+feature (one block per `<featureDir>:`, so an orphan is immediately attributable), plus a final
+combined total. Extraction of `SPEC_IDS`/`TASKS_IDS` was additionally tightened to only count a
+`CA-ID` that opens a markdown table row (`| CA-X-NN | ...`): both spec files contain prose that
+cites a sibling or cross-feature `CA-ID` in passing (`002-agents/spec.md` cites `CA-M-12` as a
+parametrization example; `001-engine/spec.md` cites `CA-N-01` to explain why it isn't covered
+there), and the original unfiltered substring match would have counted those mentions as if the
+file were defining the criterion — a new class of false orphan that only appears once the script
+reads text it was never pointed at before. `specs/001-engine/plan.md` § Traceability Verifier
+Design amended with a note explaining the original design was `001-engine`-specific and recording
+the generalization; `specs/002-agents/plan.md`'s P6 row corrected to stop asserting the false
+claim and point at this entry instead.
+
+**Result**: `npm run verify:traceability` now reports per feature — `001-engine: OK: all 20
+CA-IDs fully traced` and `002-agents: OK: all 17 CA-IDs fully traced`, `OK: all 37 CA-IDs fully
+traced across 2 feature(s)` overall. `npm test` unaffected throughout (63/63 green both before
+and after this fix — this was a tooling-only change, no production or test code touched).
+
+**Lesson**: same underlying pattern as BUG-003 and BUG-004, one level further out — a derived
+artifact (`plan.md`) made a factual claim about a *shared tool's* behavior instead of about
+spec/plan/tasks consistency, and no process step exists whose job is to verify claims of that
+shape. `/speckit-analyze` checks artifacts against each other; it does not execute tooling to
+confirm a plan's description of that tooling is accurate. Any future plan that asserts "no change
+needed" about a piece of existing tooling should be treated as a claim requiring verification —
+by reading or running the tool — before being marked "✅ Pass", not assumed true because a
+previous feature already built the tool.
+
+---
+
 ## BUG-005: T-046's CA-A-09 fixture was an unwinnable fork, not a fair test position
 
 **Found**: 2026-07-27 | **Status**: Fixed

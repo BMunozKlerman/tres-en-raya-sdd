@@ -54,7 +54,7 @@ All stack decisions below are fixed by constitution P1 and P2 (see `CLAUDE.md`).
 | P3 · Spec as Source of Truth | Plan derived from `spec.md`'s 17 criteria; the `options.random` seam and `Decision`/`Memory` shapes add no behavior beyond what CA-A-01–16 and CA-N-01 require or D7 mandates | ✅ Pass |
 | P4 · EARS Requirements | Criteria live in `spec.md`, not here | ✅ Pass |
 | P5 · Verification Gate | Task sequence (RED test → implementation) enforced in `tasks.md`, same discipline as `001-engine` | ✅ Pass |
-| P6 · Traceability | `scripts/verify-traceability.mjs` (built in `001-engine`) already scans any `CA-\d+` pattern across specs/tasks/tests/git log; no change needed for the `CA-A-nn` prefix | ✅ Pass |
+| P6 · Traceability | `scripts/verify-traceability.mjs` (built in `001-engine`) generalized (2026-07-27, T-057, BUG-006) to scan every `specs/<feature>/` directory with the generic pattern `CA-[A-Z]+-\d+` — the claim this row originally made ("already scans any `CA-\d+` pattern... no change needed") was false: the script was hardcoded to `001-engine`'s paths and to the literal `CA-M-\d+` pattern, and nothing verified that claim until `002-agents`'s own traceability closure task actually depended on it. See `specs/001-engine/plan.md` § Traceability Verifier Design and `docs/bugs.md` BUG-006. | ✅ Pass (corrected) |
 | P7 · Spec-First Debugging | N/A at plan stage; documented in process rules | ✅ Pass |
 | P8 · Human Review | N/A at plan stage | ✅ Pass |
 | P9 · Non-Functional | CA-N-01 belongs to `002-agents` (this feature); CA-N-02/03 (if any) remain with `003-interface` | ✅ Pass |
