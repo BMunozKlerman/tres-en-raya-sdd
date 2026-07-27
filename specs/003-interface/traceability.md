@@ -106,6 +106,35 @@ convention as `specs/002-agents/traceability.md`'s CA-A-14 note and this spec's 
 documented-exception pattern below: the RED/GREEN pair still exists so CA-I-08 has its own commit
 citing its ID (P6), not because the behavior was ever missing.
 
+## CA-I-09 — real cross-game memory-reuse integration, no production code (T-082)
+
+T-081's test drives two consecutive "games" through the real `events.js` pipeline
+(`requestAgentMove` → `chooseMove` → `resolveAgentMove`, `render.js`'s `[data-memory-indicator]`)
+using the actual `src/ui/events.js`/`src/ui/render.js` modules — nothing in the test is a
+hand-built `Decision`. It passed on first run at T-081 (zero-code corollary, same pattern as
+CA-I-08/CA-I-11/CA-I-15 above), since T-078 (`resolveAgentMove` calling the real `chooseMove`)
+and T-080 (the indicator reading `lastDecision.resolvedFromMemory`) already implement everything
+the integration needs.
+
+**One deviation from `tasks.md`'s literal T-081 description, documented here per the process
+rule for corrections found during implementation**: the task text says to reach the second game
+by clicking `[data-restart-button]`. That control — and the `restart(state)` function itself —
+do not exist yet; `tasks.md`'s own Phase gate table places `restart` in Phase 4 (T-083/T-084),
+strictly *after* this CA-I-09 pair, so a literal restart click was not executable at this point
+in the sequence. Rather than fabricate a `Decision` (which the analysis that created T-081/T-082
+explicitly ruled out) or implement `restart` early out of task order (which would give CA-I-16/
+CA-I-23 a GREEN commit with no preceding RED, violating P5), the test seeds the second game's
+initial `AppState` directly with the first game's real `agentMemory`/`scoreboard` — precisely the
+transformation `contracts/app-state-api.md` documents `restart` will perform
+(`{...createAppState(), agentMemory, scoreboard}`) — then drives that second game through the
+same real `events.js`/`render.js` pipeline as the first. This proves the actual claim T-081/T-082
+exist to test (does a real second game, given the first game's real memory, produce a genuine
+`resolvedFromMemory: true` through `chooseMove`?) without depending on a control that has no RED
+test of its own yet. `restart`'s own mechanics (the button, returning to `CONFIGURATION`,
+preserving the scoreboard) remain fully covered by T-083/T-084 as planned; this note only records
+why T-081 did not literally click it. No `traceability.md` "Test-strategy limitations" entry was
+needed — the integration is fully exercised, not partially.
+
 ## CA-I-11/CA-I-15 — corollary confirmation, no production code (T-068)
 
 `tasks.md`'s T-067/T-068 description assumed `applyPlayerMove` would branch on a winning mark
