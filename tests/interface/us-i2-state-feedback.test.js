@@ -67,6 +67,26 @@ describe('CA-I-03 — turn indicator', () => {
   });
 });
 
+describe('CA-I-34 — turn indicator states the game has ended once FINISHED', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('replaces the pending-turn text with a game-ended statement after a win', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    // Hand-verified sequence: X takes the top row (0,1,2), O takes 3,4.
+    ['0', '3', '1', '4', '2'].forEach((cellIndex) => {
+      root.querySelector(`[data-cell="${cellIndex}"]`).click();
+    });
+
+    const indicator = root.querySelector('[data-turn-indicator]');
+    expect(indicator.textContent).toBe('Partida terminada');
+    expect(indicator.textContent).not.toContain('Turno de');
+  });
+});
+
 describe('CA-I-05 — illegal move rejected with reason', () => {
   it('shows a non-empty error and leaves the board unchanged on wrong_turn', () => {
     let state = createAppState();
