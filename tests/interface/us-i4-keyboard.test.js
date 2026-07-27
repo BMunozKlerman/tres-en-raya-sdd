@@ -3,7 +3,12 @@ import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { createAppState, startGame, applyPlayerMove } from '../../src/ui/app-state.js';
+import {
+  createAppState,
+  startGame,
+  applyPlayerMove,
+  requestAgentMove,
+} from '../../src/ui/app-state.js';
 import { render } from '../../src/ui/render.js';
 import { attachEvents } from '../../src/ui/events.js';
 
@@ -90,6 +95,42 @@ describe('CA-I-18 — arrow keys move cell selection', () => {
   it('moves focus down from the center cell', () => {
     dispatchArrow(4, 'ArrowDown');
     expect(document.activeElement).toBe(root.querySelector('[data-cell="7"]'));
+  });
+});
+
+describe('CA-I-38 — visible keyboard instruction', () => {
+  it('states how to operate the board while a game is in progress', () => {
+    const { root, setState, getState } = mount();
+    setState(
+      startGame(createAppState(), {
+        opponentType: 'human',
+        agentLevel: null,
+        marks: { player1: 'X' },
+        mode: 'classic',
+      })
+    );
+    render(root, getState());
+
+    const instructions = root.querySelector('[data-keyboard-instructions]');
+    expect(instructions).not.toBeNull();
+    expect(instructions.textContent.length).toBeGreaterThan(0);
+    expect(instructions.textContent.toLowerCase()).toMatch(/flecha/);
+    expect(instructions.textContent.toLowerCase()).toMatch(/enter|espacio/);
+  });
+
+  it('is present while waiting for the agent', () => {
+    const { root, setState, getState } = mount();
+    setState(
+      startGame(createAppState(), {
+        opponentType: 'agent',
+        agentLevel: 'simple',
+        marks: { player1: 'X' },
+        mode: 'classic',
+      })
+    );
+    render(root, requestAgentMove(getState()));
+
+    expect(root.querySelector('[data-keyboard-instructions]')).not.toBeNull();
   });
 });
 
