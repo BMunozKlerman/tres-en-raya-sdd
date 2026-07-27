@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, beforeAll } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
 import { createAppState, startGame, applyPlayerMove } from '../../src/ui/app-state.js';
 import { render } from '../../src/ui/render.js';
 import { attachEvents } from '../../src/ui/events.js';
@@ -216,5 +219,36 @@ describe('CA-I-20 — turn/result announced without moving focus', () => {
     const liveRegion = root.querySelector('[data-live-region]');
     expect(liveRegion.textContent).not.toBe('');
     expect(document.activeElement).toBe(restartButton);
+  });
+});
+
+describe('BUG-011 — live region is visually hidden without leaving the accessibility tree', () => {
+  let css;
+
+  beforeAll(() => {
+    const stylesPath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      '../../src/styles.css',
+    );
+    css = readFileSync(stylesPath, 'utf-8');
+  });
+
+  it('marks [data-live-region] with the sr-only class', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    render(root, createAppState());
+
+    const liveRegion = root.querySelector('[data-live-region]');
+    expect(liveRegion.classList.contains('sr-only')).toBe(true);
+  });
+
+  it('declares .sr-only using the clip technique, not display:none or visibility:hidden', () => {
+    const match = css.match(/(^|[^\w-])\.sr-only\s*\{([^}]*)\}/m);
+    expect(match, 'expected a .sr-only rule in styles.css').not.toBeNull();
+    const rule = match[2];
+    expect(rule).not.toMatch(/display\s*:\s*none/);
+    expect(rule).not.toMatch(/visibility\s*:\s*hidden/);
+    expect(rule).toMatch(/position\s*:\s*absolute/);
+    expect(rule).toMatch(/overflow\s*:\s*hidden/);
   });
 });
