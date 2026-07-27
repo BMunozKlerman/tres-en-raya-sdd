@@ -302,19 +302,20 @@ closed (T-001–T-033, commit `2ef54af`) when this amendment was raised — see 
 Amendments and `docs/bugs.md` BUG-007 for the full trigger and justification. Two new tasks
 continue the project's global task sequence (`002-agents` ended at T-057).
 
-- [ ] T-058 [US-M-2] [AC: CA-M-12] RED — Extend `tests/engine/us-m2-results.test.js`'s
+- [X] T-058 [US-M-2] [AC: CA-M-12] RED — Extend `tests/engine/us-m2-results.test.js`'s
   `describe('CA-M-12 — win detection all 8 lines', ...)` block: for each of the 8 winning lines,
   assert the returned state's `winningLine` equals that line's three cell indices (order
   unspecified — compare as a sorted set) in addition to the existing `result` assertion; add one
   more `it` confirming `winningLine` is `null` on a classic-mode draw (CA-M-13) and `null` on any
   non-terminal state. Expected commit: `test(CA-M-12): failing test — winningLine field`
 
-- [ ] T-059 [US-M-2] [AC: CA-M-12] GREEN — In `src/engine.js`, capture the matching entry from
+- [X] T-059 [US-M-2] [AC: CA-M-12] GREEN — In `src/engine.js`, capture the matching entry from
   `WINNING_LINES` (not just the boolean `hasWinner`) in both the placement and movement paths of
   `applyMove`; set `winningLine` to that array on a win, `null` otherwise (draw included); update
   `createGame` to include `winningLine: null` in the initial state. `npm test` must be fully
   green (36/36 expected: 35 existing + T-058). Expected commit: `T-059: expose winningLine on win
   (CA-M-12, BUG-007)`
 
-**Total tasks after this amendment**: 35 (T-001–T-033, T-058–T-059). Not yet executed — this
-entry documents the pending work; `/speckit-implement T-058` runs it.
+**Total tasks after this amendment**: 35 (T-001–T-033, T-058–T-059). Executed 2026-07-27:
+T-058 (RED, commit `71d9e29`), T-059 (GREEN, commit `cef0a5b`). `npm test` 64/64 green;
+`npm run verify:traceability` exits 0 (37/37 CA-IDs). BUG-007 closed.

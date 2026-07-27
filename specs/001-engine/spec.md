@@ -153,11 +153,11 @@ cross-feature findings.
 |---|---------|-----------|----------------|-------------|
 | A1 | While drafting `specs/003-interface/spec.md`'s CA-I-04 ("highlight the winning line"), the UI needed to know **which** three cells completed a win. `State.result` only ever held the winning mark or `"draw"` — never a line reference — and `WINNING_LINES` is a module-private constant in `src/engine.js`, not exported by `contracts/engine-api.md`. A UI consumer had no contractual way to get this without duplicating the 8-line array itself. | CA-M-12 amended to also set `winningLine` (the matching line's three cell indices) on the returned state, alongside `result`, on a win. `data-model.md`'s `State` shape and `contracts/engine-api.md`'s `applyMove` placement/movement logic updated to match. No new CA-ID: per D9, both fields belong to the one response of a single `applyMove` call. | Duplicating `WINNING_LINES` in `src/ui.js` would violate constitution P2 (UI must consume the engine, not reimplement its rules) and create a second copy of the same 8-line data that could silently drift out of sync if the engine's constant ever changed. Exposing the field the engine already computes internally is the smaller, more honest change. Logged as **BUG-007** in `docs/bugs.md`: the engine's contract was insufficient for a legitimate, spec-driven consumer, discovered only once a second feature actually tried to consume it. | Group — 2026-07-27, via `specs/003-interface` `/speckit-clarify` |
 
-Implementation is **not yet done** as of this amendment: `winningLine` is documented in `spec.md`,
-`data-model.md`, and `contracts/engine-api.md`, and two new tasks (T-058 RED, T-059 GREEN) are
-appended to `tasks.md`, but `src/engine.js` still returns states without a `winningLine` field
-until those tasks run through `/speckit-implement`. Per `CLAUDE.md`, production code is not
-written outside that flow — this amendment only updates the spec-side artifacts.
+**Implementation complete** (2026-07-27): T-058 (RED, commit `71d9e29`) and T-059 (GREEN, commit
+`cef0a5b`) ran through `/speckit-implement`. `src/engine.js` now sets `winningLine` in both the
+placement and movement paths of `applyMove` and includes it (as `null`) in `createGame`'s initial
+state. `npm test` 64/64 green; `npm run verify:traceability` exits 0 (37/37 CA-IDs across both
+features). BUG-007 closed — see `docs/bugs.md`.
 
 ## Requirements *(mandatory)*
 
@@ -181,7 +181,7 @@ written outside that flow — this amendment only updates the spec-side artifact
 | CA-M-09 | US-M-1 | WHEN legalMoves is called on a state in the placement phase whose result is null, THE SYSTEM SHALL return a list containing exactly one placement action for each cell whose board value is null. | ✅ ready |
 | CA-M-10 | US-M-1 | WHEN legalMoves is called on a state in the movement phase whose result is null, THE SYSTEM SHALL return a list containing one movement action for each combination of a source cell holding the current player's mark and a destination cell whose board value is null. | ✅ ready |
 | CA-M-11 | US-M-1 | WHEN legalMoves is called on a state whose result is not null, THE SYSTEM SHALL return an empty list. | ✅ ready |
-| CA-M-12 | US-M-2 | WHEN a move results in cells [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], or [2,4,6] all containing the same player's mark, THE SYSTEM SHALL set result to that player's mark and winningLine to that line's three cell indices in the returned state. | ⚠️ amended, pending T-058/T-059 |
+| CA-M-12 | US-M-2 | WHEN a move results in cells [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], or [2,4,6] all containing the same player's mark, THE SYSTEM SHALL set result to that player's mark and winningLine to that line's three cell indices in the returned state. | ✅ ready |
 | CA-M-13 | US-M-2 | WHEN in classic mode the ninth placement is applied and no winning line is fully occupied by a single player's mark, THE SYSTEM SHALL set result to "draw" in the returned state. | ✅ ready |
 | CA-M-14 | US-M-2 | WHEN in classic mode the ninth placement simultaneously fills the board and completes a winning line for the placing player, THE SYSTEM SHALL set result to that player's mark in the returned state and not set result to "draw". | ✅ ready |
 | CA-M-15 | US-M-3 | WHEN in continuous mode the sixth placement is applied, THE SYSTEM SHALL return a state in which phase is "movement" and turn is the player who did not make the sixth placement. | ✅ ready |

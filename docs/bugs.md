@@ -25,7 +25,7 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ## BUG-007: `001-engine`'s contract had no way to expose which line won, blocking a legitimate `003-interface` consumer
 
-**Found**: 2026-07-27 | **Status**: Open (spec amended; implementation pending T-058/T-059)
+**Found**: 2026-07-27 | **Status**: Fixed
 
 **Detection**: While drafting `specs/003-interface/spec.md`'s CA-I-04 ("WHEN a player aligns
 three marks, THE SYSTEM SHALL highlight the winning line..."), an audit during that feature's
@@ -56,10 +56,15 @@ compute the winning line locally. Rejected because it would violate constitution
 the engine, does not reimplement its rules) and create a second copy of `WINNING_LINES` that
 could silently drift from the engine's if that constant ever changed.
 
-**Result**: Not yet verified — `winningLine` is documented but not implemented. This entry
-remains **Open** until T-058/T-059 run through `/speckit-implement` and `npm run
-verify:traceability` confirms CA-M-12's extended coverage. Will be updated to **Fixed** with
-real commit SHAs at that point, per `CLAUDE.md`'s "do not invent SHAs" rule.
+**Result**: T-058 (RED, commit `71d9e29d588250cd6f9df939aa33af3f018b4613`) and T-059 (GREEN,
+commit `cef0a5b25c62f45d84f56b3d345cbe1b5f602821`) run through `/speckit-implement`, one commit
+per task, RED before GREEN. `src/engine.js` now sets `winningLine` (the matching line's three
+cell indices, or `null`) in both the placement and movement paths of `applyMove`, and
+`createGame` includes `winningLine: null` in the initial state. `npm test` 64/64 green;
+`npm run verify:traceability` exits 0 (`001-engine: OK: all 20 CA-IDs fully traced`,
+`002-agents: OK: all 17 CA-IDs fully traced`, 37/37 combined). `specs/001-engine/traceability.md`
+updated with both SHAs; `spec.md`'s Functional Requirements table CA-M-12 row changed from
+`⚠️ amended, pending T-058/T-059` to `✅ ready`.
 
 ---
 

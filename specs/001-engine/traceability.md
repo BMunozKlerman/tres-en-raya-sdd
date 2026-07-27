@@ -24,7 +24,7 @@ Run `npm run verify:traceability` to check that no CA-ID is orphaned.
 | CA-M-10 | T-029 (RED), T-030 (GREEN) | us-m1-rules.test.js | `CA-M-10 — legalMoves in movement phase`       | 2c1b9e80cc6e142e60652be9c5b48198d9224937, 6b28fefeec54dbba060e31572f7eeb47ee79fc47 |
 | CA-M-11 | T-015 (RED), T-016 (GREEN) | us-m1-rules.test.js | `CA-M-11 — legalMoves after game over`         | 41f4b905bd39bcca6f3e0d65197fc8e1ad56a7f2, 2b567ceab345dbb4ca0a5a964679a228927ce00d |
 | CA-M-12 | T-017 (RED), T-018 (GREEN) | us-m2-results.test.js | `CA-M-12 — win detection all 8 lines`        | 7ff9ca65c4a7789c9fa587cdd0554f056cba5c2f, 65ee7787db24d7f23e86955b0a89b6bd9b44a2ec |
-| CA-M-12 (amended: `winningLine`) | T-058 (RED), T-059 (GREEN) | us-m2-results.test.js | `CA-M-12 — win detection all 8 lines` (extended) | — (pending `/speckit-implement T-058`; see BUG-007) |
+| CA-M-12 (amended: `winningLine`) | T-058 (RED), T-059 (GREEN) | us-m2-results.test.js | `CA-M-12 — win detection all 8 lines` (extended) | 71d9e29d588250cd6f9df939aa33af3f018b4613, cef0a5b25c62f45d84f56b3d345cbe1b5f602821 |
 | CA-M-13 | T-019 (RED), T-020 (GREEN) | us-m2-results.test.js | `CA-M-13 — classic draw`                     | bdc0a947e4b48b754a1833de230ae2118be8923f, f781218e146e02808eb1bd5fb7e449859e331bf6 |
 | CA-M-14 | T-019 (RED), T-020 (GREEN) | us-m2-results.test.js | `CA-M-14 — win over draw precedence`         | bdc0a947e4b48b754a1833de230ae2118be8923f, f781218e146e02808eb1bd5fb7e449859e331bf6 |
 | CA-M-15 | T-021 (RED), T-022 (GREEN) | us-m3-phases.test.js  | `CA-M-15 — placement to movement transition` | f4a5f835ea23d0167b7531f41498aed401b76df7, 3c43205ed65bfa656e8b8d1ba335968d355dc3ae |
