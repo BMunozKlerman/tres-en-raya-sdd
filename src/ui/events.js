@@ -93,6 +93,25 @@ export function attachEvents(root, getState, setState) {
     rerender();
   });
 
+  const ARROW_DELTAS = { ArrowUp: -3, ArrowDown: 3, ArrowLeft: -1, ArrowRight: 1 };
+
+  root.querySelector('[data-board]').addEventListener('keydown', (event) => {
+    const delta = ARROW_DELTAS[event.key];
+    if (delta === undefined) return;
+    const cell = event.target.closest('[data-cell]');
+    if (!cell) return;
+
+    const from = Number(cell.dataset.cell);
+    const row = Math.floor(from / 3);
+    let next = from + delta;
+
+    if (event.key === 'ArrowLeft' && row !== Math.floor(next / 3)) next = from;
+    if (event.key === 'ArrowRight' && row !== Math.floor(next / 3)) next = from;
+    if (next < 0 || next > 8) next = from;
+
+    root.querySelector(`[data-cell="${next}"]`).focus();
+  });
+
   root.querySelector('[data-board]').addEventListener('click', (event) => {
     const cell = event.target.closest('[data-cell]');
     if (!cell) return;
