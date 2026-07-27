@@ -1,5 +1,14 @@
-import { startGame, applyPlayerMove, selectOwnMark, requestAgentMove } from './app-state.js';
+import {
+  startGame,
+  applyPlayerMove,
+  selectOwnMark,
+  requestAgentMove,
+  resolveAgentMove,
+} from './app-state.js';
 import { render } from './render.js';
+import { chooseMove } from '../agents.js';
+
+const AGENT_WAIT_FLOOR_MS = 300;
 
 export function attachEvents(root, getState, setState) {
   function rerender() {
@@ -16,9 +25,18 @@ export function attachEvents(root, getState, setState) {
 
   function maybeHandOffToAgent() {
     const state = getState();
-    if (isAgentTurn(state)) {
-      setState(requestAgentMove(state));
-    }
+    if (!isAgentTurn(state)) return;
+
+    const waitingState = requestAgentMove(state);
+    setState(waitingState);
+
+    const level = waitingState.config.agentLevel;
+    const decision = chooseMove(waitingState.engineState, level, waitingState.agentMemory[level]);
+
+    setTimeout(() => {
+      setState(resolveAgentMove(getState(), decision));
+      rerender();
+    }, AGENT_WAIT_FLOOR_MS);
   }
 
   function readConfig() {
