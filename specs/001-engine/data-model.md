@@ -27,6 +27,8 @@ The single object passed to and returned by every engine function.
   phase:         string,     // 'placement' | 'movement'
   piecesPlaced:  number,     // 0–9 (classic) | 0–6 (continuous, then constant at 6)
   result:        string|null // null | 'X' | 'O' | 'draw'
+  winningLine:   Array(3)|null // null, or the 3 cell indices that produced a win (CA-M-12,
+                                // amended — see spec.md § Amendments). Never set on a draw.
 }
 ```
 
@@ -38,6 +40,7 @@ The single object passed to and returned by every engine function.
 | `phase` | always `"placement"` | `"placement"` | `"movement"` |
 | `piecesPlaced` | 0–9 | 0–6 | 6 (constant) |
 | `result` | null until win/draw | null until win | null until win |
+| `winningLine` | null unless `result` is a mark; never set for `"draw"` | null unless `result` is a mark | null unless `result` is a mark |
 
 ### Initial state (CA-M-01)
 
@@ -48,7 +51,8 @@ The single object passed to and returned by every engine function.
   mode:         'classic',   // or 'continuous', caller's choice at game start
   phase:        'placement',
   piecesPlaced: 0,
-  result:       null
+  result:       null,
+  winningLine:  null
 }
 ```
 

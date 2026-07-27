@@ -215,7 +215,18 @@ never decide on your own.
       feature). `src/agents.js` now implements all three levels (simple: uniform random;
       medium: win-then-block rule; complex: minimax + alpha-beta, `HORIZON_DEPTH=6`, transposition
       table). **002-agents is closed.**
-- [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
+- [x] Spec 003-interface — `/speckit-specify` done: `spec.md` with 4 user stories (US-I-1..4),
+      28 `CA-I-nn` criteria (the 5 mandatory assignment criteria, verbatim from §2.5, mapped to
+      their Spanish original in a dedicated table; configuration; scoreboard; restart; full
+      keyboard operation; color-independent information; agent memory-reuse observability;
+      responsive design 320–1440px) plus `CA-N-02`/`CA-N-03` cited from the constitution.
+      Checklist passed, 0 `NEEDS CLARIFICATION` markers. `/speckit-clarify` done (audit-only,
+      D9/D10 not reopened): confirmed unique IDs, no P4-prohibited words in criterion text, and
+      found 2 real state-machine gaps (no FINISHED-draw visual criterion; the
+      `IN_GAME↔WAITING_FOR_AGENT` transitions were only inferable from CA-I-06's `WHILE`, not
+      asserted directly) plus a genuine cross-feature contract gap — see next entry. Spec now at
+      32 `CA-I-nn` criteria. **001-engine reopened** by this audit (see BUG-007 below) —
+      `specs/001-engine` is no longer fully closed until T-058/T-059 land.
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
 
@@ -385,3 +396,55 @@ never decide on your own.
     it checks artifacts against each other, not claims a plan makes about tooling behavior.
   **002-agents is closed**: 24 tasks, 17 CA-IDs, `npm test` 63/63, `verify:traceability` exits 0
   for both features. Next step: `/speckit-specify` for `003-interface`.
+- 2026-07-27: `/speckit-specify` run for 003-interface. `specs/003-interface/spec.md` written:
+  4 user stories (US-I-1 configure, US-I-2 play with clear state feedback, US-I-3 follow the
+  scoreboard, US-I-4 operate by keyboard), 28 `CA-I-nn` criteria plus `CA-N-02`/`CA-N-03` cited
+  from the constitution. The 5 mandatory assignment criteria (§2.5, verbatim) are mapped in a
+  dedicated table to their Spanish original, per `CLAUDE.md`'s Exception 2. Two resolved design
+  decisions recorded (D9: movement-phase own-mark selection is cancelled by reselecting the same
+  mark; D10: mobile/wider-layout breakpoint fixed at 768px). Checklist passed, 0
+  `NEEDS CLARIFICATION` markers. Commit `6aba4f9`.
+- 2026-07-27: `/speckit-clarify` run for 003-interface (audit only; D9/D10 not reopened, per
+  explicit instruction). Verified: 28 `CA-I-nn` IDs unique, no P4-prohibited words inside any
+  criterion's EARS text, state-machine transitions traced against the diagram in this file's
+  RF-4/Input section. Found 2 real gaps and answered 3 direct questions:
+  - **jsdom verifiability**: CA-I-24, CA-I-25, CA-I-26, CA-I-27, CA-I-28 (all responsive) plus
+    CA-I-13 (visible focus, borderline — a "focus style applied" proxy is checkable, true
+    rendered visibility is not) cannot be verified in jsdom, which computes no real CSS layout.
+    The other ~26 criteria (state, ARIA, events, keyboard) need no layout and are jsdom-testable.
+    Per group instruction, these 6 are left as written; a note was added to `spec.md` deferring
+    the verification-environment decision (Playwright / Vitest browser mode / other) to
+    `plan.md` — not decided here.
+  - **CA-I-06 (waiting state) satisfiability**: as originally worded, satisfiable by
+    instrumentation alone even at the complex agent's ~12ms response time, with no minimum
+    visible duration — meaning a human would never actually see it during a live demo. Resolved
+    by adding a new criterion (see below) rather than rewriting the mandatory-verbatim CA-I-06.
+  - **Engine/agent contract gaps**: found one — CA-I-04 ("highlight the winning line") needs to
+    know *which* cells won, but `001-engine`'s `State.result` never exposed a line reference and
+    `WINNING_LINES` is not exported. Logged as **BUG-007** and resolved by amending
+    `specs/001-engine` (CA-M-12 extended to also set `winningLine`; see next entry) rather than
+    having the UI duplicate the engine's 8-line constant.
+  Group decisions taken on all 4 open points (winning line: amend the engine, not duplicate it in
+  the UI; waiting state: add a 300ms minimum-visible-duration criterion instead of rewriting
+  CA-I-06; draw: add a criterion for the FINISHED-draw visual state, parallel to CA-I-04's win
+  case; transitions: add explicit criteria for `IN_GAME→WAITING_FOR_AGENT` and
+  `WAITING_FOR_AGENT→IN_GAME` instead of leaving them inferred). `spec.md` grew from 28 to 32
+  `CA-I-nn` criteria (new: CA-I-10 minimum waiting duration, CA-I-11 draw indicator, CA-I-12/
+  CA-I-13 transition triggers; everything from old CA-I-10 onward renumbered +4 to keep IDs in
+  document order). **003-interface spec and clarify are complete.**
+- 2026-07-27: **`001-engine` reopened**, triggered by the CA-I-04 gap found above. Per constitution
+  P3 (spec is the source of truth for any behavioral change) and the same amendment discipline
+  used for the constitution itself (v1.0.0 → v2.0.0), `specs/001-engine/spec.md` gained a new
+  "Amendments (Post-Closure)" section: CA-M-12 amended to also set `winningLine` (the winning
+  line's three cell indices) on the returned state — no new CA-ID, per D9 (both fields are one
+  operation's single response). `data-model.md` and `contracts/engine-api.md` updated to match.
+  Two new tasks appended to `tasks.md`, continuing the project's global task sequence from
+  `002-agents`'s end: **T-058** (RED — extend the existing CA-M-12 test with `winningLine`
+  assertions) and **T-059** (GREEN — capture the matching `WINNING_LINES` entry in `src/engine.js`
+  instead of just the boolean `hasWinner`). Neither task has been executed yet — per `CLAUDE.md`,
+  production code is not written outside `/speckit-implement`, so `src/engine.js` is unchanged
+  and BUG-007 (`docs/bugs.md`) remains **Open** until T-058/T-059 run. `specs/003-interface`'s
+  CA-I-04 updated to cite `state.winningLine` instead of describing the gap. **Next step**:
+  `/speckit-implement T-058` (to close BUG-007) at some point before `003-interface` is
+  implemented, since its UI work depends on the field existing; then continue `003-interface`
+  with `/speckit-plan`.

@@ -23,6 +23,46 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-007: `001-engine`'s contract had no way to expose which line won, blocking a legitimate `003-interface` consumer
+
+**Found**: 2026-07-27 | **Status**: Open (spec amended; implementation pending T-058/T-059)
+
+**Detection**: While drafting `specs/003-interface/spec.md`'s CA-I-04 ("WHEN a player aligns
+three marks, THE SYSTEM SHALL highlight the winning line..."), an audit during that feature's
+`/speckit-clarify` asked: how does the UI know *which* three cells to highlight? Checking
+`specs/001-engine/contracts/engine-api.md` and `data-model.md` showed `State.result` only ever
+holds the winning mark (`'X'|'O'`) or `'draw'` — never a line reference — and `WINNING_LINES`,
+the 8-line constant `applyMove` scans internally, is a module-private `const` in `src/engine.js`,
+not exported.
+
+**Diagnosis**: Not a bug in `001-engine`'s own behavior — every one of its 20 criteria was, and
+remains, correctly implemented and tested. The gap is a contract completeness bug: `001-engine`
+was specified and closed before any consumer needed to know *which* line won (only *that* a mark
+won), so nothing in its spec, plan, or tasks ever required exposing it. The gap was invisible
+until a second, legitimate consumer (`003-interface`) actually needed the information — the same
+"looks fine until something outside the feature tries to use it" shape as BUG-006, but here the
+missing piece is a data field, not tooling.
+
+**Fix** (spec-side, this session): `specs/001-engine/spec.md`'s CA-M-12 amended to also set
+`winningLine` (the winning line's three cell indices) on the returned state, alongside `result`
+(no new CA-ID — per D9, both fields belong to the one response of a single `applyMove` call).
+`data-model.md` and `contracts/engine-api.md` updated to match. Two new tasks appended to
+`specs/001-engine/tasks.md` (T-058 RED, T-059 GREEN) to extend the existing CA-M-12 test and
+implement the field in `src/engine.js`. `specs/003-interface/spec.md`'s CA-I-04 updated to cite
+`state.winningLine` instead of describing a gap.
+
+**Alternative considered and rejected**: have `src/ui.js` duplicate the 8-line array itself to
+compute the winning line locally. Rejected because it would violate constitution P2 (UI consumes
+the engine, does not reimplement its rules) and create a second copy of `WINNING_LINES` that
+could silently drift from the engine's if that constant ever changed.
+
+**Result**: Not yet verified — `winningLine` is documented but not implemented. This entry
+remains **Open** until T-058/T-059 run through `/speckit-implement` and `npm run
+verify:traceability` confirms CA-M-12's extended coverage. Will be updated to **Fixed** with
+real commit SHAs at that point, per `CLAUDE.md`'s "do not invent SHAs" rule.
+
+---
+
 ## BUG-006: `plan.md` claimed the traceability verifier already covered `002-agents`; it never did
 
 **Found**: 2026-07-27 | **Status**: Fixed

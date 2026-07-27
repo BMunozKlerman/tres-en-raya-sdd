@@ -31,6 +31,12 @@
 
 ## Notes
 
-- All items pass. The one open concern — verifying the Spanish original wording of the five
-  mandatory criteria against the actual assignment document — is recorded in Assumptions and does
-  not block testability of any `CA-I-nn` criterion, so it is not a `[NEEDS CLARIFICATION]` marker.
+- All items pass. The Spanish original wording of the five mandatory criteria is transcribed
+  verbatim from the assignment brief §2.5 (Mandatory Interface Criteria — Assignment Mapping).
+- `/speckit-clarify` (2026-07-27) grew the spec from 28 to 32 `CA-I-nn` criteria (minimum waiting
+  duration, draw indicator, and two explicit state-transition criteria) and triggered a
+  cross-feature amendment to `specs/001-engine` (BUG-007, `winningLine`). CA-I-04's row in
+  Functional Requirements is marked ⚠️ pending that amendment's implementation (T-058/T-059);
+  five Responsive Design criteria (CA-I-28–CA-I-32) are marked ⚠️ not jsdom-verifiable, with the
+  verification-environment choice deferred to `plan.md`. Neither marker reopens
+  `[NEEDS CLARIFICATION]` — both are implementation/tooling dependencies, not spec ambiguity.

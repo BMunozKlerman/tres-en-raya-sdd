@@ -110,9 +110,11 @@ The engine applies checks in this order and stops at the first match:
 2. Increment `piecesPlaced`.
 3. If `mode === 'continuous'` and new `piecesPlaced === 6`: set `phase = 'movement'`.
 4. Flip `turn`.
-5. Check winner (scan `WINNING_LINES`). If found: set `result = move.player`.
-6. Else if `mode === 'classic'` and `piecesPlaced === 9`: set `result = 'draw'`.
-   (Win takes precedence — step 5 runs first; CA-M-14.)
+5. Check winner (scan `WINNING_LINES`). If found: set `result = move.player` and
+   `winningLine = <the matching line's three cell indices>` (CA-M-12, amended — see
+   `spec.md` § Amendments).
+6. Else if `mode === 'classic'` and `piecesPlaced === 9`: set `result = 'draw'`
+   (`winningLine` stays `null`). (Win takes precedence — step 5 runs first; CA-M-14.)
 7. Return new state.
 
 ### Movement logic
@@ -120,7 +122,8 @@ The engine applies checks in this order and stops at the first match:
 1. Set `board[move.from] = null`, `board[move.to] = move.player` (new array, no mutation).
 2. `piecesPlaced` unchanged (stays at 6).
 3. Flip `turn`.
-4. Check winner. If found: set `result = move.player`.
+4. Check winner. If found: set `result = move.player` and `winningLine = <the matching line's
+   three cell indices>` (CA-M-12, amended).
 5. No draw possible in continuous movement phase (CA-M-17).
 6. Return new state.
 

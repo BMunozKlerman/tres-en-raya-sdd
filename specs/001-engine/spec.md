@@ -75,7 +75,7 @@ player's mark, not "draw".
 
 | ID | EARS Criterion | Notes |
 |----|----------------|-------|
-| CA-M-12 | WHEN a move results in cells [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], or [2,4,6] all containing the same player's mark, THE SYSTEM SHALL set result to that player's mark in the returned state. | All 8 winning lines; test MUST exercise each line independently |
+| CA-M-12 | WHEN a move results in cells [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], or [2,4,6] all containing the same player's mark, THE SYSTEM SHALL set result to that player's mark and winningLine to that line's three cell indices in the returned state. | All 8 winning lines; test MUST exercise each line independently. `winningLine` field added by post-closure amendment — see Amendments below and BUG-007 in `docs/bugs.md`. Per D9, this stays one criterion: both fields are properties of the single returned state from one operation, not independent responses. |
 | CA-M-13 | WHEN in classic mode the ninth placement is applied and no winning line is fully occupied by a single player's mark, THE SYSTEM SHALL set result to "draw" in the returned state. | Classic draw |
 | CA-M-14 | WHEN in classic mode the ninth placement simultaneously fills the board and completes a winning line for the placing player, THE SYSTEM SHALL set result to that player's mark in the returned state and not set result to "draw". | Win takes precedence over draw on move 9 |
 
@@ -142,6 +142,23 @@ a governance amendment.
 | D4 | Who opens the movement phase after the 6th placement? | The player who did NOT make the 6th placement opens the movement phase. | This follows directly from the alternating-turn rule already specified: after the 6th placement, the turn would pass to the other player in the normal course. No additional rule is needed. | Group — 2026-07-26 |
 | D9 | What counts as "one observable response" in P4 when the engine returns a multi-field state? | A criterion describing a single engine operation (place a mark, transition phase) has one observable response: the returned state. The individual fields of that state are properties of one response, not independent responses. Splitting criteria by field would inflate the traceability matrix without adding verification power, since a test always checks the full returned state. Therefore CA-M-03 (placement) and CA-M-15 (phase transition) are kept as atomic criteria. | Group — 2026-07-26 |
 
+### Amendments (Post-Closure)
+
+`001-engine` was closed (commit `2ef54af`, 2026-07-27) with `npm test` 35/35 green and full
+traceability. This entry records a reopening, per constitution P3 (spec is the source of truth
+for any behavioral change) and the Amendment Procedure this project follows for `003-interface`
+cross-feature findings.
+
+| # | Trigger | Amendment | Justification | Resolved by |
+|---|---------|-----------|----------------|-------------|
+| A1 | While drafting `specs/003-interface/spec.md`'s CA-I-04 ("highlight the winning line"), the UI needed to know **which** three cells completed a win. `State.result` only ever held the winning mark or `"draw"` — never a line reference — and `WINNING_LINES` is a module-private constant in `src/engine.js`, not exported by `contracts/engine-api.md`. A UI consumer had no contractual way to get this without duplicating the 8-line array itself. | CA-M-12 amended to also set `winningLine` (the matching line's three cell indices) on the returned state, alongside `result`, on a win. `data-model.md`'s `State` shape and `contracts/engine-api.md`'s `applyMove` placement/movement logic updated to match. No new CA-ID: per D9, both fields belong to the one response of a single `applyMove` call. | Duplicating `WINNING_LINES` in `src/ui.js` would violate constitution P2 (UI must consume the engine, not reimplement its rules) and create a second copy of the same 8-line data that could silently drift out of sync if the engine's constant ever changed. Exposing the field the engine already computes internally is the smaller, more honest change. Logged as **BUG-007** in `docs/bugs.md`: the engine's contract was insufficient for a legitimate, spec-driven consumer, discovered only once a second feature actually tried to consume it. | Group — 2026-07-27, via `specs/003-interface` `/speckit-clarify` |
+
+Implementation is **not yet done** as of this amendment: `winningLine` is documented in `spec.md`,
+`data-model.md`, and `contracts/engine-api.md`, and two new tasks (T-058 RED, T-059 GREEN) are
+appended to `tasks.md`, but `src/engine.js` still returns states without a `winningLine` field
+until those tasks run through `/speckit-implement`. Per `CLAUDE.md`, production code is not
+written outside that flow — this amendment only updates the spec-side artifacts.
+
 ## Requirements *(mandatory)*
 
 <!--
@@ -164,7 +181,7 @@ a governance amendment.
 | CA-M-09 | US-M-1 | WHEN legalMoves is called on a state in the placement phase whose result is null, THE SYSTEM SHALL return a list containing exactly one placement action for each cell whose board value is null. | ✅ ready |
 | CA-M-10 | US-M-1 | WHEN legalMoves is called on a state in the movement phase whose result is null, THE SYSTEM SHALL return a list containing one movement action for each combination of a source cell holding the current player's mark and a destination cell whose board value is null. | ✅ ready |
 | CA-M-11 | US-M-1 | WHEN legalMoves is called on a state whose result is not null, THE SYSTEM SHALL return an empty list. | ✅ ready |
-| CA-M-12 | US-M-2 | WHEN a move results in cells [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], or [2,4,6] all containing the same player's mark, THE SYSTEM SHALL set result to that player's mark in the returned state. | ✅ ready |
+| CA-M-12 | US-M-2 | WHEN a move results in cells [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], or [2,4,6] all containing the same player's mark, THE SYSTEM SHALL set result to that player's mark and winningLine to that line's three cell indices in the returned state. | ⚠️ amended, pending T-058/T-059 |
 | CA-M-13 | US-M-2 | WHEN in classic mode the ninth placement is applied and no winning line is fully occupied by a single player's mark, THE SYSTEM SHALL set result to "draw" in the returned state. | ✅ ready |
 | CA-M-14 | US-M-2 | WHEN in classic mode the ninth placement simultaneously fills the board and completes a winning line for the placing player, THE SYSTEM SHALL set result to that player's mark in the returned state and not set result to "draw". | ✅ ready |
 | CA-M-15 | US-M-3 | WHEN in continuous mode the sixth placement is applied, THE SYSTEM SHALL return a state in which phase is "movement" and turn is the player who did not make the sixth placement. | ✅ ready |
@@ -177,8 +194,10 @@ a governance amendment.
 ### Key Entities *(include if feature involves data)*
 
 - **Game State**: complete, immutable snapshot of a game at a point in time. Fields: `board`,
-  `turn`, `mode`, `phase`, `piecesPlaced`, `result`. A state is never mutated; every operation
-  produces a new state or an error.
+  `turn`, `mode`, `phase`, `piecesPlaced`, `result`, `winningLine`. A state is never mutated;
+  every operation produces a new state or an error. `winningLine` is `null` except when `result`
+  is a player mark, in which case it holds the three cell indices of the completed line
+  (CA-M-12, amended — see Amendments).
 - **Board**: sequence of 9 cells (indices 0–8, row-major: row 0 is [0,1,2], row 1 is [3,4,5],
   row 2 is [6,7,8]). Each cell holds X, O, or null.
 - **Move**: a player action applied to a state. Two subtypes: a placement action (target cell
@@ -194,7 +213,7 @@ a governance amendment.
 |----|--------------------|----------------|
 | SC-M-01 | A new game state for either mode can be produced from a single mode specification with all fields at their defined initial values. | CA-M-01 |
 | SC-M-02 | Every illegal move attempt returns a rejection that identifies the specific rule violated; the input state is identical before and after the attempt. | CA-M-04, CA-M-05, CA-M-06, CA-M-07, CA-M-08, CA-M-18, CA-M-19, CA-M-20 |
-| SC-M-03 | A winner is detected on the turn the winning line is completed; no additional move is required to confirm the result. | CA-M-12 |
+| SC-M-03 | A winner is detected on the turn the winning line is completed, and the three cells that completed it are identifiable from the returned state alone; no additional move or scan is required to confirm the result. | CA-M-12 |
 | SC-M-04 | In classic mode, a full board with no winner produces result "draw"; a full board where the final placement completes a winning line produces result equal to the placing player's mark, not "draw". | CA-M-13, CA-M-14 |
 | SC-M-05 | In continuous mode, no sequence of legal movements ever produces result "draw"; the game continues until a winning line is completed. | CA-M-17 |
 | SC-M-06 | At any non-terminal state, the complete set of legal next actions can be enumerated in a single call. | CA-M-09, CA-M-10, CA-M-11 |
