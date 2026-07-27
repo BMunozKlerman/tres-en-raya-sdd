@@ -37,3 +37,22 @@ describe('CA-I-14 — win increments scoreboard', () => {
     expect(root.querySelector('[data-score="draw"]').textContent).toBe('0');
   });
 });
+
+describe('CA-I-15 — draw increments scoreboard', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('increments the draw count and leaves win counts unchanged', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    ['0', '1', '2', '4', '3', '5', '7', '6', '8'].forEach((cellIndex) => {
+      root.querySelector(`[data-cell="${cellIndex}"]`).click();
+    });
+
+    expect(root.querySelector('[data-score="draw"]').textContent).toBe('1');
+    expect(root.querySelector('[data-score="X"]').textContent).toBe('0');
+    expect(root.querySelector('[data-score="O"]').textContent).toBe('0');
+  });
+});

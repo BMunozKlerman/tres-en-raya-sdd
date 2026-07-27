@@ -97,3 +97,25 @@ describe('CA-I-04 — winning line highlighted, moves blocked', () => {
     expect(root.querySelector('[data-cell="5"]').dataset.cellState).toBe('empty');
   });
 });
+
+describe('CA-I-11 — draw indicator, moves blocked', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('shows a draw message and disables every cell', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    // Hand-verified draw sequence (no winning line at any point, board fills exactly):
+    // final board: X O X / X O O / O X X
+    ['0', '1', '2', '4', '3', '5', '7', '6', '8'].forEach((cellIndex) => {
+      root.querySelector(`[data-cell="${cellIndex}"]`).click();
+    });
+
+    expect(root.querySelector('[data-result-indicator]').textContent.toLowerCase()).toContain('empate');
+    for (let i = 0; i < 9; i += 1) {
+      expect(root.querySelector(`[data-cell="${i}"]`).disabled).toBe(true);
+    }
+  });
+});
