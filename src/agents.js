@@ -32,4 +32,10 @@ export function chooseMove(state, level, memory, options = {}) {
 
     return { move: moves[0], memory: null, nodesEvaluated, resolvedFromMemory: false };
   }
+
+  if (level === 'complex') {
+    const moves = legalMoves(state);
+    const move = moves[0];
+    return { move, memory, nodesEvaluated: moves.length, resolvedFromMemory: false };
+  }
 }
