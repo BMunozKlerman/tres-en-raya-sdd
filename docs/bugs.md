@@ -23,6 +23,52 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-004: `tasks.md`'s T-041 pseudocode described an algorithm that cannot satisfy CA-A-16
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Detection**: While implementing T-041 (medium block-next-turn), the pseudocode in `tasks.md`
+was followed literally: for each candidate move, apply it, then check whether *any* of the
+opponent's `legalMoves` on the resulting state would set `result` to the opponent's mark; return
+the first candidate for which *none* do. The CA-A-16 test (double-threat fixture: two distinct
+cells, each independently completing a line for the opponent) failed after this implementation —
+`chooseMove` returned an arbitrary non-blocking cell instead of one of the two threat cells.
+
+**Diagnosis**: Not a spec-first bug — `spec.md`'s CA-A-05, CA-A-15, and CA-A-16 were all correct
+and unambiguous. The defect was in `tasks.md`'s implementation description: under a genuine
+double threat, occupying one threatened cell never clears the other, so the opponent can always
+still win through the remaining cell on their next turn. The condition "none of the opponent's
+replies would set `result`" is therefore never true for *any* candidate once two or more real
+threats exist, so the described two-ply lookahead always falls through to the arbitrary
+`moves[0]` fallback — which has no reason to be a threat cell. The algorithm was never viable for
+the double-threat case it was written to cover; single-threat (CA-A-05) worked only by
+coincidence, since with exactly one threat, blocking it does make "none do" true.
+
+**Fix**: `specs/002-agents/tasks.md`'s T-041 description rewritten to match the algorithm
+actually implemented in `src/agents.js` (commit `c94095d`): a direct, single-ply check — for each
+candidate move, ask whether that same cell, played by the opponent instead, would immediately set
+`result` to the opponent's mark; return the first candidate for which it does. This blocks
+whichever threat is encountered first by construction (CA-A-16, "blocks exactly one of those
+opponent moves"), and is behaviorally identical to the discarded two-ply version whenever there is
+only one threat (CA-A-05). A correction note was added directly under T-041 in `tasks.md`
+explaining why the two-ply pseudocode was discarded. **CA-A-05, CA-A-15, and CA-A-16 in
+`spec.md` did not change** — only the derived implementation-plan description did.
+
+**Result**: `npm test` remained green throughout (the fix was applied before T-041's GREEN commit
+was made, so no regression was ever committed); `tasks.md` and `src/agents.js` are now
+consistent. `npm run verify:traceability` unaffected (still validates only `001-engine`'s 20
+CA-IDs; `002-agents`'s `traceability.md` is filled at T-057).
+
+**Lesson**: same pattern as BUG-003, one level lower in the artifact hierarchy — there,
+`plan.md`/`contracts/agents-api.md` had drifted from the constitution; here, the actual
+implementation correctly satisfies `spec.md` while `tasks.md`'s own suggested algorithm does not.
+`tasks.md` pseudocode is a *plan*, not the spec — when an implementer finds it doesn't actually
+satisfy the criterion it claims to cover, the fix is to correct the plan-level artifact (with a
+note explaining why), not to force a non-viable algorithm into working, and not to weaken the
+test until it passes.
+
+---
+
 ## BUG-003: `/speckit-analyze` found a derived artifact contradicting the ratified constitution
 
 **Found**: 2026-07-27 | **Status**: Fixed

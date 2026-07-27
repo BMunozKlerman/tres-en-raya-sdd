@@ -173,12 +173,29 @@ additional code._
 
 - [ ] T-041 [US-A-1] [AC: CA-A-05, CA-A-15, CA-A-16] GREEN — In `src/agents.js`, in the
   `'medium'` branch, after the win-check and before the fallback: for each candidate move,
-  simulate the opponent's resulting `legalMoves` after applying it and check whether any of them
-  would set `result` to the opponent's mark; return the first candidate for which none do (this
-  naturally blocks one threat when two exist, since it returns on the first success — CA-A-16 —
-  and never runs at all when the win-check above already returned — CA-A-15, by ordering alone).
-  `npm test` must be fully green. Expected commit: `T-041: medium block-next-turn detection
-  (CA-A-05, CA-A-15, CA-A-16)`
+  check directly whether that same cell, played by the opponent instead, would set `result` to
+  the opponent's mark (`applyMove` on a scratch state with `turn` set to the opponent and the
+  candidate's cell/destination as the opponent's move); return the first candidate for which it
+  does (this directly occupies a threatened cell, blocking that specific threat; naturally
+  blocks one of several when more than one exists — CA-A-16 — and never runs at all when the
+  win-check above already returned — CA-A-15, by ordering alone). `npm test` must be fully
+  green. Expected commit: `T-041: medium block-next-turn detection (CA-A-05, CA-A-15, CA-A-16)`
+
+**Correction (2026-07-27, post-implementation)**: the two-ply lookahead originally described
+here — "simulate the opponent's resulting `legalMoves` after applying [a candidate move] and
+check whether any of them would set `result` to the opponent's mark; return the first candidate
+for which none do" — was discarded during implementation. Under a genuine double threat (two
+*distinct* cells, each independently completing a line for the opponent), occupying one threat
+cell never clears the other: the opponent can still win through the remaining cell on their next
+turn. That means "none [of the opponent's replies] would set `result`" is never true for *any*
+candidate once two or more real threats exist, so the two-ply check always falls through to the
+arbitrary `moves[0]` fallback — which is not guaranteed to be a threat cell at all. The
+single-ply direct check above (does *this* cell, played by the opponent, win right now?) blocks
+the first threat it finds by construction, which is exactly what CA-A-16 asks for ("blocks
+exactly one of those opponent moves"), and reduces to the same behavior as the two-ply version
+whenever there is only one threat (CA-A-05). Logged as **BUG-004** in `docs/bugs.md`. **CA-A-05,
+CA-A-15, and CA-A-16 themselves are unchanged** — this correction is to the implementation
+approach this task describes, not to any acceptance criterion in `spec.md`.
 
 ---
 
