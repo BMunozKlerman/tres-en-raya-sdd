@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mountApp } from '../../src/ui.js';
 
 function mount() {
@@ -53,5 +53,69 @@ describe('CA-I-12 — IN_GAME to WAITING_FOR_AGENT transition', () => {
     root.querySelector('[data-cell="0"]').click();
 
     expect(root.querySelector('[data-waiting-indicator]')).not.toBeNull();
+  });
+});
+
+describe('CA-I-10 — waiting state visible for at least 300ms', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('keeps WAITING_FOR_AGENT and the board disabled just before the 300ms floor elapses', () => {
+    const root = mount();
+    startHumanVsAgent(root);
+
+    root.querySelector('[data-cell="0"]').click();
+    const filledBefore = Array.from(root.querySelectorAll('[data-cell]')).filter(
+      (cell) => cell.dataset.cellState !== 'empty'
+    ).length;
+
+    vi.advanceTimersByTime(299);
+
+    expect(root.querySelector('[data-waiting-indicator]')).not.toBeNull();
+    for (let i = 0; i < 9; i += 1) {
+      expect(root.querySelector(`[data-cell="${i}"]`).disabled).toBe(true);
+    }
+    const filledAfter = Array.from(root.querySelectorAll('[data-cell]')).filter(
+      (cell) => cell.dataset.cellState !== 'empty'
+    ).length;
+    expect(filledAfter).toBe(filledBefore);
+  });
+});
+
+describe('CA-I-13 — WAITING_FOR_AGENT to IN_GAME transition after floor elapses', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('applies the agent move and returns to IN_GAME once 300ms elapse', () => {
+    const root = mount();
+    startHumanVsAgent(root);
+
+    root.querySelector('[data-cell="0"]').click();
+    const filledBefore = Array.from(root.querySelectorAll('[data-cell]')).filter(
+      (cell) => cell.dataset.cellState !== 'empty'
+    ).length;
+
+    vi.advanceTimersByTime(300);
+
+    expect(root.querySelector('[data-waiting-indicator]')).toBeNull();
+    const filledAfter = Array.from(root.querySelectorAll('[data-cell]')).filter(
+      (cell) => cell.dataset.cellState !== 'empty'
+    ).length;
+    expect(filledAfter).toBe(filledBefore + 1);
+    for (let i = 0; i < 9; i += 1) {
+      expect(root.querySelector(`[data-cell="${i}"]`).disabled).toBe(false);
+    }
   });
 });
