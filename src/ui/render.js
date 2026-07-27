@@ -58,12 +58,14 @@ function renderBoard(root, state) {
     const mark = marks[i];
     cell.dataset.cellState = mark === null || mark === undefined ? 'empty' : 'own';
 
+    const markSymbol = mark === null || mark === undefined ? '' : mark;
+
     if (winningLine && winningLine.includes(i)) {
       cell.dataset.winning = 'true';
-      cell.textContent = '★';
+      cell.textContent = `${markSymbol} ★`;
     } else {
       delete cell.dataset.winning;
-      cell.textContent = '';
+      cell.textContent = markSymbol;
     }
 
     if (inMovementPhase && movableFrom.has(i)) {
