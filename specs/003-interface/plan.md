@@ -17,7 +17,8 @@ in this architecture (Single Responsibility, Dependency Inversion) are applied e
 Liskov Substitution / Interface Segregation are recorded as not applicable (no class hierarchy
 exists or is introduced). Responsive layout is mobile-first with one `min-width: 768px`
 breakpoint (D10) and a square board via `aspect-ratio`. Testing adds `jsdom` as a devDependency
-(justified under constitution P1) with a per-file `// @vitest-environment jsdom` pragma, keeping
+— a documented exception to constitution P1 (see Complexity Tracking) — with a per-file
+`// @vitest-environment jsdom` pragma, keeping
 `001-engine`/`002-agents`'s `node`-environment purity untouched in the same `vitest.config.js`.
 Six criteria (CA-I-17 partially, CA-I-28–CA-I-32) cannot be fully verified without a real layout
 engine; per explicit group instruction, no Playwright/browser-mode dependency is added — instead
@@ -65,7 +66,7 @@ cells), one session's worth of state — no multi-page routing, no server, no pe
 
 | Principle | Check | Result |
 |-----------|-------|--------|
-| P1 · Fixed Stack | Vite + vanilla JS + Vitest only; no UI framework introduced. `jsdom` added as a devDependency, justified in `research.md` D-I-02 (required for Vitest's DOM test environment, ships no runtime code). No other dependency proposed. | ✅ Pass (one justified devDependency addition, not a violation of any MUST) |
+| P1 · Fixed Stack | Vite + vanilla JS + Vitest only; no UI framework introduced. `jsdom` added as a devDependency — P1 literally permits only devDependencies "required for Vite and Vitest," and `jsdom` is required for Vitest's `jsdom` *test* environment, not for Vite or Vitest's core itself, so it is treated as an exception rather than assumed to fit the letter of the rule. Documented and justified below in Complexity Tracking, per P1's own clause ("Any proposal to add a dependency requires explicit group approval and documentation in the `plan.md` of the relevant feature with a technical justification"). No other dependency proposed. | ⚠️ Pass with documented exception (see Complexity Tracking) |
 | P2 · Pure Layered Architecture | `src/ui/*.js` (bootstrapped by `src/ui.js`) depends only on the published `engine-api.md`/`agents-api.md` contracts; never imports or duplicates `WINNING_LINES` or any engine/agent internal. Dependency direction `UI → Agents → Engine` preserved. `applyMove`'s immutability is relied upon, not reimplemented. | ✅ Pass |
 | P3 · Spec as Source of Truth | This plan is derived from `spec.md`'s 32 `CA-I-nn` + `CA-N-02`/`CA-N-03`, all already `✅ ready` (CA-I-04's engine dependency, BUG-007, is closed — see spec.md's Amendments-adjacent status row). No behavioral change proposed beyond what `spec.md` already specifies. | ✅ Pass |
 | P4 · EARS Requirements | Unchanged from `spec.md` — this plan introduces no new criteria, only technique. | ✅ Pass (nothing to re-verify here) |
@@ -75,9 +76,10 @@ cells), one session's worth of state — no multi-page routing, no server, no pe
 | P8 · Human Review | N/A at plan stage — applies at task closure (`/speckit-implement`). | ✅ Pass (not yet exercised) |
 | P9 · Non-Functional Requirements | CA-N-02 (mouse-operable) and CA-N-03 (keyboard-operable) both have planned tests (`non-functional.test.js`) before this feature can close. | ✅ Pass |
 
-No constitution violation requires a Complexity Tracking entry (see that section below — empty
-by design). The one dependency addition (`jsdom`) is handled through P1's own explicit-approval
-clause, not as an exception to a MUST.
+One documented exception (P1, the `jsdom` devDependency) is recorded in Complexity Tracking
+below, per P1's own explicit-approval clause. No other principle is exempted; P4–P7 (the four
+absolute non-negotiables per Governance § Exceptions) are unaffected — this exception concerns
+only P1, which permits exceptions.
 
 ## Project Structure
 
@@ -137,12 +139,11 @@ tooling change required.
 
 ## Complexity Tracking
 
-*No entries — Constitution Check above found no violation requiring justification. The one new
-devDependency (`jsdom`) is documented and justified under P1's own explicit-approval clause in
-`research.md` D-I-02, not treated as an exception to a MUST (P1 permits devDependencies "required
-for Vite and Vitest"; `jsdom` is required for Vitest's DOM environment, which this feature is the
-first to need).*
+*One exception, tracked per constitution P1's explicit-approval clause and Governance §
+Exceptions (documented here, in the `plan.md` of the feature requiring it, per that section's
+own procedure). P1 is not one of the four absolute non-negotiables (P4/P5/P6/P7 — Governance §
+Exceptions bars weakening those), so a documented exception is permitted here.*
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| — | — | — |
+| P1 · Fixed Stack — adds `jsdom` as a devDependency, which is not literally "Vite" or "Vitest" itself, only a package Vitest's `jsdom` test environment depends on. | Without a DOM implementation, Vitest's default `node` environment has no `document`/`window`; automating any of CA-I-03, CA-I-05–CA-I-27 (click/keyboard/ARIA/state-feedback behavior) is impossible without one, since they all assert on DOM nodes, attributes, or event dispatch. `jsdom` is Vitest's own documented reference implementation for this. | **No test dependency at all** (verify UI behavior only manually) — rejected: would leave ~27 of 34 criteria with no automated test whatsoever, violating P5/P6 (NON-NEGOTIABLE, no exceptions admitted) far more severely than adding one devDependency violates P1 (which explicitly allows exceptions). **Playwright / Vitest browser mode** — rejected per explicit group instruction (`research.md` D-I-04): adds a heavier browser-automation dependency to solve a problem (DOM assertions) `jsdom` already solves without one; reserved, and still rejected, for the 6 layout-dependent criteria that `jsdom` genuinely cannot help with. `jsdom` ships no code to the built application — it is a test-only devDependency, the smallest exception that keeps P5/P6 intact. |

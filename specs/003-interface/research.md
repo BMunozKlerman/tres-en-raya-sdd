@@ -60,9 +60,12 @@ how the waiting overlay renders should never require touching input handling).
 
 ---
 
-## D-I-02 — `jsdom` as a new devDependency
+## D-I-02 — `jsdom` as a new devDependency (documented exception to P1)
 
-**Decision**: Add `jsdom` to `package.json`'s `devDependencies`.
+**Decision**: Add `jsdom` to `package.json`'s `devDependencies`. Tracked as a documented
+exception to constitution P1 in `plan.md`'s Complexity Tracking section (P1 is not one of the
+four absolute non-negotiables, so a documented exception is permitted there) — this section is
+the technical detail behind that entry, not a separate, independent justification.
 
 **Justification (per constitution P1's explicit-approval clause)**: `jsdom` is required for
 Vitest's `jsdom` test environment, which is the only way to unit-test DOM manipulation, event
