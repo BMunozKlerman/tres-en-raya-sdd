@@ -65,6 +65,13 @@ evaluated — far under the ~700 ms threshold. `HORIZON_DEPTH` was left at 6; se
 Search Horizon for the full measurement log. CA-N-01's own calibration pass (T-055/T-056) is
 independent and measures the same constant against its own worst-case positions.
 
+## CA-A-13 — corollary confirmation, no production code (T-054)
+
+CA-A-13's 20-game simulation (`tests/agents/us-a2-simulation.test.js`) passed on first run, with
+no change to `src/agents.js` — the perceptible-outcome confirmation of CA-A-08's exhaustive proof
+(`spec.md`'s own note on CA-A-13), not a new implementation requirement. Same convention as
+CA-A-14's T-052 note above.
+
 ## CA-A-14 — corollary confirmation, no production code (T-052)
 
 CA-A-14's test (`tests/agents/edge-cases.test.js`) passed on first run, with no change to
