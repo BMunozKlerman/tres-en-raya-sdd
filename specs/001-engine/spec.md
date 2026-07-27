@@ -99,7 +99,7 @@ and verify a win is detected without the game ever ending in draw.
 
 | ID | EARS Criterion | Notes |
 |----|----------------|-------|
-| CA-M-15 | WHEN in continuous mode the sixth placement is applied, THE SYSTEM SHALL return a state in which phase is "movement", turn is the player who did not make the sixth placement, and piecesPlaced is 6. | Transition decision D4: turn goes to the player who did NOT place the 6th mark — derived from unbroken turn alternation |
+| CA-M-15 | WHEN in continuous mode the sixth placement is applied, THE SYSTEM SHALL return a state in which phase is "movement" and turn is the player who did not make the sixth placement. | Transition decision D4: turn goes to the player who did NOT place the 6th mark — derived from unbroken turn alternation. piecesPlaced=6 is implied by CA-M-03 (D9) |
 | CA-M-16 | WHEN the current player moves one of their own marks from a source cell to a cell whose board value is null during the movement phase, THE SYSTEM SHALL return a new state in which the source cell is null and the destination cell contains the player's mark. | Legal movement; any empty cell is valid (decision D1) |
 | CA-M-17 | WHEN in continuous mode result is null and no winning line is fully occupied by a single player's mark after a legal movement, THE SYSTEM SHALL keep result as null in the returned state. | No draw in continuous mode; game continues indefinitely until a line is completed |
 
@@ -133,6 +133,7 @@ a governance amendment.
 | D2 | What happens if a board position repeats indefinitely? | The game continues; no repetition rule, no penalty. | The assignment states continuous mode runs until someone aligns three. Ending the game by repetition would produce a terminal state without a winning line, contradicting that rule. | Group — 2026-07-26 |
 | D3 | Can a player return the next turn to the cell just vacated? | Yes; returning to the just-vacated cell is a legal movement. | Prohibiting it would require storing the previous move in the state, breaking the immutability and purity of `applyMove` required by constitution P2. The just-vacated cell is empty, so CA-M-16 already permits it. | Group — 2026-07-26 |
 | D4 | Who opens the movement phase after the 6th placement? | The player who did NOT make the 6th placement opens the movement phase. | This follows directly from the alternating-turn rule already specified: after the 6th placement, the turn would pass to the other player in the normal course. No additional rule is needed. | Group — 2026-07-26 |
+| D9 | What counts as "one observable response" in P4 when the engine returns a multi-field state? | A criterion describing a single engine operation (place a mark, transition phase) has one observable response: the returned state. The individual fields of that state are properties of one response, not independent responses. Splitting criteria by field would inflate the traceability matrix without adding verification power, since a test always checks the full returned state. Therefore CA-M-03 (placement) and CA-M-15 (phase transition) are kept as atomic criteria. | Group — 2026-07-26 |
 
 ## Requirements *(mandatory)*
 
@@ -159,7 +160,7 @@ a governance amendment.
 | CA-M-12 | US-M-2 | WHEN a move results in cells [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], or [2,4,6] all containing the same player's mark, THE SYSTEM SHALL set result to that player's mark in the returned state. | ✅ ready |
 | CA-M-13 | US-M-2 | WHEN in classic mode the ninth placement is applied and no winning line is fully occupied by a single player's mark, THE SYSTEM SHALL set result to "draw" in the returned state. | ✅ ready |
 | CA-M-14 | US-M-2 | WHEN in classic mode the ninth placement simultaneously fills the board and completes a winning line for the placing player, THE SYSTEM SHALL set result to that player's mark in the returned state and not set result to "draw". | ✅ ready |
-| CA-M-15 | US-M-3 | WHEN in continuous mode the sixth placement is applied, THE SYSTEM SHALL return a state in which phase is "movement", turn is the player who did not make the sixth placement, and piecesPlaced is 6. | ✅ ready |
+| CA-M-15 | US-M-3 | WHEN in continuous mode the sixth placement is applied, THE SYSTEM SHALL return a state in which phase is "movement" and turn is the player who did not make the sixth placement. | ✅ ready |
 | CA-M-16 | US-M-3 | WHEN the current player moves one of their own marks from a source cell to a cell whose board value is null during the movement phase, THE SYSTEM SHALL return a new state in which the source cell is null and the destination cell contains the player's mark. | ✅ ready |
 | CA-M-17 | US-M-3 | WHEN in continuous mode result is null and no winning line is fully occupied by a single player's mark after a legal movement, THE SYSTEM SHALL keep result as null in the returned state. | ✅ ready |
 | CA-M-18 | Edge Cases | WHEN a player submits a movement action specifying a source cell whose board value is null during the movement phase, THE SYSTEM SHALL return an error with reason "no_mark_at_source" and leave the input state unchanged. | ✅ ready |
