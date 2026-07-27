@@ -40,3 +40,23 @@ describe('CA-I-24 — configuration inaccessible outside CONFIGURATION', () => {
     expect(root.querySelector('[data-start-button]').disabled).toBe(true);
   });
 });
+
+describe('CA-I-21 — occupied cell rejected', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('states the cell occupied reason and leaves the board unchanged', () => {
+    const root = mount();
+    startGame(root);
+
+    root.querySelector('[data-cell="0"]').click();
+    const before = Array.from(root.querySelectorAll('[data-cell]')).map((c) => c.dataset.cellState);
+
+    root.querySelector('[data-cell="0"]').click();
+
+    const after = Array.from(root.querySelectorAll('[data-cell]')).map((c) => c.dataset.cellState);
+    expect(after).toEqual(before);
+    expect(root.querySelector('[data-error-indicator]').textContent).toMatch(/cell_occupied|occupied/i);
+  });
+});
