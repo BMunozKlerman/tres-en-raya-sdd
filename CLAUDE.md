@@ -319,12 +319,37 @@ never decide on your own.
       `npm run verify:traceability` reports the remaining 11 `003-interface` criteria (CA-I-17–
       CA-I-20, CA-I-28–CA-I-32, CA-N-02, CA-N-03) as orphaned — expected, their tasks (`T-085`
       onward) have not run yet.
+- [x] `003-interface` implementation continued: `T-085`–`T-092` done and committed, one commit
+      per task, RED before GREEN throughout, `npm test` green at every GREEN commit (103/103 at
+      close). Covers CA-I-17, CA-I-18, CA-I-19, CA-I-20 (26/34 cumulative) — all of US-I-4
+      (keyboard operation) is now closed. T-085/T-086 added capture-phase `focus`/`blur`
+      listeners in `render.js` that toggle `data-focus-visible` on every interactive control
+      (behavioral half only — rendered visibility remains a `manual-verification.md` concern per
+      `research.md` D-I-04). T-087/T-088 added a `keydown` listener on `[data-board]` in
+      `events.js` mapping arrow keys to row/column-aware adjacent-cell `.focus()` calls, clamped
+      at grid edges. T-089/T-090 added an explicit `keydown` handler for `Enter`/`Space` on
+      `[data-cell]` that calls `cell.click()`, since jsdom's `<button>` does not natively
+      dispatch `click` on keyboard activation the way a real browser does — the task's own
+      documented contingency for this exact outcome. T-091/T-092 added `[data-live-region]`
+      (`role="status"`, `aria-live="polite"`) to `render.js`'s base structure, with its
+      `textContent` replaced (not appended) on every turn change and on reaching a result.
+      **One test-fixture bug found and fixed within T-090's own commit** (not a separate BUG-NNN,
+      since it never reached a GREEN commit uncorrected): T-089's original movement-phase fixture
+      placed X at cells `{0,1,2}` — an accidental winning line — which caused the game to finish
+      before reaching the movement phase once real win-detection ran, breaking the test for the
+      wrong reason; corrected to a hand-verified non-winning fixture (X `{0,1,3}`, O `{2,4,5}`)
+      before T-090's GREEN commit landed, same discipline as `001-engine`'s BUG-002 and
+      `002-agents`'s BUG-005. No other spec or process deviations; no bugs found in this block.
+      `npm run verify:traceability` reports the remaining 8 `003-interface` criteria (CA-I-28–
+      CA-I-32, CA-N-02, CA-N-03) as orphaned — expected, their tasks (`T-093` onward, Phases 6–7,
+      responsive CSS and non-functional confirmation) have not run yet.
 - [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
       column still `—` for all 34 rows — filled in during `/speckit-implement`).
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-implement T-085` for `003-interface` (CA-I-17, the focus-visible hook
-that toggles `data-focus-visible` on real `focus`/`blur` event dispatch).
+**Next step**: `/speckit-implement T-093` for `003-interface` (CA-I-28/CA-I-29, the page-layout
+fluidity and mobile-first-breakpoint structural CSS proxy — first task of Phase 6, Responsive
+Design).
 
 ### Session Log
 
@@ -696,3 +721,40 @@ that toggles `data-focus-visible` on real `focus`/`blur` event dispatch).
   orphaned — expected, their tasks (`T-085` onward) have not run yet. Stopped at `T-084` per
   explicit instruction (the requested range `T-077`–`T-084`), landing exactly on a closed RED/
   GREEN pair. **Next step: `/speckit-implement T-085`.**
+- 2026-07-27: `003-interface` implementation continued through `T-085`–`T-092`, one commit per
+  task, RED before GREEN throughout, `npm test` green at every GREEN commit (103/103 at close).
+  Covers CA-I-17, CA-I-18, CA-I-19, CA-I-20 (26/34 cumulative) — closes all of US-I-4. T-085/T-086
+  (CA-I-17): capture-phase `focus`/`blur` listeners added once in `render.js`'s
+  `attachFocusVisible`, attached to `root` (not per-control) so the dynamically-inserted
+  `[data-config-agent-level]` control is covered without re-attaching listeners on every render;
+  toggles `data-focus-visible` on every interactive control named in `dom-contract.md`. T-087/
+  T-088 (CA-I-18): a `keydown` listener on `[data-board]` in `events.js` maps `ArrowUp`/
+  `ArrowDown`/`ArrowLeft`/`ArrowRight` to the adjacent cell by row/column arithmetic, clamping at
+  the grid edge (no criterion requires wrapping, per `spec.md`'s Assumptions) rather than
+  wrapping. T-089/T-090 (CA-I-19): confirmed jsdom's native `<button>` does *not* dispatch `click`
+  on `Enter`/`Space` the way a real browser does — `tasks.md`'s own documented uncertainty for
+  this exact task resolved in favor of the explicit-handler branch: a `keydown` listener on
+  `[data-board]` calls `cell.click()` for `Enter`/`Space`, reusing the existing `click` handler
+  rather than duplicating its branching logic. **One test-fixture bug found and fixed within
+  T-090's own commit, before it reached GREEN** (not logged as a separate `docs/bugs.md` entry,
+  since — unlike `001-engine`'s BUG-002 and `002-agents`'s BUG-005, both caught only after landing
+  in a prior GREEN commit — this one was caught and corrected before any commit shipped it):
+  T-089's original movement-phase fixture placed X's three pieces at cells `{0,1,2}`, an
+  accidental top-row winning line, so once T-090's real win-detection ran during GREEN, the game
+  finished before ever reaching the movement phase and the test failed for the wrong reason.
+  Corrected to a hand-verified non-winning fixture (X at `{0,1,3}`, O at `{2,4,5}`, verified
+  against all 8 `WINNING_LINES` entries) as part of T-090's own commit. T-091/T-092 (CA-I-20):
+  `[data-live-region]` (`role="status"`, `aria-live="polite"`) added to `render.js`'s base
+  structure once, in `buildStructure`; its `textContent` is replaced (not appended) on every
+  render describing the current turn or, once `FINISHED`, the result — no `.focus()` call
+  anywhere in this path. Its own RED test initially asserted focus stayed on the just-played
+  board cell after a win, which is not achievable: disabling a focused `<button>` (CA-I-04's
+  block-further-moves rule) natively blurs it in both jsdom and real browsers — not a violation
+  of CA-I-20, since the UI code itself never calls `.focus()`/`.blur()` for this. Rewritten to
+  assert focus retention against `[data-restart-button]` instead, the one control
+  `dom-contract.md` guarantees is never disabled. No other spec or process deviations; no bugs
+  found in this block. `npm run verify:traceability` reports the remaining 8 `003-interface`
+  criteria (CA-I-28–CA-I-32, CA-N-02, CA-N-03) as orphaned — expected, their tasks (`T-093`
+  onward, Phases 6–7) have not run yet. Requested range was `T-085`–`T-091`; per instruction to
+  finish a pair rather than stop mid-pair, execution continued one task further to `T-092` to
+  close the CA-I-20 RED/GREEN pair T-091 opened. **Next step: `/speckit-implement T-093`.**
