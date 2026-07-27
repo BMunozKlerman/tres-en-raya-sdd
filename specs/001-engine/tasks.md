@@ -35,41 +35,41 @@
 
 _Separated from CA-M-02/CA-M-03: `createGame` is a factory function, a distinct export from `applyMove`. A commit that mixes the factory with the placement path makes `git log --grep="CA-M-01"` return a commit that also contains unrelated placement logic._
 
-- [ ] T-003 [US-M-1] [AC: CA-M-01] RED — Create `tests/engine/us-m1-rules.test.js`; add one failing `describe('CA-M-01 — initial state', () => { it('returns the correct initial state for classic mode', ...) })`: call `createGame('classic')`, assert board is an array of 9 nulls, turn is `'X'`, mode is `'classic'`, phase is `'placement'`, piecesPlaced is `0`, result is `null`; add a second `it` for `createGame('continuous')` asserting mode is `'continuous'` and all other fields identical. Expected commit: `test(CA-M-01): failing test — initial state`
+- [X] T-003 [US-M-1] [AC: CA-M-01] RED — Create `tests/engine/us-m1-rules.test.js`; add one failing `describe('CA-M-01 — initial state', () => { it('returns the correct initial state for classic mode', ...) })`: call `createGame('classic')`, assert board is an array of 9 nulls, turn is `'X'`, mode is `'classic'`, phase is `'placement'`, piecesPlaced is `0`, result is `null`; add a second `it` for `createGame('continuous')` asserting mode is `'continuous'` and all other fields identical. Expected commit: `test(CA-M-01): failing test — initial state`
 
-- [ ] T-004 [US-M-1] [AC: CA-M-01] GREEN — Create `src/engine.js`; export `createGame(mode = 'classic')` returning a plain object with fields `{board: Array(9).fill(null), turn: 'X', mode, phase: 'placement', piecesPlaced: 0, result: null}`; `npm test` must pass for CA-M-01 only (no other tests exist yet). Expected commit: `T-004: createGame factory (CA-M-01)`
+- [X] T-004 [US-M-1] [AC: CA-M-01] GREEN — Create `src/engine.js`; export `createGame(mode = 'classic')` returning a plain object with fields `{board: Array(9).fill(null), turn: 'X', mode, phase: 'placement', piecesPlaced: 0, result: null}`; `npm test` must pass for CA-M-01 only (no other tests exist yet). Expected commit: `T-004: createGame factory (CA-M-01)`
 
 ### Group B — applyMove: legal placement (CA-M-02, CA-M-03)
 
 _CA-M-02 (turn flip) and CA-M-03 (board update + piecesPlaced) are two observable properties of the same `applyMove` call on a legal placement (D9: one operation, one returned state). Both are verified by the same test setup and implemented in the same function branch._
 
-- [ ] T-005 [US-M-1] [AC: CA-M-02, CA-M-03] RED — Add to `tests/engine/us-m1-rules.test.js`:
+- [X] T-005 [US-M-1] [AC: CA-M-02, CA-M-03] RED — Add to `tests/engine/us-m1-rules.test.js`:
   - `describe('CA-M-02 — turn alternation', ...)`: apply one legal placement (X at cell 0 on initial state); assert returned state has `turn === 'O'`.
   - `describe('CA-M-03 — legal placement', ...)`: apply one legal placement (X at cell 4 on initial state); assert returned board[4] is `'X'` and returned piecesPlaced is `1`.
   Expected commit: `test(CA-M-02,CA-M-03): failing tests — turn alternation and legal placement`
 
-- [ ] T-006 [US-M-1] [AC: CA-M-02, CA-M-03] GREEN — In `src/engine.js`, export `applyMove(state, move)`; add the placement path: copy board, set `newBoard[move.cell] = move.player`, compute `newPiecesPlaced = state.piecesPlaced + 1`, flip turn (`state.turn === 'X' ? 'O' : 'X'`), return new state object (no mutation); `npm test` must be fully green. Expected commit: `T-006: applyMove placement path (CA-M-02, CA-M-03)`
+- [X] T-006 [US-M-1] [AC: CA-M-02, CA-M-03] GREEN — In `src/engine.js`, export `applyMove(state, move)`; add the placement path: copy board, set `newBoard[move.cell] = move.player`, compute `newPiecesPlaced = state.piecesPlaced + 1`, flip turn (`state.turn === 'X' ? 'O' : 'X'`), return new state object (no mutation); `npm test` must be fully green. Expected commit: `T-006: applyMove placement path (CA-M-02, CA-M-03)`
 
 ### Group C — universal guards: game_over and wrong_turn (CA-M-05, CA-M-06)
 
 _CA-M-05 (wrong_turn) and CA-M-06 (game_over) are both checked at the very top of `applyMove`, before any type dispatch — the same code layer. Separated from CA-M-04 (which lives inside the placement branch, a different layer)._
 
-- [ ] T-007 [US-M-1] [AC: CA-M-05, CA-M-06] RED — Add to `tests/engine/us-m1-rules.test.js`:
+- [X] T-007 [US-M-1] [AC: CA-M-05, CA-M-06] RED — Add to `tests/engine/us-m1-rules.test.js`:
   - `describe('CA-M-05 — illegal: wrong turn', ...)`: on initial state (turn=X), call `applyMove` with player `'O'`; assert return is `{error: true, reason: 'wrong_turn'}`; assert input state object is the same reference or byte-for-byte unchanged.
   - `describe('CA-M-06 — illegal: game over', ...)`: build a state with `result: 'X'`; call `applyMove` with any move; assert `{error: true, reason: 'game_over'}` and state unchanged.
   Expected commit: `test(CA-M-05,CA-M-06): failing tests — wrong turn and game over guards`
 
-- [ ] T-008 [US-M-1] [AC: CA-M-05, CA-M-06] GREEN — In `src/engine.js`, prepend two universal guards to `applyMove` (before any other logic): `if (state.result !== null) return {error: true, reason: 'game_over'}`; `if (move.player !== state.turn) return {error: true, reason: 'wrong_turn'}`; `npm test` must be fully green. Expected commit: `T-008: universal guards game_over and wrong_turn (CA-M-05, CA-M-06)`
+- [X] T-008 [US-M-1] [AC: CA-M-05, CA-M-06] GREEN — In `src/engine.js`, prepend two universal guards to `applyMove` (before any other logic): `if (state.result !== null) return {error: true, reason: 'game_over'}`; `if (move.player !== state.turn) return {error: true, reason: 'wrong_turn'}`; `npm test` must be fully green. Expected commit: `T-008: universal guards game_over and wrong_turn (CA-M-05, CA-M-06)`
 
 ### Group D — placement-branch guard: cell_occupied (CA-M-04)
 
 _CA-M-04 (cell_occupied) lives inside the placement branch of `applyMove`, after type dispatch — a different layer from the universal guards in Group C. Separate pair keeps `git log --grep="CA-M-04"` pointing to a commit that touches only the placement branch._
 
-- [ ] T-009 [US-M-1] [AC: CA-M-04] RED — Add to `tests/engine/us-m1-rules.test.js`:
+- [X] T-009 [US-M-1] [AC: CA-M-04] RED — Add to `tests/engine/us-m1-rules.test.js`:
   - `describe('CA-M-04 — illegal: occupied cell', ...)`: build a state with board[0]='X'; call `applyMove` with `{type: 'place', player: 'O', cell: 0}`; assert `{error: true, reason: 'cell_occupied'}` and state unchanged.
   Expected commit: `test(CA-M-04): failing test — occupied cell guard in placement path`
 
-- [ ] T-010 [US-M-1] [AC: CA-M-04] GREEN — In `src/engine.js`, inside the placement path, add guard before board mutation: `if (state.board[move.cell] !== null) return {error: true, reason: 'cell_occupied'}`; `npm test` must be fully green. Expected commit: `T-010: cell_occupied guard in placement path (CA-M-04)`
+- [X] T-010 [US-M-1] [AC: CA-M-04] GREEN — In `src/engine.js`, inside the placement path, add guard before board mutation: `if (state.board[move.cell] !== null) return {error: true, reason: 'cell_occupied'}`; `npm test` must be fully green. Expected commit: `T-010: cell_occupied guard in placement path (CA-M-04)`
 
 ### Group E — type-dispatch guard: wrong_phase, movement during placement (CA-M-08)
 
