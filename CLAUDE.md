@@ -215,20 +215,28 @@ never decide on your own.
       feature). `src/agents.js` now implements all three levels (simple: uniform random;
       medium: win-then-block rule; complex: minimax + alpha-beta, `HORIZON_DEPTH=6`, transposition
       table). **002-agents is closed.**
-- [x] Spec 003-interface — `/speckit-specify` done: `spec.md` with 4 user stories (US-I-1..4),
-      28 `CA-I-nn` criteria (the 5 mandatory assignment criteria, verbatim from §2.5, mapped to
-      their Spanish original in a dedicated table; configuration; scoreboard; restart; full
-      keyboard operation; color-independent information; agent memory-reuse observability;
-      responsive design 320–1440px) plus `CA-N-02`/`CA-N-03` cited from the constitution.
-      Checklist passed, 0 `NEEDS CLARIFICATION` markers. `/speckit-clarify` done (audit-only,
-      D9/D10 not reopened): confirmed unique IDs, no P4-prohibited words in criterion text, and
-      found 2 real state-machine gaps (no FINISHED-draw visual criterion; the
-      `IN_GAME↔WAITING_FOR_AGENT` transitions were only inferable from CA-I-06's `WHILE`, not
-      asserted directly) plus a genuine cross-feature contract gap — see next entry. Spec now at
-      32 `CA-I-nn` criteria. **001-engine reopened** by this audit (see BUG-007 below) —
-      `specs/001-engine` is no longer fully closed until T-058/T-059 land.
+- [x] Spec 003-interface — `/speckit-specify` **and** `/speckit-clarify` both done
+      (2026-07-27). `spec.md` now holds 4 user stories (US-I-1..4) and **32 `CA-I-nn`
+      criteria** (the 5 mandatory assignment criteria, verbatim from §2.5, mapped to their
+      Spanish original in a dedicated table; configuration; scoreboard; restart; full keyboard
+      operation; color-independent information; agent memory-reuse observability; responsive
+      design 320–1440px; minimum waiting-state duration; draw indicator; explicit
+      `WAITING_FOR_AGENT` transition criteria) plus `CA-N-02`/`CA-N-03` cited from the
+      constitution. Checklist passed, 0 `NEEDS CLARIFICATION` markers. `/speckit-clarify` was
+      audit-only (D9/D10 not reopened) and grew the spec from 28 to 32 criteria — see Session
+      Log for the full Q&A. **Blocked on `001-engine`**: CA-I-04 cites `state.winningLine`,
+      which does not exist in `src/engine.js` yet (BUG-007). `/speckit-plan` for 003-interface
+      should not start until that field lands.
+- [ ] **`001-engine` reopened, not fully closed** — `CA-M-12` amended (`spec.md`,
+      `data-model.md`, `contracts/engine-api.md`) to also return `winningLine`; **T-058 (RED)
+      and T-059 (GREEN) are written in `tasks.md` but not yet run** — `src/engine.js` is
+      unchanged. **BUG-007 (`docs/bugs.md`) is Open** until those two tasks close it.
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
+
+**Next step**: `/speckit-implement T-058` (then T-059) to close BUG-007 and land
+`state.winningLine` in `src/engine.js`; only after that, resume 003-interface with
+`/speckit-plan`.
 
 ### Session Log
 
