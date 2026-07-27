@@ -1,9 +1,24 @@
-import { startGame, applyPlayerMove, selectOwnMark } from './app-state.js';
+import { startGame, applyPlayerMove, selectOwnMark, requestAgentMove } from './app-state.js';
 import { render } from './render.js';
 
 export function attachEvents(root, getState, setState) {
   function rerender() {
     render(root, getState());
+  }
+
+  function isAgentTurn(state) {
+    return (
+      state.uiState === 'IN_GAME' &&
+      state.config.opponentType === 'agent' &&
+      state.engineState.turn !== state.config.marks.player1
+    );
+  }
+
+  function maybeHandOffToAgent() {
+    const state = getState();
+    if (isAgentTurn(state)) {
+      setState(requestAgentMove(state));
+    }
   }
 
   function readConfig() {
@@ -71,6 +86,7 @@ export function attachEvents(root, getState, setState) {
             to: index,
           })
         );
+        maybeHandOffToAgent();
       } else if (state.engineState.board[index] === state.engineState.turn) {
         setState(selectOwnMark(state, index));
       }
@@ -81,6 +97,7 @@ export function attachEvents(root, getState, setState) {
     setState(
       applyPlayerMove(state, { type: 'place', player: state.engineState.turn, cell: index })
     );
+    maybeHandOffToAgent();
     rerender();
   });
 }

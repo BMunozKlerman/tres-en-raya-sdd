@@ -65,4 +65,9 @@ export function selectOwnMark(state, cell) {
   };
 }
 
+export function requestAgentMove(state) {
+  if (state.uiState !== 'IN_GAME') return state;
+  return { ...state, uiState: 'WAITING_FOR_AGENT' };
+}
+
 export { isConfigComplete };

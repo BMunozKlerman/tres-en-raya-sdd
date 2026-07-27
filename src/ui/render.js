@@ -95,6 +95,18 @@ function renderStatus(root, state) {
   }
   turnIndicator.textContent = state.engineState ? `Turno de ${state.engineState.turn}` : '';
 
+  let waitingIndicator = root.querySelector('[data-waiting-indicator]');
+  if (state.uiState === 'WAITING_FOR_AGENT') {
+    if (!waitingIndicator) {
+      waitingIndicator = document.createElement('p');
+      waitingIndicator.setAttribute('data-waiting-indicator', '');
+      root.appendChild(waitingIndicator);
+    }
+    waitingIndicator.textContent = 'Esperando al agente…';
+  } else if (waitingIndicator) {
+    waitingIndicator.remove();
+  }
+
   let errorIndicator = root.querySelector('[data-error-indicator]');
   if (!errorIndicator) {
     errorIndicator = document.createElement('p');
