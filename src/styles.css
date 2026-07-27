@@ -23,6 +23,25 @@
 .board {
   width: min(90vw, 480px);
   max-width: 100%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.25rem;
+}
+
+button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+select {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.cell {
+  min-width: 44px;
+  min-height: 44px;
 }
 
 .scoreboard {
