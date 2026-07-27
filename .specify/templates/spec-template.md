@@ -1,6 +1,7 @@
 # Feature Specification: [FEATURE NAME]
 
 **Feature Branch**: `[###-feature-name]`
+**ID Area**: `[M | A | I | N]` ← prefix used for all CA-<area>-<nn> IDs in this spec
 
 **Created**: [DATE]
 
@@ -8,124 +9,171 @@
 
 **Input**: User description: "$ARGUMENTS"
 
-## User Scenarios & Testing *(mandatory)*
-
 <!--
-  IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.
-  Each user story/journey must be INDEPENDENTLY TESTABLE - meaning if you implement just ONE of them,
-  you should still have a viable MVP (Minimum Viable Product) that delivers value.
-
-  Assign priorities (P1, P2, P3, etc.) to each story, where P1 is the most critical.
-  Think of each story as a standalone slice of functionality that can be:
-  - Developed independently
-  - Tested independently
-  - Deployed independently
-  - Demonstrated to users independently
+  LANGUAGE: All content in this spec must be written in English.
+  Exception: specs/003-interface/spec.md — see language convention in CLAUDE.md.
 -->
 
-### User Story 1 - [Brief Title] (Priority: P1)
+## User Stories *(mandatory)*
 
-[Describe this user journey in plain language]
+<!--
+  Label stories as US-<area>-<n> (e.g., US-M-1). Each story must be independently
+  testable: implementing only one story must produce a verifiable MVP.
+  Assign priorities P1 (most critical) → P2 → P3…
 
-**Why this priority**: [Explain the value and why it has this priority level]
+  PROHIBITED WORDS in criteria — P4 of the Constitution:
+  correctly · intuitive · fast · reasonable · appropriate · user-friendly
+  If a word does not name a concrete test assertion → rewrite the criterion.
 
-**Independent Test**: [Describe how this can be tested independently - e.g., "Can be fully tested by [specific action] and delivers [specific value]"]
+  Valid EARS forms (exactly one per criterion):
+    THE SYSTEM SHALL <response>
+    WHEN <event>, THE SYSTEM SHALL <response>
+    WHILE <state>, THE SYSTEM SHALL <response>
+    IF <condition>, THEN THE SYSTEM SHALL <response>
+    WHERE <feature>, THE SYSTEM SHALL <response>
 
-**Acceptance Scenarios**:
+  One criterion = exactly ONE observable result = exactly ONE test.
+  Ambiguity → mark [NEEDS CLARIFICATION: <description>] in the Notes column
+  and resolve in "Pending Decisions" before running /speckit-tasks.
+-->
 
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-2. **Given** [initial state], **When** [action], **Then** [expected outcome]
+### US-[area]-1 · [Brief Title] (Priority: P1)
 
----
+[Describe the user journey in plain language, without mentioning technology.]
 
-### User Story 2 - [Brief Title] (Priority: P2)
+**Why P1**: [Value delivered and reason for this priority]
 
-[Describe this user journey in plain language]
+**Independent test**: [How to verify this story alone, without the others]
 
-**Why this priority**: [Explain the value and why it has this priority level]
+**Acceptance criteria** (EARS notation):
 
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
-
----
-
-### User Story 3 - [Brief Title] (Priority: P3)
-
-[Describe this user journey in plain language]
-
-**Why this priority**: [Explain the value and why it has this priority level]
-
-**Independent Test**: [Describe how this can be tested independently]
-
-**Acceptance Scenarios**:
-
-1. **Given** [initial state], **When** [action], **Then** [expected outcome]
+| ID | EARS Criterion | Notes |
+|----|----------------|-------|
+| CA-[area]-01 | WHEN [event], THE SYSTEM SHALL [single observable response] | |
+| CA-[area]-02 | IF [condition], THEN THE SYSTEM SHALL [single observable response] | [NEEDS CLARIFICATION: ...] if applicable |
 
 ---
 
-[Add more user stories as needed, each with an assigned priority]
+### US-[area]-2 · [Brief Title] (Priority: P2)
+
+[Describe the user journey in plain language.]
+
+**Why P2**: [Value and priority]
+
+**Independent test**: [How to verify this story alone]
+
+**Acceptance criteria** (EARS notation):
+
+| ID | EARS Criterion | Notes |
+|----|----------------|-------|
+| CA-[area]-NN | WHEN [event], THE SYSTEM SHALL [single observable response] | |
+
+---
+
+### US-[area]-3 · [Brief Title] (Priority: P3)
+
+[Describe the user journey in plain language.]
+
+**Why P3**: [Value and priority]
+
+**Independent test**: [How to verify this story alone]
+
+**Acceptance criteria** (EARS notation):
+
+| ID | EARS Criterion | Notes |
+|----|----------------|-------|
+| CA-[area]-NN | THE SYSTEM SHALL [single observable response] | |
+
+---
+
+[Add more US-[area]-N as needed, each with an assigned priority.]
 
 ### Edge Cases
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right edge cases.
+  Every edge case that produces behavior different from the happy path MUST have its own
+  CA-ID. Do not describe handling "in general"; specify the exact system response.
 -->
 
-- What happens when [boundary condition]?
-- How does system handle [error scenario]?
+| ID | Edge Case | EARS Criterion |
+|----|-----------|----------------|
+| CA-[area]-NN | [boundary condition] | IF [condition], THEN THE SYSTEM SHALL [response] |
+| CA-[area]-NN | [error scenario] | WHEN [error event], THE SYSTEM SHALL [response] |
+
+### Out of Scope
+
+<!--
+  Explicitly list what this feature does NOT cover. Prevents scope creep during implement.
+-->
+
+- [Excluded behavior 1]
+- [Excluded behavior 2]
+
+### Pending Decisions [NEEDS CLARIFICATION]
+
+<!--
+  Every ambiguity marked with [NEEDS CLARIFICATION] in the criteria tables MUST be
+  resolved here before running /speckit-tasks. No pending rows = spec ready.
+-->
+
+| # | Question | Decision | Owner | Date |
+|---|----------|----------|-------|------|
+| 1 | [Detected ambiguity] | _pending_ | | |
 
 ## Requirements *(mandatory)*
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right functional requirements.
+  This section is the consolidated index of all EARS criteria in the spec.
+  Criteria live in the acceptance-criteria tables of each User Story and in Edge Cases above.
+  This index exists so /speckit-plan and /speckit-tasks can reference all criteria without
+  scanning each story individually.
+
+  Instructions:
+  1. Copy each CA-ID here with its full EARS criterion text.
+  2. Indicate which US it belongs to.
+  3. Do not paraphrase: the EARS text must be identical to the source table.
+  4. Mark with ⚠️ any criterion that still has an unresolved [NEEDS CLARIFICATION].
 -->
 
 ### Functional Requirements
 
-- **FR-001**: System MUST [specific capability, e.g., "allow users to create accounts"]
-- **FR-002**: System MUST [specific capability, e.g., "validate email addresses"]
-- **FR-003**: Users MUST be able to [key interaction, e.g., "reset their password"]
-- **FR-004**: System MUST [data requirement, e.g., "persist user preferences"]
-- **FR-005**: System MUST [behavior, e.g., "log all security events"]
-
-*Example of marking unclear requirements:*
-
-- **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
-- **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
+| CA-ID | US | EARS Criterion | Status |
+|-------|----|----------------|--------|
+| CA-[area]-01 | US-[area]-1 | WHEN [event], THE SYSTEM SHALL [response] | ✅ ready |
+| CA-[area]-02 | US-[area]-1 | IF [condition], THEN THE SYSTEM SHALL [response] | ⚠️ pending |
+| CA-[area]-NN | US-[area]-2 | WHEN [event], THE SYSTEM SHALL [response] | ✅ ready |
+| CA-[area]-NN | Edge Cases | IF [condition], THEN THE SYSTEM SHALL [response] | ✅ ready |
 
 ### Key Entities *(include if feature involves data)*
 
-- **[Entity 1]**: [What it represents, key attributes without implementation]
-- **[Entity 2]**: [What it represents, relationships to other entities]
+<!--
+  Describe what each entity represents and its relationships. No implementation detail
+  (data types, concrete field names → those go in plan.md).
+-->
+
+- **[Entity 1]**: [What it represents, attributes relevant to behavior]
+- **[Entity 2]**: [Relationships to other entities]
 
 ## Success Criteria *(mandatory)*
 
 <!--
-  ACTION REQUIRED: Define measurable success criteria.
-  These must be technology-agnostic and measurable.
+  Mapped to CA-IDs where possible. Technology-agnostic and measurable.
+  If a success criterion covers several CA-IDs, list all of them.
 -->
 
-### Measurable Outcomes
-
-- **SC-001**: [Measurable metric, e.g., "Users can complete account creation in under 2 minutes"]
-- **SC-002**: [Measurable metric, e.g., "System handles 1000 concurrent users without degradation"]
-- **SC-003**: [User satisfaction metric, e.g., "90% of users successfully complete primary task on first attempt"]
-- **SC-004**: [Business metric, e.g., "Reduce support tickets related to [X] by 50%"]
+| ID | Measurable Outcome | CA-IDs Covered |
+|----|--------------------|----------------|
+| SC-001 | [Concrete, verifiable metric] | CA-[area]-NN |
+| SC-002 | [Concrete, verifiable metric] | CA-[area]-NN, CA-[area]-NN |
 
 ## Assumptions
 
 <!--
-  ACTION REQUIRED: The content in this section represents placeholders.
-  Fill them out with the right assumptions based on reasonable defaults
-  chosen when the feature description did not specify certain details.
+  Assumptions that, if changed, would invalidate criteria in this spec. If an assumption
+  changes, review the affected CA-IDs before continuing.
 -->
 
-- [Assumption about target users, e.g., "Users have stable internet connectivity"]
-- [Assumption about scope boundaries, e.g., "Mobile support is out of scope for v1"]
-- [Assumption about data/environment, e.g., "Existing authentication system will be reused"]
-- [Dependency on existing system/service, e.g., "Requires access to the existing user profile API"]
+- [Assumption about target users or usage context]
+- [Assumption about scope boundaries]
+- [Assumption about the environment or existing system]
+- [Dependency on another feature or service]
