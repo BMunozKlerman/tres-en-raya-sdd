@@ -286,12 +286,35 @@ never decide on your own.
       (T-064/T-066) already branches generically on any non-null `result` (mark or `'draw'`), so
       both draw-case tests passed on first run; T-068 recorded the corollary the same way
       `specs/002-agents/traceability.md` documents CA-A-14's.
+- [x] `003-interface` implementation continued: `T-069`–`T-076` done and committed, one commit
+      per task, RED before GREEN, `npm test` green throughout (85/85 at close). Covers CA-I-06,
+      CA-I-07, CA-I-08, CA-I-12, CA-I-22, CA-I-25, CA-I-26, CA-I-27 (17/34 cumulative). T-069/T-070
+      (CA-I-08, color-independent information) turned out to be a second zero-code corollary —
+      T-064/T-066 already rendered every state it covers (turn, rejected move, winning line)
+      through `textContent`/a `data-*`-driven child node — documented in `traceability.md`
+      alongside the CA-I-11/CA-I-15 note, same convention. T-071/T-072 added
+      `selectOwnMark(state, cell)` to `app-state.js` (toggle-to-cancel per D9) and `data-movable`/
+      `data-selected`/`data-destination` rendering in `render.js`, driven from `legalMoves`
+      (`specs/001-engine`); `events.js`'s board-cell click now branches on `phase === 'movement'`
+      to call `selectOwnMark` instead of `applyPlayerMove`. T-073/T-074 wired a highlighted
+      destination cell's click to `applyPlayerMove({type: 'move', from, to})`. T-075/T-076 added
+      `requestAgentMove(state)` to `app-state.js` (sets `uiState: 'WAITING_FOR_AGENT'` only, no
+      `chooseMove` call yet — that is `T-077`/`T-078`'s responsibility) and a
+      `[data-waiting-indicator]` in `render.js`; `events.js` now calls `requestAgentMove`
+      synchronously right after any human move whose resulting turn belongs to the configured
+      agent, and the existing `uiState !== 'IN_GAME'` guard on the board's click handler already
+      blocks input during `WAITING_FOR_AGENT` (CA-I-22), so no new ignore-logic was needed. No spec
+      or process deviations beyond the CA-I-08 corollary noted above; no bugs found in this block.
+      `npm run verify:traceability` correctly reports the remaining 16 `003-interface` criteria
+      (CA-I-09, CA-I-10, CA-I-13, CA-I-16–CA-I-20, CA-I-23, CA-I-28–CA-I-32, CA-N-02, CA-N-03) as
+      orphaned — expected, their tasks (`T-077` onward) have not run yet. **Next step:
+      `/speckit-implement T-077`.**
 - [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
       column still `—` for all 34 rows — filled in during `/speckit-implement`).
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-implement T-069` for `003-interface` (CA-I-08, color-independent
-information — corollary test over the states T-064/T-066 already built).
+**Next step**: `/speckit-implement T-077` for `003-interface` (CA-I-10/CA-I-13, the 300ms minimum
+waiting duration and `WAITING_FOR_AGENT → IN_GAME` transition via `resolveAgentMove`).
 
 ### Session Log
 
