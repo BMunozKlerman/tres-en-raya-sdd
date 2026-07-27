@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createGame, applyMove } from '../../src/engine.js';
+import { createGame, applyMove, legalMoves } from '../../src/engine.js';
 
 describe('CA-M-01 — initial state', () => {
   it('returns the correct initial state for classic mode', () => {
@@ -94,5 +94,31 @@ describe('CA-M-20 — illegal: placement during movement phase', () => {
     const result = applyMove(state, { type: 'place', player: 'X', cell: 6 });
     expect(result).toEqual({ error: true, reason: 'wrong_phase' });
     expect(state).toEqual(frozen);
+  });
+});
+
+describe('CA-M-09 — legalMoves in placement phase', () => {
+  it('returns one placement action for each null cell', () => {
+    const state = createGame('classic');
+    const moves = legalMoves(state);
+    expect(moves).toHaveLength(9);
+    for (let i = 0; i < 9; i += 1) {
+      expect(moves).toContainEqual({ type: 'place', cell: i });
+    }
+  });
+
+  it('excludes cells that are already occupied', () => {
+    const base = createGame('classic');
+    const state = { ...base, board: ['X', ...base.board.slice(1)] };
+    const moves = legalMoves(state);
+    expect(moves).toHaveLength(8);
+    expect(moves).not.toContainEqual({ type: 'place', cell: 0 });
+  });
+});
+
+describe('CA-M-11 — legalMoves after game over', () => {
+  it('returns an empty list once the game has a result', () => {
+    const state = { ...createGame('classic'), result: 'X' };
+    expect(legalMoves(state)).toEqual([]);
   });
 });
