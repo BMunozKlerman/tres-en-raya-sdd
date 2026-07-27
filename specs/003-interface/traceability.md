@@ -16,40 +16,40 @@ row — this skeleton is a `/speckit-plan` output, before task generation.
 
 | CA-ID | Task | Test file | `describe`/`it` label | Commit SHA |
 |-------|------|-----------|------------------------|------------|
-| CA-I-01 | — | us-i1-configuration.test.js | `CA-I-01 — configuration controls displayed` | — |
-| CA-I-02 | — | us-i1-configuration.test.js | `CA-I-02 — start transitions CONFIGURATION to IN_GAME` | — |
-| CA-I-03 | — | us-i2-state-feedback.test.js | `CA-I-03 — turn indicator` | — |
-| CA-I-04 | — | us-i2-state-feedback.test.js | `CA-I-04 — winning line highlighted, moves blocked` | — |
-| CA-I-05 | — | us-i2-state-feedback.test.js | `CA-I-05 — illegal move rejected with reason` | — |
-| CA-I-06 | — | us-i2-waiting-state.test.js | `CA-I-06 — waiting state shown, board disabled` | — |
-| CA-I-07 | — | us-i2-state-feedback.test.js | `CA-I-07 — movement-phase legal marks and destinations indicated` | — |
-| CA-I-08 | — | us-i2-state-feedback.test.js | `CA-I-08 — information conveyed without color alone` | — |
-| CA-I-09 | — | us-i2-state-feedback.test.js | `CA-I-09 — resolvedFromMemory indicator` | — |
-| CA-I-10 | — | us-i2-waiting-state.test.js | `CA-I-10 — waiting state visible for at least 300ms` | — |
-| CA-I-11 | — | us-i2-state-feedback.test.js | `CA-I-11 — draw indicator, moves blocked` | — |
-| CA-I-12 | — | us-i2-waiting-state.test.js | `CA-I-12 — IN_GAME to WAITING_FOR_AGENT transition` | — |
-| CA-I-13 | — | us-i2-waiting-state.test.js | `CA-I-13 — WAITING_FOR_AGENT to IN_GAME transition after floor elapses` | — |
-| CA-I-14 | — | us-i3-scoreboard.test.js | `CA-I-14 — win increments scoreboard` | — |
-| CA-I-15 | — | us-i3-scoreboard.test.js | `CA-I-15 — draw increments scoreboard` | — |
-| CA-I-16 | — | us-i3-scoreboard.test.js | `CA-I-16 — restart returns to CONFIGURATION, scoreboard preserved` | — |
-| CA-I-17 | — | us-i4-keyboard.test.js | `CA-I-17 — focus-visible hook toggles on focus/blur` | — (behavioral half only — see `manual-verification.md` for rendered visibility) |
-| CA-I-18 | — | us-i4-keyboard.test.js | `CA-I-18 — arrow keys move cell selection` | — |
-| CA-I-19 | — | us-i4-keyboard.test.js | `CA-I-19 — Enter/Space activates like a click` | — |
-| CA-I-20 | — | us-i4-keyboard.test.js | `CA-I-20 — turn/result announced without moving focus` | — |
-| CA-I-21 | — | edge-cases.test.js | `CA-I-21 — occupied cell rejected` | — |
-| CA-I-22 | — | edge-cases.test.js | `CA-I-22 — input ignored during WAITING_FOR_AGENT` | — |
-| CA-I-23 | — | edge-cases.test.js | `CA-I-23 — restart during movement phase clears pending selection` | — |
-| CA-I-24 | — | edge-cases.test.js | `CA-I-24 — configuration inaccessible outside CONFIGURATION` | — |
-| CA-I-25 | — | edge-cases.test.js | `CA-I-25 — own-mark selection highlights destinations` | — |
-| CA-I-26 | — | edge-cases.test.js | `CA-I-26 — destination selection applies the move` | — |
-| CA-I-27 | — | edge-cases.test.js | `CA-I-27 — reselecting own mark cancels selection` | — |
-| CA-I-28 | — | responsive-static.test.js | `CA-I-28 — no fixed pixel widths on layout containers` | — (structural proxy only — see `manual-verification.md`) |
-| CA-I-29 | — | responsive-static.test.js | `CA-I-29 — single column below 768px, min-width breakpoint` | — (structural proxy only — see `manual-verification.md`) |
-| CA-I-30 | — | responsive-static.test.js | `CA-I-30 — board container is square (aspect-ratio 1/1)` | — (structural proxy only — see `manual-verification.md`) |
-| CA-I-31 | — | responsive-static.test.js | `CA-I-31 — interactive controls declare 44x44px minimum` | — (declared-value check — see `research.md` D-I-04 for why this one is closer to direct) |
-| CA-I-32 | — | responsive-static.test.js | `CA-I-32 — configuration controls not clipped or overflow-hidden` | — (structural proxy only — see `manual-verification.md`) |
-| CA-N-02 | — | non-functional.test.js | `CA-N-02 — fully operable with mouse (click handlers cover every action)` | — |
-| CA-N-03 | — | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | — |
+| CA-I-01 | T-061/T-062 | us-i1-configuration.test.js | `CA-I-01 — configuration controls displayed` | — |
+| CA-I-02 | T-061/T-062 | us-i1-configuration.test.js | `CA-I-02 — start transitions CONFIGURATION to IN_GAME` | — |
+| CA-I-03 | T-063/T-064 | us-i2-state-feedback.test.js | `CA-I-03 — turn indicator` | — |
+| CA-I-04 | T-065/T-066 | us-i2-state-feedback.test.js | `CA-I-04 — winning line highlighted, moves blocked` | — |
+| CA-I-05 | T-063/T-064 | us-i2-state-feedback.test.js | `CA-I-05 — illegal move rejected with reason` | — |
+| CA-I-06 | T-075/T-076 | us-i2-waiting-state.test.js | `CA-I-06 — waiting state shown, board disabled` | — |
+| CA-I-07 | T-071/T-072 | us-i2-state-feedback.test.js | `CA-I-07 — movement-phase legal marks and destinations indicated` | — |
+| CA-I-08 | T-069/T-070 | us-i2-state-feedback.test.js | `CA-I-08 — information conveyed without color alone` | — |
+| CA-I-09 | T-079/T-080 | us-i2-state-feedback.test.js | `CA-I-09 — resolvedFromMemory indicator` | — |
+| CA-I-10 | T-077/T-078 | us-i2-waiting-state.test.js | `CA-I-10 — waiting state visible for at least 300ms` | — |
+| CA-I-11 | T-067/T-068 | us-i2-state-feedback.test.js | `CA-I-11 — draw indicator, moves blocked` | — |
+| CA-I-12 | T-075/T-076 | us-i2-waiting-state.test.js | `CA-I-12 — IN_GAME to WAITING_FOR_AGENT transition` | — |
+| CA-I-13 | T-077/T-078 | us-i2-waiting-state.test.js | `CA-I-13 — WAITING_FOR_AGENT to IN_GAME transition after floor elapses` | — |
+| CA-I-14 | T-065/T-066 | us-i3-scoreboard.test.js | `CA-I-14 — win increments scoreboard` | — |
+| CA-I-15 | T-067/T-068 | us-i3-scoreboard.test.js | `CA-I-15 — draw increments scoreboard` | — |
+| CA-I-16 | T-081/T-082 | us-i3-scoreboard.test.js | `CA-I-16 — restart returns to CONFIGURATION, scoreboard preserved` | — |
+| CA-I-17 | T-083/T-084 | us-i4-keyboard.test.js | `CA-I-17 — focus-visible hook toggles on focus/blur` | — (behavioral half only — see `manual-verification.md` for rendered visibility) |
+| CA-I-18 | T-085/T-086 | us-i4-keyboard.test.js | `CA-I-18 — arrow keys move cell selection` | — |
+| CA-I-19 | T-087/T-088 | us-i4-keyboard.test.js | `CA-I-19 — Enter/Space activates like a click` | — |
+| CA-I-20 | T-089/T-090 | us-i4-keyboard.test.js | `CA-I-20 — turn/result announced without moving focus` | — |
+| CA-I-21 | T-063/T-064 | edge-cases.test.js | `CA-I-21 — occupied cell rejected` | — |
+| CA-I-22 | T-075/T-076 | edge-cases.test.js | `CA-I-22 — input ignored during WAITING_FOR_AGENT` | — |
+| CA-I-23 | T-081/T-082 | edge-cases.test.js | `CA-I-23 — restart during movement phase clears pending selection` | — |
+| CA-I-24 | T-061/T-062 | edge-cases.test.js | `CA-I-24 — configuration inaccessible outside CONFIGURATION` | — |
+| CA-I-25 | T-071/T-072 | edge-cases.test.js | `CA-I-25 — own-mark selection highlights destinations` | — |
+| CA-I-26 | T-073/T-074 | edge-cases.test.js | `CA-I-26 — destination selection applies the move` | — |
+| CA-I-27 | T-071/T-072 | edge-cases.test.js | `CA-I-27 — reselecting own mark cancels selection` | — |
+| CA-I-28 | T-091/T-092 | responsive-static.test.js | `CA-I-28 — no fixed pixel widths on layout containers` | — (structural proxy only — see `manual-verification.md`) |
+| CA-I-29 | T-091/T-092 | responsive-static.test.js | `CA-I-29 — single column below 768px, min-width breakpoint` | — (structural proxy only — see `manual-verification.md`) |
+| CA-I-30 | T-093/T-094 | responsive-static.test.js | `CA-I-30 — board container is square (aspect-ratio 1/1)` | — (structural proxy only — see `manual-verification.md`) |
+| CA-I-31 | T-093/T-094 | responsive-static.test.js | `CA-I-31 — interactive controls declare 44x44px minimum` | — (declared-value check — see `research.md` D-I-04 for why this one is closer to direct) |
+| CA-I-32 | T-093/T-094 | responsive-static.test.js | `CA-I-32 — configuration controls not clipped or overflow-hidden` | — (structural proxy only — see `manual-verification.md`) |
+| CA-N-02 | T-095/T-096 | non-functional.test.js | `CA-N-02 — fully operable with mouse (click handlers cover every action)` | — |
+| CA-N-03 | T-097/T-098 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | — |
 
 ---
 
