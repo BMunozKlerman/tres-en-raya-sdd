@@ -39,3 +39,22 @@ describe('CA-M-03 — legal placement', () => {
     expect(next.piecesPlaced).toBe(1);
   });
 });
+
+describe('CA-M-05 — illegal: wrong turn', () => {
+  it('rejects a move from the player who is not the turn holder', () => {
+    const state = createGame('classic');
+    const result = applyMove(state, { type: 'place', player: 'O', cell: 0 });
+    expect(result).toEqual({ error: true, reason: 'wrong_turn' });
+    expect(state).toEqual(createGame('classic'));
+  });
+});
+
+describe('CA-M-06 — illegal: game over', () => {
+  it('rejects any move once the game has a result', () => {
+    const state = { ...createGame('classic'), result: 'X' };
+    const frozen = { ...state, board: [...state.board] };
+    const result = applyMove(state, { type: 'place', player: 'X', cell: 0 });
+    expect(result).toEqual({ error: true, reason: 'game_over' });
+    expect(state).toEqual(frozen);
+  });
+});
