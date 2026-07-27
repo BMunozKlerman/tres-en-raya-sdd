@@ -181,8 +181,8 @@ never decide on your own.
 - [x] `/speckit-constitution` committed
 - [x] Spec 001-engine artifacts complete (specify/clarify/plan/tasks/analyze) — 20 criteria
       CA-M-01–CA-M-20, 33 tasks T-001–T-033
-- [ ] Spec 001-engine implementation — T-001–T-010 done and committed (`npm test` 7/7 green);
-      next task: T-011
+- [ ] Spec 001-engine implementation — T-001–T-026 done and committed (`npm test` 31/31 green);
+      `verify:traceability` orphans remaining: CA-M-07, CA-M-10, CA-M-18, CA-M-19; next task: T-027
 - [ ] Spec 002-agents (specify/clarify/plan/tasks/analyze)
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
@@ -206,3 +206,15 @@ never decide on your own.
   verifier accepted `docs:` commits as implementation evidence (false positives on
   CA-M-15/CA-M-20); corrected in plan.md (commit 706bafc) and in
   `scripts/verify-traceability.mjs` (commit 809f0d8) — see `docs/bugs.md`. Next task: T-011.
+- 2026-07-26: T-011–T-026 implemented and committed, one commit per task, RED before GREEN.
+  `npm test` green (31/31). Covers CA-M-08, CA-M-20 (wrong_phase both directions), CA-M-09/
+  CA-M-11 (legalMoves), CA-M-12 (all 8 winning lines), CA-M-13/CA-M-14 (classic draw and
+  win-over-draw precedence), CA-M-15 (placement→movement transition), CA-M-16 (legal
+  movement, incl. D3 return-to-vacated-cell), CA-M-17 (no-draw property in continuous mode).
+  BUG-002 found and fixed during this block: the CA-M-16 fixture (T-023) used a movement
+  that, once the winner scan was added in T-026, turned out to complete a winning line,
+  breaking the previously green D3 sub-test; unlike BUG-001 this was not a spec-first
+  correction (spec and engine were both correct) but a test-fixture defect — fixed in a
+  separate commit (`bfe0a61`, T-023 left untouched) and logged in `docs/bugs.md`.
+  `verify:traceability` orphans remaining: CA-M-07, CA-M-10, CA-M-18, CA-M-19 (Phase 4/5,
+  deferred pending the movement guards). Next task: T-027.
