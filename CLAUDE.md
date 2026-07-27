@@ -188,15 +188,23 @@ never decide on your own.
 - [x] Spec 001-engine implementation complete — T-001–T-033 done and committed (`npm test`
       35/35 green); `npm run verify:traceability` exits 0; `traceability.md` holds real SHAs
       for all 20 CA-IDs (commit `2ef54af`)
-- [ ] Spec 002-agents — `/speckit-specify` done (17 criteria CA-A-01–CA-A-16 + CA-N-01, D5–D8
+- [x] Spec 002-agents — `/speckit-specify` done (17 criteria CA-A-01–CA-A-16 + CA-N-01, D5–D8
       encoded); `/speckit-clarify` applied (N=20 fixed in CA-A-13, CA-A-01 split by level,
       phase-agnostic note on CA-A-09); CA-A-06 (medium memory) resolved with option C — see
       Session Log below. `/speckit-plan` done (commit `eb7ac58`): technique per level, D7
       contract change (`chooseMove` now returns `nodesEvaluated`/`resolvedFromMemory`), search
-      horizon calibration procedure, test strategy. Spec and plan both complete; headers say
-      `Branch: main` (group decision, 2026-07-27 — see Session Log: no dedicated `002-agents`
-      git branch, to keep 001-engine's linear history unbroken). **Next step: `/speckit-tasks`
-      for 002-agents.** `/speckit-analyze` not started.
+      horizon calibration procedure, test strategy. `/speckit-tasks` done: 24 tasks T-034–T-057
+      (originally 23, T-034–T-056, before the analyze-driven split below), full coverage of all
+      17 CA-IDs. `/speckit-analyze` done (2026-07-27): one CRITICAL finding (constitution P2
+      still asserted the pre-D7 `chooseMove` contract while `plan.md`/`contracts/agents-api.md`
+      had already implemented the wider one), resolved by amending the constitution to v2.0.0
+      rather than documenting an exception in `plan.md` — logged as BUG-003 in `docs/bugs.md`.
+      Also split T-047 into T-047/T-048 (flagged as most likely to exceed one commit) and added
+      literal "D7" citations to the tasks that materialize its `Decision` shape — see Session
+      Log below. Headers say `Branch: main` (group decision, 2026-07-27 — see Session Log: no
+      dedicated `002-agents` git branch, to keep 001-engine's linear history unbroken).
+      **Spec, plan, tasks, and analyze are all complete. Next step: `/speckit-implement`
+      starting at T-034.**
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
@@ -308,3 +316,27 @@ never decide on your own.
   change — no CA-ID or D-number is affected, and `.specify` branch-naming conventions elsewhere
   in the repo are left as-is (they name the feature, not a literal git ref).
   **002-agents spec and plan are both complete. Next step: `/speckit-tasks` for 002-agents.**
+- 2026-07-27: `/speckit-tasks` run for 002-agents (commit `a6db369`). Generated `tasks.md`: 23
+  tasks, T-034–T-056, one RED/GREEN pair per criterion or homogeneous group, full coverage of
+  all 17 CA-IDs (Coverage Audit table, Self-Check Report). **Next step: `/speckit-analyze` for
+  002-agents.**
+- 2026-07-27: `/speckit-analyze` run for 002-agents (read-only pass over spec/plan/tasks/
+  traceability/contracts/constitution). One CRITICAL finding: the ratified constitution (P2)
+  still stated the pre-D7 `chooseMove(state, level, memory) → {move, memory'} — MUST be
+  deterministic` contract verbatim, while `plan.md` and `contracts/agents-api.md` had already
+  implemented the wider `Decision` shape (`nodesEvaluated`/`resolvedFromMemory` + `options?`)
+  and a non-deterministic `simple` level (D-R-01) — neither document had amended the
+  constitution nor recorded an exception in `plan.md`'s Complexity Tracking section. Also
+  flagged: T-047 (CA-A-09) bundled a new code layer (static evaluation + horizon cutoff) with
+  an open-ended calibration loop — the task most likely to exceed one commit; and D7 had no
+  literal citation anywhere in `tasks.md`, only in `spec.md`/`plan.md`/`contracts/agents-api.md`.
+  Resolved: constitution amended to **v2.0.0** (commit `f6a8c62`) via the Amendment Procedure —
+  P2's `chooseMove` contract updated to match D7, "MUST be deterministic" narrowed to
+  `medium`/`complex`, new Amendment History section recording the change; no exception
+  documented in `plan.md` per explicit group instruction, since the constitution was the
+  artifact stating something already false. `tasks.md` corrected (commit `d18f32c`): T-047
+  split into T-047 (implementation) / T-048 (calibration), everything after renumbered
+  (23 → 24 tasks, T-034–T-057); literal "D7" citations added to T-035, T-037, T-043, T-050.
+  Both fixes logged as **BUG-003** in `docs/bugs.md`, since this is a process bug (a derived
+  artifact drifting from the constitution) rather than a gameplay bug. **002-agents spec, plan,
+  tasks, and analyze are all complete. Next step: `/speckit-implement` starting at T-034.**
