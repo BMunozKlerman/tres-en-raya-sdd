@@ -58,3 +58,14 @@ describe('CA-M-06 — illegal: game over', () => {
     expect(state).toEqual(frozen);
   });
 });
+
+describe('CA-M-04 — illegal: occupied cell', () => {
+  it('rejects a placement targeting an occupied cell', () => {
+    const base = createGame('classic');
+    const state = { ...base, board: ['O', ...base.board.slice(1)] };
+    const frozen = { ...state, board: [...state.board] };
+    const result = applyMove(state, { type: 'place', player: 'X', cell: 0 });
+    expect(result).toEqual({ error: true, reason: 'cell_occupied' });
+    expect(state).toEqual(frozen);
+  });
+});
