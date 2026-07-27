@@ -62,7 +62,16 @@ export function attachEvents(root, getState, setState) {
     const index = Number(cell.dataset.cell);
 
     if (state.engineState.phase === 'movement') {
-      if (state.engineState.board[index] === state.engineState.turn) {
+      if (state.movementSelection !== null && state.engineState.board[index] === null) {
+        setState(
+          applyPlayerMove(state, {
+            type: 'move',
+            player: state.engineState.turn,
+            from: state.movementSelection,
+            to: index,
+          })
+        );
+      } else if (state.engineState.board[index] === state.engineState.turn) {
         setState(selectOwnMark(state, index));
       }
       rerender();
