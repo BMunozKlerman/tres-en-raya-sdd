@@ -37,8 +37,14 @@ export function applyMove(state, move) {
   }
 
   if (move.type === 'move') {
+    if (state.board[move.from] === null) {
+      return { error: true, reason: 'no_mark_at_source' };
+    }
     if (state.board[move.from] !== move.player) {
       return { error: true, reason: 'not_own_mark' };
+    }
+    if (state.board[move.to] !== null) {
+      return { error: true, reason: 'cell_occupied' };
     }
 
     const newBoard = [...state.board];
