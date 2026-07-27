@@ -16,43 +16,60 @@ row — this skeleton is a `/speckit-plan` output, before task generation.
 
 | CA-ID | Task | Test file | `describe`/`it` label | Commit SHA |
 |-------|------|-----------|------------------------|------------|
-| CA-I-01 | T-061/T-062 | us-i1-configuration.test.js | `CA-I-01 — configuration controls displayed` | — |
-| CA-I-02 | T-061/T-062 | us-i1-configuration.test.js | `CA-I-02 — start transitions CONFIGURATION to IN_GAME` | — |
-| CA-I-03 | T-063/T-064 | us-i2-state-feedback.test.js | `CA-I-03 — turn indicator` | — |
-| CA-I-04 | T-065/T-066 | us-i2-state-feedback.test.js | `CA-I-04 — winning line highlighted, moves blocked` | — |
-| CA-I-05 | T-063/T-064 | us-i2-state-feedback.test.js | `CA-I-05 — illegal move rejected with reason` (includes the `game_over` reason case) | — |
-| CA-I-06 | T-075/T-076 | us-i2-waiting-state.test.js | `CA-I-06 — waiting state shown, board disabled` | — |
-| CA-I-07 | T-071/T-072 | us-i2-state-feedback.test.js | `CA-I-07 — movement-phase legal marks and destinations indicated` | — |
-| CA-I-08 | T-069/T-070 | us-i2-state-feedback.test.js | `CA-I-08 — information conveyed without color alone` | — |
-| CA-I-09 | T-079/T-080 (render); T-081/T-082 (integration) | us-i2-state-feedback.test.js | `CA-I-09 — resolvedFromMemory indicator` (T-079/T-080); `CA-I-09 — resolvedFromMemory reflects real cross-game memory reuse` (T-081/T-082) | — |
-| CA-I-10 | T-077/T-078 | us-i2-waiting-state.test.js | `CA-I-10 — waiting state visible for at least 300ms` | — |
-| CA-I-11 | T-067/T-068 | us-i2-state-feedback.test.js | `CA-I-11 — draw indicator, moves blocked` | — |
-| CA-I-12 | T-075/T-076 | us-i2-waiting-state.test.js | `CA-I-12 — IN_GAME to WAITING_FOR_AGENT transition` | — |
-| CA-I-13 | T-077/T-078 | us-i2-waiting-state.test.js | `CA-I-13 — WAITING_FOR_AGENT to IN_GAME transition after floor elapses` | — |
-| CA-I-14 | T-065/T-066 | us-i3-scoreboard.test.js | `CA-I-14 — win increments scoreboard` | — |
-| CA-I-15 | T-067/T-068 | us-i3-scoreboard.test.js | `CA-I-15 — draw increments scoreboard` | — |
-| CA-I-16 | T-083/T-084 | us-i3-scoreboard.test.js | `CA-I-16 — restart returns to CONFIGURATION, scoreboard preserved` | — |
-| CA-I-17 | T-085/T-086 | us-i4-keyboard.test.js | `CA-I-17 — focus-visible hook toggles on focus/blur` | — (behavioral half only — see `manual-verification.md` for rendered visibility) |
-| CA-I-18 | T-087/T-088 | us-i4-keyboard.test.js | `CA-I-18 — arrow keys move cell selection` | — |
-| CA-I-19 | T-089/T-090 | us-i4-keyboard.test.js | `CA-I-19 — Enter/Space activates like a click` | — |
-| CA-I-20 | T-091/T-092 | us-i4-keyboard.test.js | `CA-I-20 — turn/result announced without moving focus` | — |
-| CA-I-21 | T-063/T-064 | edge-cases.test.js | `CA-I-21 — occupied cell rejected` | — |
-| CA-I-22 | T-075/T-076 | edge-cases.test.js | `CA-I-22 — input ignored during WAITING_FOR_AGENT` | — |
-| CA-I-23 | T-083/T-084 | edge-cases.test.js | `CA-I-23 — restart during movement phase clears pending selection` | — |
-| CA-I-24 | T-061/T-062 | edge-cases.test.js | `CA-I-24 — configuration inaccessible outside CONFIGURATION` | — |
-| CA-I-25 | T-071/T-072 | edge-cases.test.js | `CA-I-25 — own-mark selection highlights destinations` | — |
-| CA-I-26 | T-073/T-074 | edge-cases.test.js | `CA-I-26 — destination selection applies the move` | — |
-| CA-I-27 | T-071/T-072 | edge-cases.test.js | `CA-I-27 — reselecting own mark cancels selection` | — |
-| CA-I-28 | T-093/T-094 | responsive-static.test.js | `CA-I-28 — no fixed pixel widths on layout containers` | — (structural proxy only — see `manual-verification.md`) |
-| CA-I-29 | T-093/T-094 | responsive-static.test.js | `CA-I-29 — single column below 768px, min-width breakpoint` | — (structural proxy only — see `manual-verification.md`) |
-| CA-I-30 | T-095/T-096 | responsive-static.test.js | `CA-I-30 — board container is square (aspect-ratio 1/1)` | — (structural proxy only — see `manual-verification.md`) |
-| CA-I-31 | T-095/T-096 | responsive-static.test.js | `CA-I-31 — interactive controls declare 44x44px minimum` | — (declared-value check — see `research.md` D-I-04 for why this one is closer to direct) |
-| CA-I-32 | T-095/T-096 | responsive-static.test.js | `CA-I-32 — configuration controls not clipped or overflow-hidden` | — (structural proxy only — see `manual-verification.md`) |
-| CA-N-02 | T-097/T-098 | non-functional.test.js | `CA-N-02 — fully operable with mouse (click handlers cover every action)` | — |
-| CA-I-33 | T-099/T-100 | us-i2-state-feedback.test.js | `CA-I-33 — occupied cell displays the mark's symbol` | — |
-| CA-I-35 | T-107/T-108 | us-i1-configuration.test.js | `CA-I-35 — configuration controls show identifying placeholder labels` | — |
-| CA-I-36 | T-109/T-110 | responsive-static.test.js | `CA-I-36 — action controls bounded to the board's max width at wide viewports` | — (structural proxy only — see `manual-verification.md`) |
-| CA-N-03 | T-111/T-112 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | — |
+| CA-I-01 | T-061/T-062 | us-i1-configuration.test.js | `CA-I-01 — configuration controls displayed` | 0589cd9fe618f1a06cbd4c2853fff8dce1f3301d (RED) / 30d35ebc2f650b929109c898244d65883dbcb83e (GREEN) |
+| CA-I-02 | T-061/T-062 | us-i1-configuration.test.js | `CA-I-02 — start transitions CONFIGURATION to IN_GAME` | 0589cd9fe618f1a06cbd4c2853fff8dce1f3301d (RED) / 30d35ebc2f650b929109c898244d65883dbcb83e (GREEN) |
+| CA-I-03 | T-063/T-064 | us-i2-state-feedback.test.js | `CA-I-03 — turn indicator` | ce3d737448bb8db5f70500003c4ef69876446ef0 (RED) / 6f796b88a1b9c7a15ac8dfbcd6c1590fa75cff79 (GREEN) |
+| CA-I-04 | T-065/T-066 | us-i2-state-feedback.test.js | `CA-I-04 — winning line highlighted, moves blocked` | c7c4f4c8b1ae7afcd32abd382ff205b56fb821fe (RED) / e37b5feca15c73b8f3ff704cdad5c4fb59d05452 (GREEN) |
+| CA-I-05 | T-063/T-064 | us-i2-state-feedback.test.js | `CA-I-05 — illegal move rejected with reason` (includes the `game_over` reason case) | ce3d737448bb8db5f70500003c4ef69876446ef0 (RED) / 6f796b88a1b9c7a15ac8dfbcd6c1590fa75cff79 (GREEN) |
+| CA-I-06 | T-075/T-076 | us-i2-waiting-state.test.js | `CA-I-06 — waiting state shown, board disabled` | 6650cfaca18e219521229c57be5c28da4ee61e57 (RED) / c439ab33ae10718ee9461766239f10c71c4cb264 (GREEN) |
+| CA-I-07 | T-071/T-072 | us-i2-state-feedback.test.js | `CA-I-07 — movement-phase legal marks and destinations indicated` | 27669eef9008a221cba4e8c74f8e65ac93cfa79e (RED) / 6b2ffd3fa1010df0ec42888289463ea6256450e2 (GREEN) |
+| CA-I-08 | T-069/T-070 | us-i2-state-feedback.test.js | `CA-I-08 — information conveyed without color alone` | abe63f41f86993128c2b194718b3cf7721637d1f (RED) / 9fe51bf59c0889de4fc5592e6a83335dbd6ab860 (GREEN, zero-code corollary) |
+| CA-I-09 | T-079/T-080 (render); T-081/T-082 (integration) | us-i2-state-feedback.test.js | `CA-I-09 — resolvedFromMemory indicator` (T-079/T-080); `CA-I-09 — resolvedFromMemory reflects real cross-game memory reuse` (T-081/T-082) | db0112d0d40fa9e84e37cfb9153d3f517e5ac3b6 (RED) / 78a67ee8129861b880142fdb881b2fdfff5a1f85 (GREEN); 4fc149e286d9e4380f2ace5ed0d8dc7961743aed (RED) / d3a28d8f390b8decb6e8c5f960851a5bdc11eba8 (GREEN, zero-code corollary) |
+| CA-I-10 | T-077/T-078 | us-i2-waiting-state.test.js | `CA-I-10 — waiting state visible for at least 300ms` | ee7716be9764fac6ee13be1edf28a921c74ea68f (RED) / 291b4dce097180a002c94d211e5cc856375f4eff (GREEN) |
+| CA-I-11 | T-067/T-068 | us-i2-state-feedback.test.js | `CA-I-11 — draw indicator, moves blocked` | ea67771dc28f85825e88d7fadb1561d38fdb663e (RED) / ff5c79c9ca1931afe6f319e9dcc25c41a2127b74 (GREEN, zero-code corollary) |
+| CA-I-12 | T-075/T-076 | us-i2-waiting-state.test.js | `CA-I-12 — IN_GAME to WAITING_FOR_AGENT transition` | 6650cfaca18e219521229c57be5c28da4ee61e57 (RED) / c439ab33ae10718ee9461766239f10c71c4cb264 (GREEN) |
+| CA-I-13 | T-077/T-078 | us-i2-waiting-state.test.js | `CA-I-13 — WAITING_FOR_AGENT to IN_GAME transition after floor elapses` | ee7716be9764fac6ee13be1edf28a921c74ea68f (RED) / 291b4dce097180a002c94d211e5cc856375f4eff (GREEN) |
+| CA-I-14 | T-065/T-066; amended T-101/T-102 (BUG-010) | us-i3-scoreboard.test.js | `CA-I-14 — win increments scoreboard`; `CA-I-14,CA-I-15 — scoreboard counts are identifiable by label` | c7c4f4c8b1ae7afcd32abd382ff205b56fb821fe (RED) / e37b5feca15c73b8f3ff704cdad5c4fb59d05452 (GREEN); 6f5c8003525421d528dfd38e864e5bb609e738e9 (RED) / b46826949641cc61a1bd889d0d86d0b4f005f2b4 (GREEN) |
+| CA-I-15 | T-067/T-068; amended T-101/T-102 (BUG-010) | us-i3-scoreboard.test.js | `CA-I-15 — draw increments scoreboard`; `CA-I-14,CA-I-15 — scoreboard counts are identifiable by label` | ea67771dc28f85825e88d7fadb1561d38fdb663e (RED) / ff5c79c9ca1931afe6f319e9dcc25c41a2127b74 (GREEN); 6f5c8003525421d528dfd38e864e5bb609e738e9 (RED) / b46826949641cc61a1bd889d0d86d0b4f005f2b4 (GREEN) |
+| CA-I-16 | T-083/T-084 | us-i3-scoreboard.test.js | `CA-I-16 — restart returns to CONFIGURATION, scoreboard preserved` | 06a15818152fec7271406aa30e763defcb41ed2f (RED) / 846773625ec658f380de38f3bc5114eaeed4b973 (GREEN) |
+| CA-I-17 | T-085/T-086 | us-i4-keyboard.test.js | `CA-I-17 — focus-visible hook toggles on focus/blur` | a2e9f633c10972f6ffa562945f251a58d1a5ed61 (RED) / 4e27e97ad8f0963a8a15eee7507f5ab7a680434f (GREEN) (behavioral half only — see `manual-verification.md` for rendered visibility) |
+| CA-I-18 | T-087/T-088 | us-i4-keyboard.test.js | `CA-I-18 — arrow keys move cell selection` | 55e97ccabfe25677090f703d1b52a77154ee8a7c (RED) / 52992481c438acb0d96c2bd1751d457caf3ab640 (GREEN) |
+| CA-I-19 | T-089/T-090 | us-i4-keyboard.test.js | `CA-I-19 — Enter/Space activates like a click` | b217f67ba8eba3257df8a9503d21a60fc27dffc7 (RED) / 48d541fa2fca8400796c65d548682b100a96e4f4 (GREEN) |
+| CA-I-20 | T-091/T-092 | us-i4-keyboard.test.js | `CA-I-20 — turn/result announced without moving focus` | 73e02659d01e6e8a4ee6c5d685275837f6237da5 (RED) / d4c14b4f598b7f6c93a4b6f5988dd2adb44ee50c (GREEN) |
+| CA-I-21 | T-063/T-064 | edge-cases.test.js | `CA-I-21 — occupied cell rejected` | ce3d737448bb8db5f70500003c4ef69876446ef0 (RED) / 6f796b88a1b9c7a15ac8dfbcd6c1590fa75cff79 (GREEN) |
+| CA-I-22 | T-075/T-076 | edge-cases.test.js | `CA-I-22 — input ignored during WAITING_FOR_AGENT` | 6650cfaca18e219521229c57be5c28da4ee61e57 (RED) / c439ab33ae10718ee9461766239f10c71c4cb264 (GREEN) |
+| CA-I-23 | T-083/T-084 | edge-cases.test.js | `CA-I-23 — restart during movement phase clears pending selection` | 06a15818152fec7271406aa30e763defcb41ed2f (RED) / 846773625ec658f380de38f3bc5114eaeed4b973 (GREEN) |
+| CA-I-24 | T-061/T-062 | edge-cases.test.js | `CA-I-24 — configuration inaccessible outside CONFIGURATION` | 0589cd9fe618f1a06cbd4c2853fff8dce1f3301d (RED) / 30d35ebc2f650b929109c898244d65883dbcb83e (GREEN) |
+| CA-I-25 | T-071/T-072 | edge-cases.test.js | `CA-I-25 — own-mark selection highlights destinations` | 27669eef9008a221cba4e8c74f8e65ac93cfa79e (RED) / 6b2ffd3fa1010df0ec42888289463ea6256450e2 (GREEN) |
+| CA-I-26 | T-073/T-074 | edge-cases.test.js | `CA-I-26 — destination selection applies the move` | 86fe09ec687893a240485eae058a274cbc240bbb (RED) / 7d48ccf90af41f192008501ca767d0a55b0a43d5 (GREEN) |
+| CA-I-27 | T-071/T-072 | edge-cases.test.js | `CA-I-27 — reselecting own mark cancels selection` | 27669eef9008a221cba4e8c74f8e65ac93cfa79e (RED) / 6b2ffd3fa1010df0ec42888289463ea6256450e2 (GREEN) |
+| CA-I-28 | T-093/T-094 | responsive-static.test.js | `CA-I-28 — no fixed pixel widths on layout containers` | 11efe3d2c42a0e530d4c16bda878d9f7e4921e74 (RED) / e712e5e3bf3e5661329015fb77b3788cb816e36c (GREEN) (structural proxy only — see `manual-verification.md`) |
+| CA-I-29 | T-093/T-094 | responsive-static.test.js | `CA-I-29 — single column below 768px, min-width breakpoint` | 11efe3d2c42a0e530d4c16bda878d9f7e4921e74 (RED) / e712e5e3bf3e5661329015fb77b3788cb816e36c (GREEN) (structural proxy only — see `manual-verification.md`) |
+| CA-I-30 | T-095/T-096 | responsive-static.test.js | `CA-I-30 — board container is square (aspect-ratio 1/1)` | e14ab75ba43e48930bf5de9266c85c105fea4dca (RED) / 336e9090a90db44398c3448110b14377a72dfa70 (GREEN) (structural proxy only — see `manual-verification.md`) |
+| CA-I-31 | T-095/T-096 | responsive-static.test.js | `CA-I-31 — interactive controls declare 44x44px minimum` | e14ab75ba43e48930bf5de9266c85c105fea4dca (RED) / 336e9090a90db44398c3448110b14377a72dfa70 (GREEN) (declared-value check — see `research.md` D-I-04 for why this one is closer to direct) |
+| CA-I-32 | T-095/T-096 | responsive-static.test.js | `CA-I-32 — configuration controls not clipped or overflow-hidden` | e14ab75ba43e48930bf5de9266c85c105fea4dca (RED) / 336e9090a90db44398c3448110b14377a72dfa70 (GREEN) (structural proxy only — see `manual-verification.md`) |
+| CA-N-02 | T-097/T-098 | non-functional.test.js | `CA-N-02 — fully operable with mouse (click handlers cover every action)` | fd53c73dd620ecb3cf584a8a021357bd4d5b0a29 (RED+GREEN, zero-code corollary — see Notes) |
+| CA-I-33 | T-099/T-100 | us-i2-state-feedback.test.js | `CA-I-33 — occupied cell displays the mark's symbol` | 6c5c447c48b0d23de6a8373b9b5d71ce83476f3c (RED) / 41485ba0f9e7179f72c85d02e0c7c6027b99c845 (GREEN) |
+| CA-I-34 | T-105/T-106 (BUG-012) | us-i2-state-feedback.test.js | `CA-I-34 — turn indicator states the game has ended once FINISHED` | 8f529a7de0be4f28682f44fecfb9b76707d4096b (RED) / 0c60a1cba70cfa40a50350b765c554e70d12c6ad (GREEN) |
+| CA-I-35 | T-107/T-108 | us-i1-configuration.test.js | `CA-I-35 — configuration controls show identifying placeholder labels` | 881c9de209fb49c1d0815390aca9e0d950a9a4f9 (RED) / 1ec5c863ab38b93db500525d83ee21b0edb47601 (GREEN) |
+| CA-I-36 | T-109/T-110 | responsive-static.test.js | `CA-I-36 — action controls bounded to the board's max width at wide viewports` | ad5965e476df983fde7cad6077f54d475fbf95b4 (RED) / b59fa9e45d04e6ea7ec6c4c712c2a976dff74283 (GREEN) (structural proxy only — see `manual-verification.md`) |
+| CA-N-03 | T-111/T-112 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | d7f278fdf8df87ad07f3928c6361c5ed5b9bb247 (RED) / 0f9d5836b779ff527bd1b61249521d79a9d77049 (GREEN) |
+
+### Bug-fix commits (BUG-008–BUG-014, no dedicated `T-NNN` for some)
+
+| Bug | Description | Fix commit(s) |
+|-----|--------------|----------------|
+| BUG-008 | Occupied cells never rendered their mark's symbol | New CA-I-33 — see T-099/T-100 row above |
+| BUG-009 | `render.js` collapsed `data-cell-state` to just `"own"`, never `"opponent"` (contract non-compliance, no CA-ID) | 0df3cfa9d740b272e95734052be30f107298618c |
+| BUG-010 | Scoreboard showed bare numbers with no identifying label | CA-I-14/CA-I-15 amended — see rows above (6f5c8003525421d528dfd38e864e5bb609e738e9 RED / b46826949641cc61a1bd889d0d86d0b4f005f2b4 GREEN) |
+| BUG-011 | Live region duplicated `[data-result-indicator]`'s visible text (no CA-ID, `research.md` D-I-09) | 1dc7f5a6f396ae8fb719a2849385056ad2fa20c5 (RED) / 76655804562c2726404a2f3661a4a2b9639806f6 (GREEN) |
+| BUG-012 | Turn indicator kept stating a pending turn after `FINISHED` | New CA-I-34 — see T-105/T-106 row above |
+| BUG-013 | Configuration `<select>`s rendered blank after `restart` | New CA-I-35 — see T-107/T-108 row above |
+| BUG-014 | Action controls stretched to full grid-column width at wide viewports | New CA-I-36 — see T-109/T-110 row above |
+
+Docs commits recording each bug/amendment (spec.md, tasks.md, traceability.md skeleton, bugs.md):
+`61b8e0bfadf199bf2329614dbb3e7cf8ef0b3c0d` (CA-I-33, BUG-008), `84da4c0e66b1294c04235bcdccb808bea0454270`
+(BUG-010/011/012 closure), `e158931c9c1915de781e93d925744c1623e44a9a` (CA-I-35/CA-I-36, BUG-013/014).
 
 ---
 
