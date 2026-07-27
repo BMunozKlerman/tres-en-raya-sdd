@@ -20,9 +20,11 @@ reported complete in `CLAUDE.md`.
 npm run dev
 ```
 
-Open the printed local URL in a real browser (not a component preview). Use the browser's
-device-toolbar / responsive-mode viewport resizing (exact CSS pixel widths, not a physical
-device) to hit each width below exactly.
+Open the printed local URL in **Google Chrome (stable channel), browser zoom reset to 100%**
+(`Ctrl/Cmd+0`) — not a component preview, not a different browser, and not an arbitrary zoom
+level, since both change effective CSS pixel sizes and can make the same build pass for one
+tester and fail for another. Use Chrome DevTools' device-toolbar / responsive-mode viewport
+resizing (exact CSS pixel widths, not a physical device) to hit each width below exactly.
 
 ## Checklist
 
@@ -44,10 +46,15 @@ computed (rendered) box is at least 44×44 CSS pixels at both widths. Record any
 fails at either width.
 
 **Focus visibility (CA-I-17)** — at 375×667 and at 1440×900: using Tab (and Shift+Tab), move
-focus through every control (configuration, board cells once in a game, restart). At each
-stop, confirm a focus indicator is visibly perceivable (not just present in the DOM as
-`data-focus-visible` — an outline, border, or background change a sighted user would actually
-notice).
+focus through every control (configuration, board cells once in a game, restart). At each stop,
+using Chrome DevTools' contrast-checking tool (element picker → the "Contrast" row in the Styles
+pane, or the Accessibility pane's "Contrast" panel) or an equivalent external contrast checker,
+confirm the focus indicator meets **WCAG 2.2 Success Criterion 2.4.11 (Focus Appearance)**: a
+contrast ratio of at least **3:1** between the indicator's pixels and the pixels of the adjacent,
+unfocused control, across an area equivalent to a **2 CSS px** perimeter outline around the
+control's border (or a solid indicator area of at least the same size). Record the measured ratio
+per control, not just pass/fail — a control at exactly the threshold is a different result from
+one well above it.
 
 ## Results Log
 
@@ -68,7 +75,8 @@ Commit under test: <SHA>
 | 1024×768  | pass/fail | n/a | pass/fail | n/a | n/a |
 | 1440×900  | pass/fail | n/a | pass/fail | pass/fail | n/a |
 
-Focus visibility (CA-I-17): pass/fail, notes: ...
+Focus visibility (CA-I-17): pass/fail, measured contrast ratio per control (must be ≥ 3:1 per
+WCAG 2.2 SC 2.4.11): ...
 
 Failures found: <describe, or "none">
 ```

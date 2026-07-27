@@ -24,7 +24,6 @@ by `src/ui/events.js`.
   scoreboard:        Scoreboard,
   movementSelection: number | null,   // selected own-mark cell index during continuous movement phase, or null
   lastDecision:      Decision | null, // last chooseMove() return value; null until the agent has moved once
-  pendingAgentMove:  PendingAgentMove | null,
 }
 ```
 
@@ -34,7 +33,6 @@ by `src/ui/events.js`.
 |-------|------------------|-----------|----------------------|------------|
 | `engineState` | `null` | non-null, `result === null` | non-null, `result === null` | non-null, `result !== null` |
 | `movementSelection` | `null` | `null` \| cell index (continuous, movement phase, own mark selected) | `null` | `null` |
-| `pendingAgentMove` | `null` | `null` | non-null (set the instant `chooseMove` resolves) | `null` |
 | `config` | editable | frozen (CA-I-24) | frozen | frozen |
 
 ---
@@ -89,23 +87,6 @@ postconditions.
 
 Initialized to `{ X: 0, O: 0, draw: 0 }` when the application loads; never reset by `restart`
 (CA-I-16), only by a page reload (out of scope).
-
----
-
-## PendingAgentMove
-
-UI-only bookkeeping for CA-I-10's minimum-visible-duration floor (`research.md` D-I-05).
-
-```js
-{
-  move: Move,   // specs/001-engine/data-model.md Move shape — already computed by chooseMove
-  readyAt: number, // timer handle or scheduled-apply marker; opaque to render.js
-}
-```
-
-Set the instant `chooseMove` returns (the move is known); the move is applied via `applyMove`
-only when the associated `setTimeout(..., 300)` fires, at which point `pendingAgentMove` is
-cleared and `uiState` transitions back to `IN_GAME` (CA-I-13).
 
 ---
 

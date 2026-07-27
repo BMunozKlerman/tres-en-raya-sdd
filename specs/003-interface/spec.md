@@ -128,7 +128,7 @@ indicator appears and the board is blocked.
 |----|----------------|-------|
 | CA-I-03 | THE SYSTEM SHALL indicate at all times whose turn it is and which mark they play. | Mandatory criterion #1 (assignment, verbatim). |
 | CA-I-04 | WHEN a player aligns three marks, THE SYSTEM SHALL highlight the winning line and block further moves. | Mandatory criterion #2 (assignment, verbatim). "Aligns three marks" maps to `state.result` becoming a mark and the specific cells to `state.winningLine` (`specs/001-engine` CA-M-12, amended — see Clarifications and `docs/bugs.md` BUG-007). |
-| CA-I-05 | IF the player attempts an illegal move, THEN THE SYSTEM SHALL reject it stating the reason, without altering the board state. | Mandatory criterion #3 (assignment, verbatim). "The reason" is `applyMove`'s `ErrorResult.reason` (`wrong_turn`, `cell_occupied`, `wrong_phase`, `no_mark_at_source`, `not_own_mark`), rendered as player-facing text. |
+| CA-I-05 | IF the player attempts an illegal move, THEN THE SYSTEM SHALL reject it stating the reason, without altering the board state. | Mandatory criterion #3 (assignment, verbatim). "The reason" is `applyMove`'s `ErrorResult.reason` (`wrong_turn`, `cell_occupied`, `wrong_phase`, `no_mark_at_source`, `not_own_mark`, `game_over` — full enumeration per `specs/001-engine/contracts/engine-api.md`), rendered as player-facing text for every value the engine can return, not only the subset expected under normal UI flow. |
 | CA-I-06 | WHILE the agent is computing its move, THE SYSTEM SHALL show a waiting state and disable the board. | Mandatory criterion #4 (assignment, verbatim). Corresponds to the `WAITING_FOR_AGENT` UI state. Does not by itself require any minimum visible duration — see CA-I-10. |
 | CA-I-07 | WHILE continuous mode is in the movement phase, THE SYSTEM SHALL indicate which of the player's own marks can move and to which cells. | Mandatory criterion #5 (assignment, verbatim). "Can move" means present as a `{type:'move', from:i, ...}` in `legalMoves(state)`. |
 | CA-I-08 | WHERE information about turn, move legality, or the winning line is conveyed, THE SYSTEM SHALL also convey it through text or an icon, not through color alone. | Accessibility requirement independent of the mandatory five; applies to CA-I-03, CA-I-04, CA-I-05. |
@@ -325,7 +325,7 @@ Assumptions below.
 | SC-I-07 | A player using only a keyboard can complete a full game — configuration through result — with visible focus at every step and without a mouse. | CA-I-17, CA-I-18, CA-I-19, CA-I-20, CA-N-03 |
 | SC-I-08 | The interface is usable with no horizontal scrolling and no control smaller than 44×44 px at any width from 320px to 1440px, including the 320×568 reference viewport. | CA-I-28, CA-I-29, CA-I-30, CA-I-31, CA-I-32 |
 | SC-I-09 | Whenever the complex agent reuses a previously resolved position, that reuse is visible on screen during the same session it happened. | CA-I-09 |
-| SC-I-10 | Every entry and exit of the `WAITING_FOR_AGENT` state is demonstrable, not just instrumentable: it is visible for at least 300ms regardless of how fast the underlying agent responds. | CA-I-06, CA-I-10, CA-I-12, CA-I-13 |
+| SC-I-10 | Every entry and exit of the `WAITING_FOR_AGENT` state is demonstrable, not just instrumentable: it is visible for at least 300ms regardless of the agent's actual computation time. | CA-I-06, CA-I-10, CA-I-12, CA-I-13 |
 
 ## Assumptions
 
@@ -334,8 +334,8 @@ Assumptions below.
   exactly as specified in their contracts; this feature introduces no new engine or agent
   behavior beyond that already-amended field.
 - Arrow-key navigation (CA-I-18) at the grid's edge (e.g., pressing "up" from the top row) has no
-  criterion requiring a specific response; a reasonable implementation either clamps or wraps,
-  and either satisfies every criterion in this spec.
+  criterion requiring a specific response; an implementation that either clamps focus at the edge
+  cell or wraps to the opposite edge both satisfy every criterion in this spec.
 - The mobile/wider-layout breakpoint (CA-I-29) is fixed at 768px in this spec rather than
   deferred to `plan.md`, since a threshold is required for the criterion to be mechanically
   testable — see Design Decision D10.

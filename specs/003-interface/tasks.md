@@ -12,7 +12,7 @@ branch — see `CLAUDE.md` session log, 2026-07-27) immediately after `001-engin
 already closed at `T-057` and no `T-060` exists anywhere in the repo. The first task here is
 `T-060`.
 
-**Total tasks**: 40 (T-060 to T-099)
+**Total tasks**: 42 (T-060 to T-101)
 
 **Grouping principle** (same standard as `001-engine`'s and `002-agents`'s): one RED/GREEN pair
 per criterion or per homogeneous group (same contract function, same code layer). Where
@@ -38,9 +38,28 @@ single "responsive CSS" pair covering all five of CA-I-28/29/30/31/32 in one com
 too large — writing the full mobile-first stylesheet (page layout fluidity, the 768px breakpoint,
 the square board, every control's touch target, and the configuration panel's overflow behavior)
 in one commit risks the same "task most likely to exceed one commit" pattern `/speckit-analyze`
-flagged for `002-agents`'s original T-047. Split into T-091/T-092 (page-layout structural
-assertions: CA-I-28, CA-I-29) and T-093/T-094 (component-level structural assertions: CA-I-30,
-CA-I-31, CA-I-32).
+flagged for `002-agents`'s original T-047. Split into T-093/T-094 (page-layout structural
+assertions: CA-I-28, CA-I-29) and T-095/T-096 (component-level structural assertions: CA-I-30,
+CA-I-31, CA-I-32). (Numbers as renumbered by the `/speckit-analyze` correction below — originally
+T-091/T-092 and T-093/T-094 before the CA-I-09 integration pair was inserted.)
+
+**Post-analysis correction** (`/speckit-analyze` on `003-interface`, applied before implementation
+started — no task had been executed yet, so this is a plan-cycle correction, not a T-NNN GREEN
+rewrite): three findings from that analysis are folded in here. (1) CA-I-05's RED/GREEN pair
+(T-063/T-064) is extended to cover the engine's full `ErrorResult.reason` enumeration, including
+`game_over`, which the original task description omitted — `spec.md`'s CA-I-05 Notes now lists it
+too. (2) A new RED/GREEN pair, **T-081/T-082**, is inserted immediately after the original CA-I-09
+pair (T-079/T-080) to test the real cross-game memory-reuse integration that T-079/T-080 alone
+does not exercise (that pair only proves `render.js` reads `lastDecision.resolvedFromMemory`
+correctly from a hand-built `Decision`, not that `events.js`'s real `agentMemory` threading across
+two consecutive games actually produces one). Every task from the original T-081 onward is
+renumbered +2 (T-081→T-083, ..., T-099→T-101), mirroring the same renumbering `002-agents` did
+when its T-047/T-048 split was inserted mid-sequence after that feature's own `/speckit-analyze`
+pass. (3) `data-model.md`'s `PendingAgentMove` entity and `AppState.pendingAgentMove` field were
+removed as obsolete (superseded by `research.md` D-I-05's actual mechanism — the pending move is
+held in an `events.js` closure via `setTimeout`, never in `AppState`) — no task ever referenced
+that field, so no task text changes for this one, only `data-model.md` and
+`contracts/app-state-api.md`.
 
 ---
 
@@ -59,7 +78,7 @@ BUG-006 during `002-agents`).
   `mountApp(root)` (currently an empty stub — populated incrementally starting in T-062) and
   calling it on `DOMContentLoaded` when run in a real browser. Create `src/styles.css` with only a
   minimal, empty-page-safe reset (`box-sizing: border-box` universal rule; no layout rules yet —
-  those start in T-091). Create the `tests/interface/` directory. Document the per-file
+  those start in T-093). Create the `tests/interface/` directory. Document the per-file
   `// @vitest-environment jsdom` pragma convention (`research.md` D-I-03) as the first line of
   every file subsequently created under `tests/interface/` — no `vitest.config.js` change needed,
   since its `test.environment` stays `'node'` for `001-engine`/`002-agents`. No test is written for
@@ -138,20 +157,29 @@ establishes generally; its test lives in `edge-cases.test.js` per the skeleton._
   ...)`: click a cell with the wrong player's turn forced via a direct `applyPlayerMove` call with
   a mismatched mark (or, if `events.js` never allows constructing that request, use
   `app-state.js`'s `applyPlayerMove` directly against an `AppState`); assert `[data-error-
-  indicator]`'s text is non-empty and the board is unchanged. Add to `edge-cases.test.js`:
-  `describe('CA-I-21 — occupied cell rejected', ...)`: click an already-occupied cell; assert
-  `[data-error-indicator]` states the "cell occupied" reason and the board is unchanged. All three
-  fail because `applyPlayerMove` does not exist yet. Expected commit: `test(CA-I-03,CA-I-05,
-  CA-I-21): failing tests — turn indicator, illegal move rejection, occupied cell`
+  indicator]`'s text is non-empty and the board is unchanged. Add a second case to the same
+  `describe`: call `applyPlayerMove` directly against an `AppState` whose `engineState.result` is
+  already non-null (a finished game); assert `[data-error-indicator]` states a distinct
+  `'game_over'` reason and the board is unchanged — covering the full `ErrorResult.reason`
+  enumeration `specs/001-engine/contracts/engine-api.md` defines
+  (`wrong_turn`, `cell_occupied`, `wrong_phase`, `no_mark_at_source`, `not_own_mark`,
+  `game_over`), not only the subset reachable through normal click flow, per `spec.md`'s CA-I-05
+  Notes. Add to `edge-cases.test.js`: `describe('CA-I-21 — occupied cell rejected', ...)`: click
+  an already-occupied cell; assert `[data-error-indicator]` states the "cell occupied" reason and
+  the board is unchanged. All fail because `applyPlayerMove` does not exist yet. Expected commit:
+  `test(CA-I-03,CA-I-05,CA-I-21): failing tests — turn indicator, illegal move rejection
+  (including game_over), occupied cell`
 
 - [ ] T-064 [US-I-2] [AC: CA-I-03, CA-I-05, CA-I-21] GREEN — In `src/ui/app-state.js`, add
   `applyPlayerMove(state, move)` per `contracts/app-state-api.md`: call `applyMove` from
   `specs/001-engine`; on success update `engineState`; on an `ErrorResult`, return `state`
-  unchanged except a transient `lastError` field. In `render.js`, populate each `[data-cell]`'s
+  unchanged except a transient `lastError` field, for every `reason` value the engine can return
+  (including `game_over`), not a hand-picked subset. In `render.js`, populate each `[data-cell]`'s
   `data-cell-state` (`"empty" | "own" | "opponent"`), add `[data-turn-indicator]` text content
-  (whose turn, which mark), and `[data-error-indicator]` text content from `lastError`. In
-  `events.js`, wire each board cell's `click` to `applyPlayerMove` + re-render. `npm test` must be
-  fully green. Expected commit: `T-064: turn indicator, illegal move rejection, occupied cell
+  (whose turn, which mark), and `[data-error-indicator]` text content from `lastError`, with a
+  player-facing message for each of the six `reason` values. In `events.js`, wire each board
+  cell's `click` to `applyPlayerMove` + re-render. `npm test` must be fully green. Expected
+  commit: `T-064: turn indicator, illegal move rejection (including game_over), occupied cell
   (CA-I-03, CA-I-05, CA-I-21)`
 
 ### Winning line highlight, block further moves, scoreboard win increment (CA-I-04, CA-I-14)
@@ -353,6 +381,48 @@ the timing mechanism T-077/T-078 cover, kept separate for the same reason `002-a
   overwritten each turn — no extra "clear" logic needed, per `research.md` D-I-06). `npm test`
   must be fully green. Expected commit: `T-080: resolvedFromMemory indicator (CA-I-09)`
 
+### Real cross-game memory-reuse integration (CA-I-09, continued)
+
+_Added by `/speckit-analyze` (2026-07-27): T-079/T-080 only prove `render.js` reads
+`lastDecision.resolvedFromMemory` from a hand-built `Decision` object passed directly to
+`resolveAgentMove` — they never exercise `events.js`'s real `chooseMove` call or `restart`'s
+`agentMemory` carryover (`contracts/app-state-api.md`'s `restart`), so they cannot show that a
+second real game genuinely produces `resolvedFromMemory: true` through the actual UI pipeline.
+This pair closes that gap using the same cache-hit fixture strategy `specs/002-agents`'s CA-A-10
+test already established for `chooseMove` directly, adapted to route through the full
+`app-state.js` → `events.js` integration instead of calling `chooseMove` directly._
+
+- [ ] T-081 [US-I-2] [AC: CA-I-09] RED — Add to `us-i2-state-feedback.test.js`:
+  `describe('CA-I-09 — resolvedFromMemory reflects real cross-game memory reuse', ...)`: start a
+  complex-level game, drive it (via the real `requestAgentMove` → `chooseMove` → `resolveAgentMove`
+  pipeline in `events.js`, using `vi.useFakeTimers()` per T-077/T-078) to a board position that
+  populates `agentMemory.complex`'s transposition table; click `[data-restart-button]` (`restart`
+  carries `agentMemory` over per its contract); start a second complex-level game in the same
+  `AppState` session and drive it, through the same real pipeline, to a position the first game's
+  search already evaluated — reusing `specs/002-agents`'s CA-A-10 fixture (same board reachable by
+  both games) so the cache hit is genuine, not asserted by construction. Assert the second game's
+  `chooseMove` call returns `resolvedFromMemory: true` and that `[data-memory-indicator]` appears
+  on that turn, while the first game's equivalent turn had `resolvedFromMemory: false` and no
+  indicator. Fails because no existing test drives two consecutive real games through the shared
+  `agentMemory` pipeline. Expected commit: `test(CA-I-09): failing test — resolvedFromMemory
+  reflects real cross-game memory reuse`
+
+- [ ] T-082 [US-I-2] [AC: CA-I-09] GREEN — Run `npm test`. Because `resolveAgentMove` (T-078) and
+  `restart`'s `agentMemory` carryover (T-082 of the original sequence, now T-084 — see Phase 4)
+  already exist, this task is expected to require no production change, the same
+  zero-code-corollary pattern as T-070/T-090/T-098/T-100 — it confirms the integration T-079/T-080
+  alone could not prove. **Contingency (only if T-081 cannot pass deterministically in jsdom)**: if
+  forcing a genuine transposition-table cache hit across two `createGame` calls turns out to
+  require more plies or wall-clock-sensitive search than a fast, deterministic unit test can
+  reliably exercise, do not weaken T-081 into another hand-built `Decision` mock — instead, revert
+  T-081 to a documented limitation in `specs/003-interface/traceability.md`'s "Test-strategy
+  limitations" section, following the same pattern already used there for CA-I-28–CA-I-32/CA-I-17:
+  state plainly that automated coverage for CA-I-09 proves `render.js`'s reading of
+  `resolvedFromMemory` (T-079/T-080) but not genuine cross-game reuse through the real pipeline,
+  and that the latter is demonstrated only during the live presentation. `npm test` must be fully
+  green either way. Expected commit: `T-082: confirm/complete real cross-game memory-reuse
+  integration (CA-I-09)`
+
 ---
 
 ## Phase 4: US-I-3 — Follow the Session Scoreboard (Priority: P2)
@@ -360,14 +430,14 @@ the timing mechanism T-077/T-078 cover, kept separate for the same reason `002-a
 **Goal**: `restart` (`src/ui/app-state.js`) and the restart button (`render.js`/`events.js`)
 fully implemented. CA-I-14/CA-I-15 (scoreboard increments) are already complete — T-066/T-068.
 
-**Prerequisite**: T-080 GREEN complete.
+**Prerequisite**: T-082 GREEN complete.
 
 ### Restart: return to CONFIGURATION, scoreboard preserved, movement selection cleared (CA-I-16, CA-I-23)
 
 _Grouped: `restart`'s declared "Covered criteria" in `contracts/app-state-api.md` — one function,
 callable from any `uiState`. CA-I-23's test lives in `edge-cases.test.js` per the skeleton._
 
-- [ ] T-081 [US-I-3] [AC: CA-I-16, CA-I-23] RED — Add to `us-i3-scoreboard.test.js`:
+- [ ] T-083 [US-I-3] [AC: CA-I-16, CA-I-23] RED — Add to `us-i3-scoreboard.test.js`:
   `describe('CA-I-16 — restart returns to CONFIGURATION, scoreboard preserved', ...)`: play a game
   to a win (scoreboard now non-zero); click `[data-restart-button]`; assert `uiState` is
   `CONFIGURATION`, `engineState` is `null`, and every `[data-score]` value is unchanged. Add to
@@ -378,11 +448,11 @@ callable from any `uiState`. CA-I-23's test lives in `edge-cases.test.js` per th
   Expected commit: `test(CA-I-16,CA-I-23): failing tests — restart returns to CONFIGURATION,
   scoreboard preserved, pending selection cleared`
 
-- [ ] T-082 [US-I-3] [AC: CA-I-16, CA-I-23] GREEN — In `app-state.js`, add `restart(state)` per
+- [ ] T-084 [US-I-3] [AC: CA-I-16, CA-I-23] GREEN — In `app-state.js`, add `restart(state)` per
   `contracts/app-state-api.md`: returns a fresh `createAppState()` except `scoreboard` and
   `agentMemory` are carried over unchanged. In `render.js`, ensure `[data-restart-button]` is
   present and never `disabled` in any `uiState` (per `dom-contract.md`). In `events.js`, wire its
-  `click` to `restart` + re-render. `npm test` must be fully green. Expected commit: `T-082:
+  `click` to `restart` + re-render. `npm test` must be fully green. Expected commit: `T-084:
   restart returns to CONFIGURATION, scoreboard preserved, pending selection cleared (CA-I-16,
   CA-I-23)`
 
@@ -393,7 +463,7 @@ callable from any `uiState`. CA-I-23's test lives in `edge-cases.test.js` per th
 **Goal**: Focus-visible hook, arrow-key board navigation, Enter/Space activation, and the ARIA
 live-region announcement all implemented per `research.md` D-I-08.
 
-**Prerequisite**: T-082 GREEN complete.
+**Prerequisite**: T-084 GREEN complete.
 
 ### Visible focus indicator hook (CA-I-17)
 
@@ -404,39 +474,39 @@ does **not** prove the resulting outline is visually perceivable (contrast, size
 that half is closed only by `specs/003-interface/manual-verification.md`'s focus-visibility check
 at two widths, not by this task's test._
 
-- [ ] T-083 [US-I-4] [AC: CA-I-17] RED — Create `tests/interface/us-i4-keyboard.test.js`
+- [ ] T-085 [US-I-4] [AC: CA-I-17] RED — Create `tests/interface/us-i4-keyboard.test.js`
   (`// @vitest-environment jsdom`) with `describe('CA-I-17 — focus-visible hook toggles on
   focus/blur', ...)`: call `.focus()` on a configuration control and separately on a board cell;
   assert `data-focus-visible="true"` appears; call `.blur()`; assert the attribute is removed.
   Fails because no `focus`/`blur` listener exists yet. Expected commit: `test(CA-I-17): failing
   test — focus-visible hook toggles on focus/blur`
 
-- [ ] T-084 [US-I-4] [AC: CA-I-17] GREEN — In `render.js`, attach `focus`/`blur` listeners to
+- [ ] T-086 [US-I-4] [AC: CA-I-17] GREEN — In `render.js`, attach `focus`/`blur` listeners to
   every interactive control (config controls, start button, board cells, restart button) that
   toggle `data-focus-visible` (per `dom-contract.md`). `npm test` must be fully green. Automated
   coverage is the behavioral hook only — see the note above for what remains closed by
-  `manual-verification.md`. Expected commit: `T-084: focus-visible hook toggles on focus/blur
+  `manual-verification.md`. Expected commit: `T-086: focus-visible hook toggles on focus/blur
   (CA-I-17)`
 
 ### Arrow-key board navigation (CA-I-18)
 
-- [ ] T-085 [US-I-4] [AC: CA-I-18] RED — Add to `us-i4-keyboard.test.js`: `describe('CA-I-18 —
+- [ ] T-087 [US-I-4] [AC: CA-I-18] RED — Add to `us-i4-keyboard.test.js`: `describe('CA-I-18 —
   arrow keys move cell selection', ...)`: focus `[data-cell="4"]` (center); dispatch a `keydown`
   with `key: 'ArrowRight'`; assert `document.activeElement` is `[data-cell="5"]`; repeat for
   `ArrowLeft`/`ArrowUp`/`ArrowDown`, per the row-major 3×3 layout
   (`specs/001-engine/data-model.md`'s indexing). Fails because no `keydown` listener exists on
   the board yet. Expected commit: `test(CA-I-18): failing test — arrow keys move cell selection`
 
-- [ ] T-086 [US-I-4] [AC: CA-I-18] GREEN — In `events.js`, attach a `keydown` listener to
+- [ ] T-088 [US-I-4] [AC: CA-I-18] GREEN — In `events.js`, attach a `keydown` listener to
   `[data-board]` that, on `ArrowUp`/`ArrowDown`/`ArrowLeft`/`ArrowRight`, computes the adjacent
   cell index in the pressed direction (clamping at the grid edge — no criterion requires a
   specific edge behavior, per `spec.md`'s Assumptions) and calls `.focus()` on that cell's
-  `[data-cell]` button. `npm test` must be fully green. Expected commit: `T-086: arrow keys move
+  `[data-cell]` button. `npm test` must be fully green. Expected commit: `T-088: arrow keys move
   cell selection (CA-I-18)`
 
 ### Enter/Space activation (CA-I-19)
 
-- [ ] T-087 [US-I-4] [AC: CA-I-19] RED — Add to `us-i4-keyboard.test.js`: `describe('CA-I-19 —
+- [ ] T-089 [US-I-4] [AC: CA-I-19] RED — Add to `us-i4-keyboard.test.js`: `describe('CA-I-19 —
   Enter/Space activates like a click', ...)`: focus a legal, empty `[data-cell]`; dispatch
   `keydown` with `key: 'Enter'`; assert the resulting `engineState` is identical to what a
   `click` on the same cell would produce; repeat with `key: ' '`. Also verify the movement-phase
@@ -445,16 +515,16 @@ at two widths, not by this task's test._
   `research.md` D-I-08. Expected commit: `test(CA-I-19): failing test — Enter/Space activates
   like a click`
 
-- [ ] T-088 [US-I-4] [AC: CA-I-19] GREEN — If T-087 fails on jsdom's native button activation, add
+- [ ] T-090 [US-I-4] [AC: CA-I-19] GREEN — If T-089 fails on jsdom's native button activation, add
   an explicit `keydown` handler in `events.js` for `Enter`/`Space` on `[data-cell]` elements that
   invokes the same handler the `click` listener already calls (T-064/T-072/T-074); if jsdom's
-  native semantics already pass T-087 unmodified, this task requires no production change (same
+  native semantics already pass T-089 unmodified, this task requires no production change (same
   zero-code-corollary pattern as T-070/T-052). `npm test` must be fully green. Expected commit:
-  `T-088: confirm/complete Enter/Space activation parity with click (CA-I-19)`
+  `T-090: confirm/complete Enter/Space activation parity with click (CA-I-19)`
 
 ### Turn/result announcement without moving focus (CA-I-20)
 
-- [ ] T-089 [US-I-4] [AC: CA-I-20] RED — Add to `us-i4-keyboard.test.js`: `describe('CA-I-20 —
+- [ ] T-091 [US-I-4] [AC: CA-I-20] RED — Add to `us-i4-keyboard.test.js`: `describe('CA-I-20 —
   turn/result announced without moving focus', ...)`: assert `[data-live-region]`
   (`role="status"`, `aria-live="polite"`) exists once at startup (T-062's base render); focus a
   board cell, note `document.activeElement`; make a move that changes the turn; assert
@@ -463,10 +533,10 @@ at two widths, not by this task's test._
   `[data-live-region]`'s content is never updated yet. Expected commit: `test(CA-I-20): failing
   test — turn/result announced without moving focus`
 
-- [ ] T-090 [US-I-4] [AC: CA-I-20] GREEN — In `render.js`, add `[data-live-region]` to the base
+- [ ] T-092 [US-I-4] [AC: CA-I-20] GREEN — In `render.js`, add `[data-live-region]` to the base
   structure if not already present from T-062, and replace (not append) its `textContent` on
   every turn change and on reaching `FINISHED`, describing the new turn or the result; never call
-  `.focus()` from this code path. `npm test` must be fully green. Expected commit: `T-090:
+  `.focus()` from this code path. `npm test` must be fully green. Expected commit: `T-092:
   turn/result announced without moving focus (CA-I-20)`
 
 ---
@@ -476,7 +546,7 @@ at two widths, not by this task's test._
 **Goal**: `src/styles.css` fully authored, mobile-first, per `research.md` D-I-07, with the
 structural CSS proxy tests from D-I-04.
 
-**Prerequisite**: T-090 GREEN complete (all interactive controls exist to style).
+**Prerequisite**: T-092 GREEN complete (all interactive controls exist to style).
 
 **Test-strategy note (applies to both pairs below)**: automated coverage is a *structural CSS
 proxy* (`tests/interface/responsive-static.test.js`, plain Node environment — no jsdom, no real
@@ -490,7 +560,7 @@ browser-mode.
 
 ### Page-layout fluidity and mobile-first breakpoint (CA-I-28, CA-I-29)
 
-- [ ] T-091 [Responsive] [AC: CA-I-28, CA-I-29] RED — Create
+- [ ] T-093 [Responsive] [AC: CA-I-28, CA-I-29] RED — Create
   `tests/interface/responsive-static.test.js` (plain Node environment, no `jsdom` pragma) with
   `describe('CA-I-28 — no fixed pixel widths on layout containers', ...)`: read
   `src/styles.css`'s source text; assert no rule for `.app`, `.board`, `.config-panel`, or
@@ -503,16 +573,16 @@ browser-mode.
   Expected commit: `test(CA-I-28,CA-I-29): failing tests — layout fluidity, mobile-first
   breakpoint`
 
-- [ ] T-092 [Responsive] [AC: CA-I-28, CA-I-29] GREEN — In `src/styles.css`, per `research.md`
+- [ ] T-094 [Responsive] [AC: CA-I-28, CA-I-29] GREEN — In `src/styles.css`, per `research.md`
   D-I-07: base (mobile) rules for `.app` as `display: flex; flex-direction: column`, all
   container widths as `%`/`max-width` + `width: 100%` (never a fixed pixel value, per the global
   CLAUDE.md "Fluidity over Fixedness" rule); one `@media (min-width: 768px)` block (D10) switching
-  `.app` to a multi-column arrangement. `npm test` must be fully green. Expected commit: `T-092:
+  `.app` to a multi-column arrangement. `npm test` must be fully green. Expected commit: `T-094:
   page-layout fluidity and mobile-first breakpoint (CA-I-28, CA-I-29)`
 
 ### Square board, touch targets, configuration overflow (CA-I-30, CA-I-31, CA-I-32)
 
-- [ ] T-093 [Responsive] [AC: CA-I-30, CA-I-31, CA-I-32] RED — Add to `responsive-static.test.js`:
+- [ ] T-095 [Responsive] [AC: CA-I-30, CA-I-31, CA-I-32] RED — Add to `responsive-static.test.js`:
   `describe('CA-I-30 — board container is square (aspect-ratio 1/1)', ...)`: assert the board
   container's rule declares `aspect-ratio: 1 / 1` and a relative (not fixed-pixel) `width`/
   `max-width`. Add `describe('CA-I-31 — interactive controls declare 44x44px minimum', ...)`:
@@ -526,12 +596,12 @@ browser-mode.
   control, or configuration rules yet. Expected commit: `test(CA-I-30,CA-I-31,CA-I-32): failing
   tests — square board, touch targets, configuration overflow`
 
-- [ ] T-094 [Responsive] [AC: CA-I-30, CA-I-31, CA-I-32] GREEN — In `src/styles.css`, per
+- [ ] T-096 [Responsive] [AC: CA-I-30, CA-I-31, CA-I-32] GREEN — In `src/styles.css`, per
   `research.md` D-I-07: board container `aspect-ratio: 1 / 1; width: min(90vw, 480px)` (relative
   cap, not fixed); every interactive control (board cells, config selects, restart button,
   movement-phase selection targets) `min-width: 44px; min-height: 44px` at every breakpoint that
   resizes it; configuration container uses fluid width with no `overflow: hidden` +
-  narrow-fixed-width combination. `npm test` must be fully green. Expected commit: `T-094: square
+  narrow-fixed-width combination. `npm test` must be fully green. Expected commit: `T-096: square
   board, touch targets, configuration overflow (CA-I-30, CA-I-31, CA-I-32)`
 
 ---
@@ -542,11 +612,11 @@ browser-mode.
 Phases 2–5 — dedicated tests confirming the coverage, per the same discipline `002-agents` used
 for CA-A-13/CA-A-14.
 
-**Prerequisite**: T-094 GREEN complete (every control and interaction exists to audit).
+**Prerequisite**: T-096 GREEN complete (every control and interaction exists to audit).
 
 ### Fully operable with a mouse (CA-N-02)
 
-- [ ] T-095 [Non-Functional] [AC: CA-N-02] RED — Create `tests/interface/non-functional.test.js`
+- [ ] T-097 [Non-Functional] [AC: CA-N-02] RED — Create `tests/interface/non-functional.test.js`
   (`// @vitest-environment jsdom`) with `describe('CA-N-02 — fully operable with mouse (click
   handlers cover every action)', ...)`: complete a full game — configuration, placement/movement
   moves, restart — using only `click` events (no `keydown` dispatched anywhere in this test);
@@ -555,32 +625,32 @@ for CA-A-13/CA-A-14.
   should not, since every prior GREEN task wired a `click` handler first). Expected commit:
   `test(CA-N-02): failing/asserting test — fully operable with mouse`
 
-- [ ] T-096 [Non-Functional] [AC: CA-N-02] GREEN — Run `npm test`; if any action lacks a `click`
+- [ ] T-098 [Non-Functional] [AC: CA-N-02] GREEN — Run `npm test`; if any action lacks a `click`
   handler, add it in `events.js` (per whichever earlier task's contract function it belongs to);
   otherwise no production change is needed — this is the coverage confirmation, not a new
-  feature. `npm test` must be fully green. Expected commit: `T-096: confirm CA-N-02 — fully
+  feature. `npm test` must be fully green. Expected commit: `T-098: confirm CA-N-02 — fully
   operable with mouse`
 
 ### Full game completable via keyboard alone (CA-N-03)
 
-- [ ] T-097 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
+- [ ] T-099 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
   `describe('CA-N-03 — full game completable via keyboard alone', ...)`: complete a full game —
   tab through configuration controls (`change` events triggered via keyboard-equivalent
-  interaction), select/activate board cells via `ArrowKey`+`Enter`/`Space` (T-086/T-088), restart
+  interaction), select/activate board cells via `ArrowKey`+`Enter`/`Space` (T-088/T-090), restart
   via focus + `Enter` on `[data-restart-button]` — with no `click` event dispatched anywhere in
   this test. Expected to fail only if some action lacks a keyboard path. Expected commit:
   `test(CA-N-03): failing/asserting test — full game completable via keyboard alone`
 
-- [ ] T-098 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
-  path, add it (per whichever of T-084/T-086/T-088/T-090's mechanisms it belongs to); otherwise no
-  production change is needed. `npm test` must be fully green. Expected commit: `T-098: confirm
+- [ ] T-100 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
+  path, add it (per whichever of T-086/T-088/T-090/T-092's mechanisms it belongs to); otherwise no
+  production change is needed. `npm test` must be fully green. Expected commit: `T-100: confirm
   CA-N-03 — full game completable via keyboard alone`
 
 ---
 
 ## Final Phase: Traceability Closure
 
-- [ ] T-099 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
+- [ ] T-101 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
   CA-I-10, CA-I-11, CA-I-12, CA-I-13, CA-I-14, CA-I-15, CA-I-16, CA-I-17, CA-I-18, CA-I-19,
   CA-I-20, CA-I-21, CA-I-22, CA-I-23, CA-I-24, CA-I-25, CA-I-26, CA-I-27, CA-I-28, CA-I-29,
   CA-I-30, CA-I-31, CA-I-32, CA-N-02, CA-N-03] Run `npm run verify:traceability`; fill the Task
@@ -588,7 +658,7 @@ for CA-A-13/CA-A-14.
   using real SHAs from `git log`; execute `manual-verification.md`'s procedure for CA-I-17
   (rendered-visibility half), CA-I-28–CA-I-32, and record the result in that file; verify
   `npm run verify:traceability` exits 0 for all three features (37 + 34 = 71 CA-IDs combined)
-  after the commit. Expected commit: `T-099: record real SHAs in traceability matrix —
+  after the commit. Expected commit: `T-101: record real SHAs in traceability matrix —
   003-interface complete`
 
 ---
@@ -605,38 +675,38 @@ for CA-A-13/CA-A-14.
 | CA-I-06 | T-075 | T-076 | us-i2-waiting-state.test.js | Grouped with CA-I-12, CA-I-22 — `requestAgentMove`'s covered criteria |
 | CA-I-07 | T-071 | T-072 | us-i2-state-feedback.test.js | Grouped with CA-I-25, CA-I-27 — `selectOwnMark`'s covered criteria |
 | CA-I-08 | T-069 | T-070 | us-i2-state-feedback.test.js | Corollary of CA-I-03/04/05 — dedicated cross-cutting test |
-| CA-I-09 | T-079 | T-080 | us-i2-state-feedback.test.js | Own pair — `render.js`-only concern on top of T-078's `resolveAgentMove` |
+| CA-I-09 | T-079 (render); T-081 (integration) | T-080 (render); T-082 (integration) | us-i2-state-feedback.test.js | Two pairs: T-079/T-080 prove `render.js` reads a hand-built `Decision`; T-081/T-082 (added by `/speckit-analyze`) prove genuine cross-game reuse through the real `events.js`/`restart` pipeline |
 | CA-I-10 | T-077 | T-078 | us-i2-waiting-state.test.js | Grouped with CA-I-13 — 300ms floor mechanism (D-I-05) |
 | CA-I-11 | T-067 | T-068 | us-i2-state-feedback.test.js | Grouped with CA-I-15 — `applyPlayerMove` draw branch |
 | CA-I-12 | T-075 | T-076 | us-i2-waiting-state.test.js | Grouped with CA-I-06, CA-I-22 |
 | CA-I-13 | T-077 | T-078 | us-i2-waiting-state.test.js | Grouped with CA-I-10 |
 | CA-I-14 | T-065 | T-066 | us-i3-scoreboard.test.js | Grouped with CA-I-04 |
 | CA-I-15 | T-067 | T-068 | us-i3-scoreboard.test.js | Grouped with CA-I-11 |
-| CA-I-16 | T-081 | T-082 | us-i3-scoreboard.test.js | Grouped with CA-I-23 — `restart`'s covered criteria |
-| CA-I-17 | T-083 | T-084 | us-i4-keyboard.test.js | ⚠️ Behavioral proxy only — rendered visibility closed by manual-verification.md |
-| CA-I-18 | T-085 | T-086 | us-i4-keyboard.test.js | Own pair — arrow-key navigation |
-| CA-I-19 | T-087 | T-088 | us-i4-keyboard.test.js | Own pair — may be a zero-code corollary if jsdom's native button semantics suffice |
-| CA-I-20 | T-089 | T-090 | us-i4-keyboard.test.js | Own pair — ARIA live region |
+| CA-I-16 | T-083 | T-084 | us-i3-scoreboard.test.js | Grouped with CA-I-23 — `restart`'s covered criteria |
+| CA-I-17 | T-085 | T-086 | us-i4-keyboard.test.js | ⚠️ Behavioral proxy only — rendered visibility closed by manual-verification.md |
+| CA-I-18 | T-087 | T-088 | us-i4-keyboard.test.js | Own pair — arrow-key navigation |
+| CA-I-19 | T-089 | T-090 | us-i4-keyboard.test.js | Own pair — may be a zero-code corollary if jsdom's native button semantics suffice |
+| CA-I-20 | T-091 | T-092 | us-i4-keyboard.test.js | Own pair — ARIA live region |
 | CA-I-21 | T-063 | T-064 | edge-cases.test.js | Grouped with CA-I-03, CA-I-05 |
 | CA-I-22 | T-075 | T-076 | edge-cases.test.js | Grouped with CA-I-06, CA-I-12 |
-| CA-I-23 | T-081 | T-082 | edge-cases.test.js | Grouped with CA-I-16 |
+| CA-I-23 | T-083 | T-084 | edge-cases.test.js | Grouped with CA-I-16 |
 | CA-I-24 | T-061 | T-062 | edge-cases.test.js | Grouped with CA-I-01, CA-I-02 |
 | CA-I-25 | T-071 | T-072 | edge-cases.test.js | Grouped with CA-I-07, CA-I-27 |
 | CA-I-26 | T-073 | T-074 | edge-cases.test.js | Own pair — `applyPlayerMove`'s movement-application branch, different function than `selectOwnMark` |
 | CA-I-27 | T-071 | T-072 | edge-cases.test.js | Grouped with CA-I-07, CA-I-25 |
-| CA-I-28 | T-091 | T-092 | responsive-static.test.js | ⚠️ Structural proxy only — rendered layout closed by manual-verification.md |
-| CA-I-29 | T-091 | T-092 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
-| CA-I-30 | T-093 | T-094 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
-| CA-I-31 | T-093 | T-094 | responsive-static.test.js | ⚠️ Declared-value check, closer to direct — manual-verification.md still authoritative for computed size |
-| CA-I-32 | T-093 | T-094 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
-| CA-N-02 | T-095 | T-096 | non-functional.test.js | Corollary of every click handler built in Phases 2–5 |
-| CA-N-03 | T-097 | T-098 | non-functional.test.js | Corollary of every keyboard handler built in Phases 5 |
+| CA-I-28 | T-093 | T-094 | responsive-static.test.js | ⚠️ Structural proxy only — rendered layout closed by manual-verification.md |
+| CA-I-29 | T-093 | T-094 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
+| CA-I-30 | T-095 | T-096 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
+| CA-I-31 | T-095 | T-096 | responsive-static.test.js | ⚠️ Declared-value check, closer to direct — manual-verification.md still authoritative for computed size |
+| CA-I-32 | T-095 | T-096 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
+| CA-N-02 | T-097 | T-098 | non-functional.test.js | Corollary of every click handler built in Phases 2–5 |
+| CA-N-03 | T-099 | T-100 | non-functional.test.js | Corollary of every keyboard handler built in Phases 5 |
 
 ---
 
 ## Dependencies & Execution Order
 
-All 40 tasks are strictly sequential (every GREEN task touches at least one of
+All 42 tasks are strictly sequential (every GREEN task touches at least one of
 `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js`, or `src/styles.css`, each grown
 incrementally; no `[P]` markers).
 
@@ -651,17 +721,18 @@ T-060 (setup)
   → T-073(RED) → T-074(GREEN)  CA-I-26
   → T-075(RED) → T-076(GREEN)  CA-I-06, CA-I-12, CA-I-22
   → T-077(RED) → T-078(GREEN)  CA-I-10, CA-I-13
-  → T-079(RED) → T-080(GREEN)  CA-I-09
-  → T-081(RED) → T-082(GREEN)  CA-I-16, CA-I-23
-  → T-083(RED) → T-084(GREEN)  CA-I-17
-  → T-085(RED) → T-086(GREEN)  CA-I-18
-  → T-087(RED) → T-088(GREEN)  CA-I-19
-  → T-089(RED) → T-090(GREEN)  CA-I-20
-  → T-091(RED) → T-092(GREEN)  CA-I-28, CA-I-29
-  → T-093(RED) → T-094(GREEN)  CA-I-30, CA-I-31, CA-I-32
-  → T-095(RED) → T-096(GREEN)  CA-N-02
-  → T-097(RED) → T-098(GREEN)  CA-N-03
-  → T-099                      traceability closure
+  → T-079(RED) → T-080(GREEN)  CA-I-09 (render only)
+  → T-081(RED) → T-082(GREEN)  CA-I-09 (real cross-game integration)
+  → T-083(RED) → T-084(GREEN)  CA-I-16, CA-I-23
+  → T-085(RED) → T-086(GREEN)  CA-I-17
+  → T-087(RED) → T-088(GREEN)  CA-I-18
+  → T-089(RED) → T-090(GREEN)  CA-I-19
+  → T-091(RED) → T-092(GREEN)  CA-I-20
+  → T-093(RED) → T-094(GREEN)  CA-I-28, CA-I-29
+  → T-095(RED) → T-096(GREEN)  CA-I-30, CA-I-31, CA-I-32
+  → T-097(RED) → T-098(GREEN)  CA-N-02
+  → T-099(RED) → T-100(GREEN)  CA-N-03
+  → T-101                      traceability closure
 ```
 
 **Phase gates**:
@@ -671,11 +742,11 @@ T-060 (setup)
 | Phase 1 (T-060) | `002-agents` closed (T-057, commit recorded in `specs/002-agents/traceability.md`) |
 | Phase 2 (T-061) | T-060 complete |
 | Phase 3 (T-063) | T-062 GREEN — configuration slice complete |
-| Phase 4 (T-081) | T-080 GREEN — all US-I-2 gameplay slices complete |
-| Phase 5 (T-083) | T-082 GREEN — restart complete |
-| Phase 6 (T-091) | T-090 GREEN — every interactive control exists to style |
-| Phase 7 (T-095) | T-094 GREEN — styles complete |
-| Final (T-099) | T-098 GREEN — `npm test` fully green |
+| Phase 4 (T-083) | T-082 GREEN — all US-I-2 gameplay slices complete, including CA-I-09's real integration pair |
+| Phase 5 (T-085) | T-084 GREEN — restart complete |
+| Phase 6 (T-093) | T-092 GREEN — every interactive control exists to style |
+| Phase 7 (T-097) | T-096 GREEN — styles complete |
+| Final (T-101) | T-100 GREEN — `npm test` fully green |
 
 ---
 
@@ -686,10 +757,10 @@ T-060 (setup)
 | CA-ID with no task | None — 34/34 covered (see Coverage Audit) |
 | Task with no CA-ID | Only T-060 (Phase 1 tooling/scaffold) — same documented exception `001-engine`'s T-001/T-002 established; explicitly labeled "no behavioral CA-ID" in its phase header, per project precedent, not a deviation invented here |
 | GREEN preceding its RED | None — every pair is listed RED-then-GREEN in both the task list and the dependency graph above |
-| Tasks likely to exceed one commit | Flagged and pre-emptively split during generation: the original single "all 5 responsive criteria" pair was split into T-091/T-092 (CA-I-28, CA-I-29 — page layout) and T-093/T-094 (CA-I-30, CA-I-31, CA-I-32 — component-level), mirroring `002-agents`'s T-047/T-048 split. Remaining borderline case: **T-062** (the first behavioral GREEN task) creates all three of `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js` in one commit — larger than a typical single-criterion GREEN, but judged acceptable because it mirrors `002-agents`'s T-035 (first commit creating the entire `src/agents.js` file) and the three files' *content* here is scoped tightly to configuration only (no gameplay logic yet); flagged here for the user's review rather than split further, since splitting "create app-state.js" from "create render.js" from "create events.js" would leave two of the three commits unable to pass any test on their own (an untestable intermediate commit is a worse traceability outcome than one slightly larger commit, per P5's red-before-green intent). |
-| CA-ID with unclear test strategy | None outright unclear, but two are worth flagging: **CA-I-19** (T-087/T-088) — GREEN may end up requiring zero production code if jsdom's native `<button>` keyboard semantics already dispatch `click` on Enter/Space; the task is written to handle either outcome, but the actual result is only knowable at implementation time. **CA-I-17/CA-I-28–CA-I-32** — test strategy is deliberately partial by design (documented proxy + manual procedure, per `research.md` D-I-04), not unclear; flagged here only so the distinction between "partial by design" and "unclear" is explicit. |
+| Tasks likely to exceed one commit | Flagged and pre-emptively split during generation: the original single "all 5 responsive criteria" pair was split into T-093/T-094 (CA-I-28, CA-I-29 — page layout) and T-095/T-096 (CA-I-30, CA-I-31, CA-I-32 — component-level), mirroring `002-agents`'s T-047/T-048 split. Remaining borderline case: **T-062** (the first behavioral GREEN task) creates all three of `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js` in one commit — larger than a typical single-criterion GREEN, but judged acceptable because it mirrors `002-agents`'s T-035 (first commit creating the entire `src/agents.js` file) and the three files' *content* here is scoped tightly to configuration only (no gameplay logic yet); flagged here for the user's review rather than split further, since splitting "create app-state.js" from "create render.js" from "create events.js" would leave two of the three commits unable to pass any test on their own (an untestable intermediate commit is a worse traceability outcome than one slightly larger commit, per P5's red-before-green intent). |
+| CA-ID with unclear test strategy | None outright unclear, but three are worth flagging: **CA-I-19** (T-089/T-090) — GREEN may end up requiring zero production code if jsdom's native `<button>` keyboard semantics already dispatch `click` on Enter/Space; the task is written to handle either outcome, but the actual result is only knowable at implementation time. **CA-I-17/CA-I-28–CA-I-32** — test strategy is deliberately partial by design (documented proxy + manual procedure, per `research.md` D-I-04), not unclear; flagged here only so the distinction between "partial by design" and "unclear" is explicit. **CA-I-09**'s T-081/T-082 — the real cross-game integration test's feasibility inside jsdom (no wall clock, deterministic transposition-table cache hit) is not yet proven; T-082's description carries an explicit contingency to fall back to a documented `traceability.md` limitation, same pattern as the six partial criteria, if it turns out infeasible. |
 
-**Documented-exception note**: T-070 (CA-I-08), T-088 (CA-I-19), T-096 (CA-N-02), and T-098
+**Documented-exception note**: T-070 (CA-I-08), T-090 (CA-I-19), T-098 (CA-N-02), and T-100
 (CA-N-03) may turn out to require zero production changes if the behavior they check is already a
 correct corollary of earlier tasks — the same pattern `002-agents` used for CA-A-13/CA-A-14/
 CA-N-01's confirmation-only GREEN commits (T-052, T-054, T-056). Each still gets its own

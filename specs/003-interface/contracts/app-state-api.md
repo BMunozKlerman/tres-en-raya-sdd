@@ -38,8 +38,7 @@ createAppState() -> AppState
 
 Returns the initial `AppState`: `uiState: 'CONFIGURATION'`, `engineState: null`, an empty
 `ConfigurationDraft`, `agentMemory: { simple: null, medium: null, complex: {} }`,
-`scoreboard: { X: 0, O: 0, draw: 0 }`, `movementSelection: null`, `lastDecision: null`,
-`pendingAgentMove: null`.
+`scoreboard: { X: 0, O: 0, draw: 0 }`, `movementSelection: null`, `lastDecision: null`.
 
 ### Covered criteria
 Supports CA-I-01 (nothing to cover directly; provides the state CA-I-01's controls read).
