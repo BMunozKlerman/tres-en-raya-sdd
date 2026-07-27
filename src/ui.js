@@ -1,5 +1,16 @@
+import { createAppState } from './ui/app-state.js';
+import { render } from './ui/render.js';
+import { attachEvents } from './ui/events.js';
+
 export function mountApp(root) {
-  // Populated incrementally starting in T-062 (specs/003-interface/tasks.md)
+  let state = createAppState();
+  const getState = () => state;
+  const setState = (next) => {
+    state = next;
+  };
+
+  render(root, state);
+  attachEvents(root, getState, setState);
 }
 
 if (typeof document !== 'undefined') {
