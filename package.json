@@ -9,6 +9,7 @@
     "verify:traceability": "node scripts/verify-traceability.mjs"
   },
   "devDependencies": {
+    "jsdom": "^29.1.1",
     "vite": "^5.4.21",
     "vitest": "^1.6.1"
   }
