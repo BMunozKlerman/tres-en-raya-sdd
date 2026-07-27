@@ -186,8 +186,9 @@ never decide on your own.
       for all 20 CA-IDs (commit `2ef54af`)
 - [ ] Spec 002-agents — `/speckit-specify` done (17 criteria CA-A-01–CA-A-16 + CA-N-01, D5–D8
       encoded); `/speckit-clarify` applied (N=20 fixed in CA-A-13, CA-A-01 split by level,
-      phase-agnostic note on CA-A-09); CA-A-06 (medium memory) left pending a wording choice —
-      see Session Log below. `/speckit-plan`, `/speckit-tasks`, `/speckit-analyze` not started.
+      phase-agnostic note on CA-A-09); CA-A-06 (medium memory) resolved with option C — see
+      Session Log below. Spec complete, checklist fully passed, ready for `/speckit-plan`.
+      `/speckit-plan`, `/speckit-tasks`, `/speckit-analyze` not started.
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
@@ -252,28 +253,27 @@ never decide on your own.
   has 17 criteria). (3) Added a "phase-agnostic" note to CA-A-09 (complex, continuous mode) for
   consistency with the medium-level criteria. All three integrated and committed together
   (commit `dc639a3`) with a new `## Clarifications` section recording the Q&A.
-  **Pending, not yet resolved**: CA-A-06 (medium level memory, ex-CA-A-05) asserts the
-  decision is independent of memory in every case, which makes RF-2's "memory limited to the
-  game in progress" capability for `medium` formally unobservable — the same problem D7 solved
-  for `complex` via decision metrics, but never solved here. Its original (flawed) wording is
-  left in place, marked `⚠️ pending correction` in both `spec.md` and
-  `checklists/requirements.md` ("Requirements are testable and unambiguous" unchecked).
-  Three replacement wordings are on the table, not yet chosen:
-  - **Option A** — decision metric symmetric with D7: expose `nodesEvaluated`/
-    `resolvedFromMemory` for `medium` too, and require that a node count accumulated in a
-    previous game's memory is discarded at the start of a new game. Test implication: `medium`
-    needs the same instrumentation as `complex`, even though its win/block algorithm doesn't
-    need it to decide.
-  - **Option B** — observable effect on an in-game tie-break: when a state has more than one
-    move that would satisfy CA-A-04/CA-A-05 equally, and memory records which one `medium`
-    picked earlier in the same game, require it to repeat that same choice. Test implication:
-    requires designing a concrete tie-break scenario with genuine ambiguity — heavier to build,
-    and in tension with the existing Assumptions bullet that leaves tie-breaking unspecified.
-  - **Option C** (recommended) — narrow the claim to non-persistence across games only: at the
-    start of a new game, the move must not depend on any memory value produced by a previous
-    game. Test implication: simplest to implement and test (two memory values, one empty one
-    not, same initial state, same move expected); honestly documents that `medium`'s algorithm
-    needs no history at all, similar in spirit to how 001-engine's D2 documented an absence of
-    behavior rather than forcing a test for it.
-  Next step: user picks A/B/C (or a custom wording), then it gets integrated, the checklist
-  re-validated, and `/speckit-plan` for 002-agents can start.
+  **Pending at the time, later resolved (see next entry)**: CA-A-06 (medium level memory,
+  ex-CA-A-05) asserted the decision is independent of memory in every case, which made RF-2's
+  "memory limited to the game in progress" capability for `medium` formally unobservable — the
+  same problem D7 solved for `complex` via decision metrics, but never solved here. Its original
+  (flawed) wording was left in place, marked `⚠️ pending correction` in both `spec.md` and
+  `checklists/requirements.md` ("Requirements are testable and unambiguous" unchecked). Three
+  replacement wordings were put on the table: **Option A** — decision metric symmetric with D7
+  (expose `nodesEvaluated`/`resolvedFromMemory` for `medium` too); **Option B** — observable
+  effect on an in-game tie-break (require `medium` to repeat a stored choice between equally
+  good moves); **Option C** — narrow the claim to non-persistence across games only (at the
+  start of a new game, the move must not depend on any memory value produced by a previous
+  game).
+- 2026-07-27: Group picked **option C** for CA-A-06. New wording: `chooseMove` for the medium
+  level, invoked on the initial state of a new game once with a memory value carried over from a
+  previous game and once with an empty memory value, returns the same move both times. Recorded
+  as a decision of absence of behavior — same pattern as 001-engine's D2 — since the medium
+  level's win-this-turn/block-next-turn algorithm needs no history at all to decide; RF-2's
+  "memory limited to the game in progress" capability is satisfied by boundedness, not by use.
+  Option A was discarded because it would add instrumentation RF-2 requires only for `complex`;
+  Option B was discarded because it would invent a tie-break behavior no criterion requests.
+  Integrated into `spec.md` (Clarifications entry, EARS text, Functional Requirements table,
+  Pending Decisions, Key Entities) and `checklists/requirements.md` ("Requirements are testable
+  and unambiguous" now checked), commit `5c1ed58`. **002-agents spec is complete** — 17 criteria
+  (CA-A-01–CA-A-16 + CA-N-01), checklist fully passed, ready for `/speckit-plan`.
