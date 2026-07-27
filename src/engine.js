@@ -37,6 +37,10 @@ export function applyMove(state, move) {
   }
 
   if (move.type === 'move') {
+    if (state.board[move.from] !== move.player) {
+      return { error: true, reason: 'not_own_mark' };
+    }
+
     const newBoard = [...state.board];
     newBoard[move.from] = null;
     newBoard[move.to] = move.player;
