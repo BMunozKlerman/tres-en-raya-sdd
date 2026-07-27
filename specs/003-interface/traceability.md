@@ -54,11 +54,11 @@ row — this skeleton is a `/speckit-plan` output, before task generation.
 | CA-I-35 | T-107/T-108 | us-i1-configuration.test.js | `CA-I-35 — configuration controls show identifying placeholder labels` | 881c9de209fb49c1d0815390aca9e0d950a9a4f9 (RED) / 1ec5c863ab38b93db500525d83ee21b0edb47601 (GREEN) |
 | CA-I-36 | T-109/T-110 | responsive-static.test.js | `CA-I-36 — action controls bounded to the board's max width at wide viewports` | ad5965e476df983fde7cad6077f54d475fbf95b4 (RED) / b59fa9e45d04e6ea7ec6c4c712c2a976dff74283 (GREEN) (structural proxy only — see `manual-verification.md`) |
 | CA-N-03 | T-111/T-112 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | d7f278fdf8df87ad07f3928c6361c5ed5b9bb247 (RED) / 0f9d5836b779ff527bd1b61249521d79a9d77049 (GREEN) |
-| CA-I-37 | T-114/T-115 | us-i1-configuration.test.js | `CA-I-37 — configuration option text is in Spanish` | — |
-| CA-I-38 | T-116/T-117 | us-i4-keyboard.test.js | `CA-I-38 — visible keyboard instruction` | — |
-| CA-I-39 | T-118/T-119 | us-i4-keyboard.test.js | `CA-I-39 — focus moves to the board on CONFIGURATION to IN_GAME transition` | — |
+| CA-I-37 | T-114/T-115 | us-i1-configuration.test.js | `CA-I-37 — configuration option text is in Spanish` | b3e5799 (RED) / 82725d8 (GREEN) |
+| CA-I-38 | T-116/T-117 | us-i4-keyboard.test.js | `CA-I-38 — visible keyboard instruction` | 9705534 (RED) / dc729b5 (GREEN) |
+| CA-I-39 | T-118/T-119 | us-i4-keyboard.test.js | `CA-I-39 — focus moves to the board on CONFIGURATION to IN_GAME transition` | 1b3e28c (RED) / 205d458 (GREEN) |
 
-### Bug-fix commits (BUG-008–BUG-014, no dedicated `T-NNN` for some)
+### Bug-fix commits (BUG-008–BUG-017, no dedicated `T-NNN` for some)
 
 | Bug | Description | Fix commit(s) |
 |-----|--------------|----------------|
@@ -69,10 +69,14 @@ row — this skeleton is a `/speckit-plan` output, before task generation.
 | BUG-012 | Turn indicator kept stating a pending turn after `FINISHED` | New CA-I-34 — see T-105/T-106 row above |
 | BUG-013 | Configuration `<select>`s rendered blank after `restart` | New CA-I-35 — see T-107/T-108 row above |
 | BUG-014 | Action controls stretched to full grid-column width at wide viewports | New CA-I-36 — see T-109/T-110 row above |
+| BUG-015 | Configuration option text rendered in English | New CA-I-37 — see T-114/T-115 row above |
+| BUG-016 | Keyboard navigation undiscoverable (no instruction, no initial focus) | New CA-I-38/CA-I-39 — see T-116/T-117 and T-118/T-119 rows above |
+| BUG-017 | `maybeHandOffToAgent` never invoked at game start — agent didn't open when it held the first turn (implementation defect, no new CA-ID — `CA-I-12` unchanged) | 2953129 (RED) / 4f347cc (GREEN) |
 
 Docs commits recording each bug/amendment (spec.md, tasks.md, traceability.md skeleton, bugs.md):
 `61b8e0bfadf199bf2329614dbb3e7cf8ef0b3c0d` (CA-I-33, BUG-008), `84da4c0e66b1294c04235bcdccb808bea0454270`
-(BUG-010/011/012 closure), `e158931c9c1915de781e93d925744c1623e44a9a` (CA-I-35/CA-I-36, BUG-013/014).
+(BUG-010/011/012 closure), `e158931c9c1915de781e93d925744c1623e44a9a` (CA-I-35/CA-I-36, BUG-013/014),
+`81de691` (CA-I-37/CA-I-38/CA-I-39, BUG-015/016/017).
 
 ---
 
