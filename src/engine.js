@@ -36,6 +36,19 @@ export function applyMove(state, move) {
     return { error: true, reason: 'wrong_phase' };
   }
 
+  if (move.type === 'move') {
+    const newBoard = [...state.board];
+    newBoard[move.from] = null;
+    newBoard[move.to] = move.player;
+    const newTurn = state.turn === 'X' ? 'O' : 'X';
+
+    return {
+      ...state,
+      board: newBoard,
+      turn: newTurn,
+    };
+  }
+
   if (state.board[move.cell] !== null) {
     return { error: true, reason: 'cell_occupied' };
   }
