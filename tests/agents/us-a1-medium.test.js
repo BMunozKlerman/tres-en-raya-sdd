@@ -27,3 +27,23 @@ describe('CA-A-04 — medium: wins this turn when possible', () => {
     expect(next.result).toBe('X');
   });
 });
+
+describe('CA-A-05 — medium: blocks a single next-turn threat', () => {
+  it('returns a move after which no legal opponent move sets the result to the opponent', () => {
+    const state = {
+      board: [null, null, null, null, null, null, 'O', 'O', null],
+      turn: 'X',
+      mode: 'classic',
+      phase: 'placement',
+      piecesPlaced: 2,
+      result: null,
+    };
+    const decision = chooseMove(state, 'medium', null);
+    const afterX = applyMove(state, { type: 'place', player: 'X', cell: decision.move.cell });
+    const opponentReplies = afterX.board
+      .map((cell, i) => (cell === null ? i : null))
+      .filter((i) => i !== null)
+      .map((cell) => applyMove(afterX, { type: 'place', player: afterX.turn, cell }));
+    expect(opponentReplies.some((reply) => reply.result === 'O')).toBe(false);
+  });
+});
