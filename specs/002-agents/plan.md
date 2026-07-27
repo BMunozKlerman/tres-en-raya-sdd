@@ -96,6 +96,18 @@ replies). Lives as a module-level constant in `src/agents.js` (`data-model.md`).
 This calibration is a measurement activity performed during a `tasks.md` task, not a redesign of
 the technique; it does not require touching `spec.md`.
 
+**Calibration run (T-048, 2026-07-27)**: measured against the CA-A-09 fixture in
+`tests/agents/us-a1-complex.test.js` (continuous, movement phase, 6 pieces placed — the maximum
+possible branching for movement phase, since exactly 3 cells are ever empty), cold transposition
+table (no cache exists yet at this point in the implementation): **~12 ms**, `12,603` nodes
+evaluated. Classic mode's worst case (empty initial board) measured for comparison: **~4 ms**,
+`18,297` nodes evaluated (alpha-beta pruning keeps this well below the raw 9! bound). Both
+figures are far under the ~700 ms threshold — no headroom pressure at all, so `HORIZON_DEPTH`
+stays at its starting value of **6**. No increase attempted: `plan.md`'s step 4 allows raising
+depth for stronger play when there is comfortable headroom, but doing so was left for a
+deliberate follow-up decision rather than bundled into this calibration task, since it would
+change agent strength (a gameplay property) and not just tune a timing safety margin.
+
 ## Test Strategy
 
 ### File layout
