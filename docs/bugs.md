@@ -23,6 +23,79 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-014: action controls (start, restart) stretch to the full grid-column width, far wider than the board
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Classification**: spec gap.
+
+**Detection**: Manual play-testing at a wide viewport (≥768px) showed the restart button
+rendered at the full width of its layout container while the board occupied roughly a third of
+that width.
+
+**Diagnosis**: **Spec gap.** `src/styles.css`'s `@media (min-width: 768px)` block switches `.app`
+to `display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr)`. Grid items default to
+`justify-items: stretch`, so a `<button>` with no explicit width fills its entire grid-column
+track — here, the wider `2fr` track the board also occupies — while `.board` has an explicit
+`width: min(90vw, 480px)` that keeps it far narrower than that track. No `CA-I-nn` in
+`spec.md` ever governed the proportion between action controls and the board; CA-I-28–CA-I-32
+cover scrolling, columns, squareness, touch-target minimums, and clipping, none of which this
+violates. Not a `dom-contract.md` non-compliance either — the contract never described action-
+control sizing before this amendment.
+
+**Fix** (spec-first, per constitution P3/P7): new criterion **CA-I-36** added to `spec.md`
+(Amendments section, A5) constraining every action control's width to at most 480px at ≥768px —
+the same maximum `.board` already declares (Design Decision D11, reusing the existing threshold
+rather than inventing a second one). `dom-contract.md` extended with a new "Action Controls"
+section documenting a shared `.action-button` class. `tasks.md` extended with T-109 (RED) /
+T-110 (GREEN).
+
+**Result**: `npm test` green after the fix; `responsive-static.test.js` gained a static-CSS-source
+check for `.action-button`'s declared `max-width`. Rendered-width closure remains a
+`manual-verification.md` concern (added to its checklist), same class of gap as CA-I-28–CA-I-32.
+
+**Lesson**: a CSS layout technique (grid stretch) can silently violate an unstated proportion
+constraint; the fix is a new criterion with a threshold reusing an already-justified number
+(`.board`'s own cap), not an arbitrary new one.
+
+---
+
+## BUG-013: configuration controls render blank (no placeholder text) after restart
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Classification**: spec gap.
+
+**Detection**: Manual play-testing after a restart showed all three configuration `<select>`
+controls appear completely blank. Opening each dropdown confirmed the real options
+(`human`/`agent`, `X`/`O`, `classic`/`continuous`) were intact — only the collapsed, currently
+selected view was blank.
+
+**Diagnosis**: **Spec gap.** `restart()` (`src/ui/app-state.js`) resets `config`'s four fields to
+`null`; `renderConfigControls` (`src/ui/render.js`) sets each `<select>.value = ''`, selecting the
+placeholder `<option value="">` that never had a `textContent` — present since the very first page
+load, not introduced by restart. CA-I-01 only requires the controls to be displayed and
+selectable, which the blank placeholder still technically satisfies; no criterion ever specified
+what the "no selection" state itself must look like. Not an implementation defect against any
+written criterion, and not a `dom-contract.md` non-compliance — the contract never described the
+unselected-state appearance either.
+
+**Fix** (spec-first, per constitution P3/P7): new criterion **CA-I-35** added to `spec.md`
+(Amendments section, A4): each configuration control's empty placeholder option carries its own
+identifying Spanish label (`"Oponente…"`, `"Ficha…"`, `"Modalidad…"`, `"Nivel…"`) instead of blank
+text — one label per control, not a single generic placeholder repeated three times, since the
+actual gap was that three blank controls gave no clue which one configured what. `dom-contract.md`
+extended to document the placeholder labels. `tasks.md` extended with T-107 (RED) / T-108 (GREEN).
+
+**Result**: `npm test` green after the fix.
+
+**Lesson**: a criterion satisfied by its literal text (CA-I-01: "display selectable controls")
+can still leave an observable state — here, "no selection" — completely unspecified; the fix is
+an additive criterion describing that state's own required text, the same pattern BUG-010 used
+for the scoreboard's missing labels.
+
+---
+
 ## BUG-012: turn indicator keeps stating a pending turn after the game reaches FINISHED
 
 **Found**: 2026-07-27 | **Status**: Fixed (commits `8f529a7`/`0c60a1c`)

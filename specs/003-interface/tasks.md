@@ -635,7 +635,11 @@ for CA-A-13/CA-A-14.
 
 ### Full game completable via keyboard alone (CA-N-03)
 
-- [ ] T-107 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
+**Prerequisite**: T-110 GREEN — Phase 7.7's amendments (CA-I-35, CA-I-36) complete, so the
+keyboard-only playthrough exercises the corrected configuration controls too, not stale ones
+(same reasoning `T-101`'s prerequisite note already established for BUG-010/011/012).
+
+- [ ] T-111 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
   `describe('CA-N-03 — full game completable via keyboard alone', ...)`: complete a full game —
   tab through configuration controls (`change` events triggered via keyboard-equivalent
   interaction), select/activate board cells via `ArrowKey`+`Enter`/`Space` (T-088/T-090), restart
@@ -643,10 +647,62 @@ for CA-A-13/CA-A-14.
   this test. Expected to fail only if some action lacks a keyboard path. Expected commit:
   `test(CA-N-03): failing/asserting test — full game completable via keyboard alone`
 
-- [ ] T-108 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
+- [ ] T-112 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
   path, add it (per whichever of T-086/T-088/T-090/T-092's mechanisms it belongs to); otherwise no
-  production change is needed. `npm test` must be fully green. Expected commit: `T-108: confirm
+  production change is needed. `npm test` must be fully green. Expected commit: `T-112: confirm
   CA-N-03 — full game completable via keyboard alone`
+
+---
+
+## Phase 7.7: Amendments — Configuration Placeholder Labels, Action-Control Width
+(BUG-013 / BUG-014)
+
+**Goal**: close two gaps found by manual play-testing after `T-106`: configuration controls
+render blank (no identifying text) once they have no selection, most visibly right after
+`restart` (BUG-013, spec gap — new **CA-I-35**), and action controls (start, restart) stretch to
+the full width of their grid column at wide viewports, far wider than the board (BUG-014, spec
+gap — new **CA-I-36**).
+
+**Prerequisite**: T-106 GREEN complete (CA-I-33/34 and the BUG-009/010/011 fixes all correct
+before these two amendments build on the same rendering). Inserted before `T-111`/`T-112`
+(CA-N-03) for the same reason Phase 7.5/7.6 were: the keyboard-only playthrough should exercise
+the corrected controls, not stale ones.
+
+### Configuration control placeholder labels (new CA-I-35 — BUG-013)
+
+- [ ] T-107 [US-I-1] [AC: CA-I-35] RED — Add to `us-i1-configuration.test.js`:
+  `describe('CA-I-35 — configuration controls show identifying placeholder labels', ...)`: assert
+  each of `[data-config-opponent]`, `[data-config-mark]`, `[data-config-mode]`'s
+  `option[value=""]`'s `textContent` is `"Oponente…"`, `"Ficha…"`, `"Modalidad…"` respectively on
+  first load; assert `[data-config-agent-level]`'s `option[value=""]`'s `textContent` is
+  `"Nivel…"` once opponent type is set to `"agent"`; drive a game through `start` then
+  `[data-restart-button]` and assert the three static controls' placeholder labels are unchanged
+  (not blank) after the reset. Fails because `render.js`'s static `<option value="">` elements
+  and the dynamically-created agent-level placeholder currently have no `textContent`. Expected
+  commit: `test(CA-I-35): failing test — configuration controls show identifying placeholder
+  labels`
+
+- [ ] T-108 [US-I-1] [AC: CA-I-35] GREEN — In `render.js`'s `buildStructure`, set each static
+  `<option value="">`'s `textContent` to its control's label (`"Oponente…"`, `"Ficha…"`,
+  `"Modalidad…"`); in `renderConfigControls`'s dynamic agent-level `<select>` creation, prepend an
+  `<option value="">Nivel…</option>` before the `simple`/`medium`/`complex` options. `npm test`
+  must be fully green. Expected commit: `T-108: configuration controls show identifying
+  placeholder labels (CA-I-35)`
+
+### Action-control width bounded to the board's cap (new CA-I-36 — BUG-014)
+
+- [ ] T-109 [Responsive] [AC: CA-I-36] RED — Add to `responsive-static.test.js`:
+  `describe('CA-I-36 — action controls bounded to the board's max width at wide viewports', ...)`:
+  assert `.action-button` declares `max-width` at most `480px` (regex-based static-CSS-source
+  check, same `ruleFor` technique as CA-I-30/31). Fails because no `.action-button` rule and no
+  such class exists yet in `render.js`/`styles.css`. Expected commit: `test(CA-I-36): failing
+  test — action controls bounded to the board's max width at wide viewports`
+
+- [ ] T-110 [Responsive] [AC: CA-I-36] GREEN — In `render.js`'s `buildStructure`, add the
+  `action-button` class to `[data-start-button]` and `[data-restart-button]`; in `styles.css`, add
+  `.action-button { max-width: 480px; }` (Design Decision D11, reusing `.board`'s own cap). `npm
+  test` must be fully green. Expected commit: `T-110: action controls bounded to the board's max
+  width at wide viewports (CA-I-36)`
 
 ---
 
@@ -741,16 +797,16 @@ showing a pending turn after `FINISHED` (BUG-012, spec gap — new CA-I-34).
 
 ## Final Phase: Traceability Closure
 
-- [ ] T-109 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
+- [ ] T-113 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
   CA-I-10, CA-I-11, CA-I-12, CA-I-13, CA-I-14, CA-I-15, CA-I-16, CA-I-17, CA-I-18, CA-I-19,
   CA-I-20, CA-I-21, CA-I-22, CA-I-23, CA-I-24, CA-I-25, CA-I-26, CA-I-27, CA-I-28, CA-I-29,
-  CA-I-30, CA-I-31, CA-I-32, CA-I-33, CA-I-34, CA-N-02, CA-N-03] Run `npm run verify:traceability`;
-  fill the Task column (T-NNN) and Commit SHA column for all 36 rows in `specs/003-interface/
-  traceability.md` using real SHAs from `git log`; execute `manual-verification.md`'s procedure
-  for CA-I-17 (rendered-visibility half), CA-I-28–CA-I-32, and record the result in that file;
-  verify `npm run verify:traceability` exits 0 for all three features (37 + 36 = 73 CA-IDs
-  combined) after the commit. Expected commit: `T-109: record real SHAs in traceability matrix —
-  003-interface complete`
+  CA-I-30, CA-I-31, CA-I-32, CA-I-33, CA-I-34, CA-I-35, CA-I-36, CA-N-02, CA-N-03] Run `npm run
+  verify:traceability`; fill the Task column (T-NNN) and Commit SHA column for all 38 rows in
+  `specs/003-interface/traceability.md` using real SHAs from `git log`; execute
+  `manual-verification.md`'s procedure for CA-I-17 (rendered-visibility half), CA-I-28–CA-I-32,
+  and CA-I-36, and record the result in that file; verify `npm run verify:traceability` exits 0
+  for all three features (37 + 38 = 75 CA-IDs combined) after the commit. Expected commit:
+  `T-113: record real SHAs in traceability matrix — 003-interface complete`
 
 ---
 
@@ -793,13 +849,15 @@ showing a pending turn after `FINISHED` (BUG-012, spec gap — new CA-I-34).
 | CA-N-02 | T-097 | T-098 | non-functional.test.js | Corollary of every click handler built in Phases 2–5 |
 | CA-I-33 | T-099 | T-100 | us-i2-state-feedback.test.js | Added post-implementation (BUG-008, Amendment A1) — own pair, board mark visibility |
 | CA-I-34 | T-105 | T-106 | us-i2-state-feedback.test.js | Added post-implementation (BUG-012, Amendment A3) — own pair, turn-indicator scope for FINISHED |
-| CA-N-03 | T-107 | T-108 | non-functional.test.js | Corollary of every keyboard handler built in Phase 5 |
+| CA-I-35 | T-107 | T-108 | us-i1-configuration.test.js | Added post-implementation (BUG-013, Amendment A4) — own pair, configuration placeholder labels |
+| CA-I-36 | T-109 | T-110 | responsive-static.test.js | Added post-implementation (BUG-014, Amendment A5) — own pair, action-control width bound; ⚠️ structural proxy only, see CA-I-28 |
+| CA-N-03 | T-111 | T-112 | non-functional.test.js | Corollary of every keyboard handler built in Phase 5 |
 
 ---
 
 ## Dependencies & Execution Order
 
-All 50 tasks are strictly sequential (every GREEN task touches at least one of
+All 54 tasks are strictly sequential (every GREEN task touches at least one of
 `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js`, or `src/styles.css`, each grown
 incrementally; no `[P]` markers).
 
@@ -829,8 +887,10 @@ T-060 (setup)
   → T-101(RED) → T-102(GREEN)  CA-I-14, CA-I-15 (amended, BUG-010) — scoreboard labels
   → T-103(RED) → T-104(GREEN)  BUG-011 — live-region sr-only (no CA-ID, CA-I-20 unchanged)
   → T-105(RED) → T-106(GREEN)  CA-I-34 (Amendment, BUG-012) — turn indicator scope
-  → T-107(RED) → T-108(GREEN)  CA-N-03
-  → T-109                      traceability closure
+  → T-107(RED) → T-108(GREEN)  CA-I-35 (Amendment, BUG-013) — configuration placeholder labels
+  → T-109(RED) → T-110(GREEN)  CA-I-36 (Amendment, BUG-014) — action-control width bound
+  → T-111(RED) → T-112(GREEN)  CA-N-03
+  → T-113                      traceability closure
 ```
 
 **Phase gates**:
@@ -846,8 +906,9 @@ T-060 (setup)
 | Phase 7 (T-097) | T-096 GREEN — styles complete |
 | Phase 7.5 (T-099) | T-098 GREEN — CA-N-02 confirmed |
 | Phase 7.6 (T-101) | T-100 GREEN, plus BUG-009 fixed — CA-I-33 and the DOM contract are both correct before these three amendments build on them |
-| Phase 7 cont'd (T-107) | T-106 GREEN — scoreboard labels, live-region hiding, and turn-indicator scope all correct before the keyboard-only playthrough exercises them |
-| Final (T-109) | T-108 GREEN — `npm test` fully green |
+| Phase 7.7 (T-107) | T-106 GREEN — scoreboard labels, live-region hiding, and turn-indicator scope all correct before these two amendments build on the same rendering |
+| Phase 7 cont'd (T-111) | T-110 GREEN — configuration placeholder labels and action-control width bound both correct before the keyboard-only playthrough exercises them |
+| Final (T-113) | T-112 GREEN — `npm test` fully green |
 
 ---
 
@@ -855,18 +916,19 @@ T-060 (setup)
 
 | Check | Result |
 |-------|--------|
-| CA-ID with no task | None — 36/36 covered (see Coverage Audit; CA-I-33 added post-implementation, BUG-008; CA-I-34 added post-implementation, BUG-012) |
+| CA-ID with no task | None — 38/38 covered (see Coverage Audit; CA-I-33 added post-implementation, BUG-008; CA-I-34 added post-implementation, BUG-012; CA-I-35 added post-implementation, BUG-013; CA-I-36 added post-implementation, BUG-014) |
 | Task with no CA-ID | T-060 (Phase 1 tooling/scaffold, same documented exception `001-engine`'s T-001/T-002 established) and T-103/T-104 (Phase 7.6, BUG-011 — a `dom-contract.md`-level fix with no `CA-I-nn` of its own, since CA-I-20 does not change) |
 | GREEN preceding its RED | None — every pair is listed RED-then-GREEN in both the task list and the dependency graph above |
 | Tasks likely to exceed one commit | Flagged and pre-emptively split during generation: the original single "all 5 responsive criteria" pair was split into T-093/T-094 (CA-I-28, CA-I-29 — page layout) and T-095/T-096 (CA-I-30, CA-I-31, CA-I-32 — component-level), mirroring `002-agents`'s T-047/T-048 split. Remaining borderline case: **T-062** (the first behavioral GREEN task) creates all three of `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js` in one commit — larger than a typical single-criterion GREEN, but judged acceptable because it mirrors `002-agents`'s T-035 (first commit creating the entire `src/agents.js` file) and the three files' *content* here is scoped tightly to configuration only (no gameplay logic yet); flagged here for the user's review rather than split further, since splitting "create app-state.js" from "create render.js" from "create events.js" would leave two of the three commits unable to pass any test on their own (an untestable intermediate commit is a worse traceability outcome than one slightly larger commit, per P5's red-before-green intent). |
 | CA-ID with unclear test strategy | None outright unclear, but three are worth flagging: **CA-I-19** (T-089/T-090) — GREEN may end up requiring zero production code if jsdom's native `<button>` keyboard semantics already dispatch `click` on Enter/Space; the task is written to handle either outcome, but the actual result is only knowable at implementation time. **CA-I-17/CA-I-28–CA-I-32** — test strategy is deliberately partial by design (documented proxy + manual procedure, per `research.md` D-I-04), not unclear; flagged here only so the distinction between "partial by design" and "unclear" is explicit. **CA-I-09**'s T-081/T-082 — the real cross-game integration test's feasibility inside jsdom (no wall clock, deterministic transposition-table cache hit) is not yet proven; T-082's description carries an explicit contingency to fall back to a documented `traceability.md` limitation, same pattern as the six partial criteria, if it turns out infeasible. |
 
-**Documented-exception note**: T-070 (CA-I-08), T-090 (CA-I-19), T-098 (CA-N-02), and T-102
+**Documented-exception note**: T-070 (CA-I-08), T-090 (CA-I-19), T-098 (CA-N-02), and T-112
 (CA-N-03) may turn out to require zero production changes if the behavior they check is already a
 correct corollary of earlier tasks — the same pattern `002-agents` used for CA-A-13/CA-A-14/
 CA-N-01's confirmation-only GREEN commits (T-052, T-054, T-056). Each still gets its own
 `describe`, its own RED/GREEN pair, and its own commit message citing its CA-ID. If any of these
 four fails, per P7 (spec-first debugging) the fix path is: diagnose which earlier task's
 implementation is actually incomplete, fix it there, and re-verify — never add special-casing
-inside the confirmation task itself. **T-100 (CA-I-33) is not in this list** — it is a genuine
-implementation gap (BUG-008), not expected to be a zero-code corollary.
+inside the confirmation task itself. **T-100 (CA-I-33), T-108 (CA-I-35), and T-110 (CA-I-36) are
+not in this list** — each is a genuine implementation gap (BUG-008, BUG-013, BUG-014
+respectively), not expected to be a zero-code corollary.

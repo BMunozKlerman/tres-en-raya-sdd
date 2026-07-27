@@ -2,11 +2,14 @@
 
 **Feature**: `003-interface` | **Date**: 2026-07-27
 
-Six criteria cannot be fully verified by the automated suite because they require real CSS
+Seven criteria cannot be fully verified by the automated suite because they require real CSS
 layout (a layout/paint engine jsdom does not have) or true rendered visibility: **CA-I-17**
 (visible focus — rendered-visibility half only; the behavioral hook is automated, see
 `research.md` D-I-08), **CA-I-28**, **CA-I-29**, **CA-I-30**, **CA-I-31** (rendered-size half
-only; the declared-CSS-value half is automated, see `research.md` D-I-04), **CA-I-32**.
+only; the declared-CSS-value half is automated, see `research.md` D-I-04), **CA-I-32**,
+**CA-I-36** (added 2026-07-27, Amendment BUG-014 — same rendered-size-vs-declared-value gap as
+CA-I-31, since the criterion is a `max-width` declaration whose actual rendered effect a
+transform or a cascade override could still defeat).
 
 This procedure is the authoritative closure for the rendered-layout half of those criteria,
 parallel to how `specs/001-engine/traceability.md`'s CA-M-17 note documents what its automated
@@ -40,6 +43,11 @@ Record one row per width in the Results Log below. For each width, load a fresh 
 | 1024 × 768 | No horizontal scroll. Board remains square and does not grow unreasonably large. | CA-I-28, CA-I-30 |
 | 1440 × 900 | No horizontal scroll. Board remains square, fully visible. | CA-I-28, CA-I-30 |
 
+**Action-control width (CA-I-36)** — at 768×1024, 1024×768, and 1440×900: using the browser's
+element inspector, select the start button (if still in `CONFIGURATION`) and the restart button.
+Confirm the computed (rendered) width of each is at most 480px, matching or narrower than the
+board's own rendered width at that viewport. Record any control that exceeds it.
+
 **Touch targets (CA-I-31)** — at 320×568 and at 1440×900: using the browser's element inspector,
 select each of: a board cell, a configuration control, the start/restart button. Confirm the
 computed (rendered) box is at least 44×44 CSS pixels at both widths. Record any control that
@@ -66,14 +74,14 @@ discipline as `docs/bugs.md`.
 
 Commit under test: <SHA>
 
-| Width | CA-I-28 | CA-I-29 | CA-I-30 | CA-I-31 | CA-I-32 |
-|-------|---------|---------|---------|---------|---------|
-| 320×568   | pass/fail | n/a | pass/fail | pass/fail | pass/fail |
-| 375×667   | pass/fail | pass/fail | pass/fail | n/a | n/a |
-| 767×1024  | pass/fail | pass/fail | n/a | n/a | n/a |
-| 768×1024  | pass/fail | pass/fail | pass/fail | n/a | n/a |
-| 1024×768  | pass/fail | n/a | pass/fail | n/a | n/a |
-| 1440×900  | pass/fail | n/a | pass/fail | pass/fail | n/a |
+| Width | CA-I-28 | CA-I-29 | CA-I-30 | CA-I-31 | CA-I-32 | CA-I-36 |
+|-------|---------|---------|---------|---------|---------|---------|
+| 320×568   | pass/fail | n/a | pass/fail | pass/fail | pass/fail | n/a |
+| 375×667   | pass/fail | pass/fail | pass/fail | n/a | n/a | n/a |
+| 767×1024  | pass/fail | pass/fail | n/a | n/a | n/a | n/a |
+| 768×1024  | pass/fail | pass/fail | pass/fail | n/a | n/a | pass/fail |
+| 1024×768  | pass/fail | n/a | pass/fail | n/a | n/a | pass/fail |
+| 1440×900  | pass/fail | n/a | pass/fail | pass/fail | n/a | pass/fail |
 
 Focus visibility (CA-I-17): pass/fail, measured contrast ratio per control (must be ≥ 3:1 per
 WCAG 2.2 SC 2.4.11): ...

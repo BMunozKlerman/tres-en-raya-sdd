@@ -54,6 +54,10 @@ in `src/ui/render.js` and referenced verbatim by tests — not illustrative exam
   `[data-config-mode]` — the four controls CA-I-01 requires; `data-config-agent-level` is only
   rendered (not merely disabled) when opponent type is `"agent"`, since CA-I-01 requires the
   control to appear conditionally, not just to be enabled/disabled.
+- Each control's `<option value="">` carries an identifying placeholder label as its
+  `textContent` — `"Oponente…"`, `"Ficha…"`, `"Modalidad…"`, `"Nivel…"` respectively — shown
+  whenever the control has no selection, including right after `restart` resets `config` to
+  `null` (CA-I-35, Amendment BUG-013).
 - `[data-start-button]` — disabled (`disabled` attribute, not merely a CSS class) until all
   required fields are set (CA-I-02).
 - All four controls above and `data-start-button` carry `disabled` while
@@ -71,6 +75,12 @@ in `src/ui/render.js` and referenced verbatim by tests — not illustrative exam
 ## Restart
 
 - `[data-restart-button]` — present and enabled in every `uiState` (CA-I-16, CA-I-23).
+
+## Action Controls
+
+- `.action-button` — shared class on `[data-start-button]` and `[data-restart-button]`; the
+  CSS selector `styles.css` uses to cap their width at 480px at every viewport, so neither ever
+  renders wider than `.board`'s own cap (CA-I-36, Amendment BUG-014, Design Decision D11).
 
 ---
 

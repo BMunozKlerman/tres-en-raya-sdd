@@ -50,7 +50,9 @@ row — this skeleton is a `/speckit-plan` output, before task generation.
 | CA-I-32 | T-095/T-096 | responsive-static.test.js | `CA-I-32 — configuration controls not clipped or overflow-hidden` | — (structural proxy only — see `manual-verification.md`) |
 | CA-N-02 | T-097/T-098 | non-functional.test.js | `CA-N-02 — fully operable with mouse (click handlers cover every action)` | — |
 | CA-I-33 | T-099/T-100 | us-i2-state-feedback.test.js | `CA-I-33 — occupied cell displays the mark's symbol` | — |
-| CA-N-03 | T-101/T-102 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | — |
+| CA-I-35 | T-107/T-108 | us-i1-configuration.test.js | `CA-I-35 — configuration controls show identifying placeholder labels` | — |
+| CA-I-36 | T-109/T-110 | responsive-static.test.js | `CA-I-36 — action controls bounded to the board's max width at wide viewports` | — (structural proxy only — see `manual-verification.md`) |
+| CA-N-03 | T-111/T-112 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | — |
 
 ---
 
@@ -85,6 +87,11 @@ Following the same discipline `specs/001-engine/traceability.md` uses for CA-M-1
   *rendered, computed* size (cascade overrides, inherited `box-sizing`, or a `transform: scale()`
   could still shrink the effective target). `manual-verification.md`'s computed-size check at
   two widths (320×568, 1440×900) is the authoritative closure.
+- **CA-I-36** (added post-implementation, BUG-014): same pattern as CA-I-31 — automated coverage
+  reads the *declared* `max-width` on `.action-button`, not the rendered, computed width (a grid
+  `justify-items` override elsewhere in the cascade could still stretch it back).
+  `manual-verification.md`'s computed-width check at 768×1024, 1024×768, and 1440×900 is the
+  authoritative closure.
 - **CA-I-17**: automated coverage is a genuine *behavioral* test (the `data-focus-visible`
   attribute toggles correctly on `focus`/`blur`) — stronger than the responsive criteria's static
   checks, since it exercises real event handling, not just source-text pattern matching. It does
@@ -152,6 +159,28 @@ winning cells, so CA-I-04 and CA-I-33 do not conflict.
 this one — `render.js` collapsing `contracts/dom-contract.md`'s `data-cell-state` enum
 (`"own" | "opponent"`) into just `"own"` — is fixed in its own commit, not T-100's, and tracked as
 **BUG-009**, so this criterion's commit history stays about CA-I-33 alone.
+
+## CA-I-35 — added post-implementation (BUG-013, T-107/T-108)
+
+`spec.md`'s Amendments section (2026-07-27, A4) records why: `restart` resets `config` to `null`
+in every field, which selects each `<select>`'s placeholder `<option value="">` — present, and
+blank, since the very first `buildStructure` call, not introduced by `restart` itself. Found by
+manual play (specifically, after a restart), not by the automated suite — no test ever asserted
+any `<option>`'s `textContent`, only `value`/`disabled`. T-107 (RED) is a genuine failing test,
+not a zero-code-corollary candidate. T-108 (GREEN) gives each control's empty option its own
+identifying label and adds one to `[data-config-agent-level]`'s previously label-less placeholder
+too, for consistency, even though the reported symptom was only on the three static selects.
+
+## CA-I-36 — added post-implementation (BUG-014, T-109/T-110)
+
+`spec.md`'s Amendments section (2026-07-27, A5) records why: `.app`'s wide-viewport grid layout
+(`@media (min-width: 768px)`) stretches grid items to fill their column by default, so
+`[data-start-button]`/`[data-restart-button]` (no explicit width) filled the same wide column
+`.board` occupies, despite `.board` itself being capped to `min(90vw, 480px)`. Found by manual
+play at a wide viewport, not by `responsive-static.test.js`, which had no selector or assertion
+for action-control width before this amendment. T-109 (RED) is a genuine failing test. T-110
+(GREEN) adds a shared `.action-button` class (start and restart buttons) with `max-width: 480px`
+— reusing `.board`'s own cap (Design Decision D11) rather than a new, unjustified number.
 
 ## CA-N-02 — corollary confirmation, no production code (T-098)
 
