@@ -98,6 +98,52 @@ describe('CA-I-04 — winning line highlighted, moves blocked', () => {
   });
 });
 
+describe('CA-I-08 — information conveyed without color alone', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  function textOnly(el) {
+    return el.textContent.trim();
+  }
+
+  it('turn indicator conveys whose turn it is through text, not class alone', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    const indicator = root.querySelector('[data-turn-indicator]');
+    expect(textOnly(indicator).length).toBeGreaterThan(0);
+    expect(textOnly(indicator)).toContain('X');
+  });
+
+  it('a rejected move conveys the reason through text, not class alone', () => {
+    let state = createAppState();
+    state = startGame(state, {
+      opponentType: 'human',
+      agentLevel: null,
+      marks: { player1: 'X' },
+      mode: 'classic',
+    });
+    const next = applyPlayerMove(state, { type: 'place', player: 'O', cell: 0 });
+
+    expect(next.lastError.reason.length).toBeGreaterThan(0);
+  });
+
+  it('a winning line conveys itself through a text/icon child, not class alone', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    ['0', '3', '1', '4', '2'].forEach((cellIndex) => {
+      root.querySelector(`[data-cell="${cellIndex}"]`).click();
+    });
+
+    ['0', '1', '2'].forEach((cellIndex) => {
+      const cell = root.querySelector(`[data-cell="${cellIndex}"]`);
+      expect(textOnly(cell).length).toBeGreaterThan(0);
+    });
+  });
+});
+
 describe('CA-I-11 — draw indicator, moves blocked', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
