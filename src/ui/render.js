@@ -14,6 +14,10 @@ function renderConfigControls(root, state) {
     if (!agentLevel) {
       agentLevel = document.createElement('select');
       agentLevel.setAttribute('data-config-agent-level', '');
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = 'Nivel…';
+      agentLevel.appendChild(placeholder);
       ['simple', 'medium', 'complex'].forEach((level) => {
         const option = document.createElement('option');
         option.value = level;
@@ -189,17 +193,17 @@ function buildStructure(root) {
   root.innerHTML = `
     <div class="config-panel">
       <select data-config-opponent>
-        <option value=""></option>
+        <option value="">Oponente…</option>
         <option value="human">human</option>
         <option value="agent">agent</option>
       </select>
       <select data-config-mark>
-        <option value=""></option>
+        <option value="">Ficha…</option>
         <option value="X">X</option>
         <option value="O">O</option>
       </select>
       <select data-config-mode>
-        <option value=""></option>
+        <option value="">Modalidad…</option>
         <option value="classic">classic</option>
         <option value="continuous">continuous</option>
       </select>
