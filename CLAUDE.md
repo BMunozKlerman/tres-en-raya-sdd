@@ -343,13 +343,27 @@ never decide on your own.
       `npm run verify:traceability` reports the remaining 8 `003-interface` criteria (CA-I-28–
       CA-I-32, CA-N-02, CA-N-03) as orphaned — expected, their tasks (`T-093` onward, Phases 6–7,
       responsive CSS and non-functional confirmation) have not run yet.
+- [x] `003-interface` implementation continued: `T-093`–`T-098` done and committed, one commit per
+      task, RED before GREEN throughout, `npm test` green at every GREEN commit (112/112 at close).
+      Covers CA-I-28, CA-I-29, CA-I-30, CA-I-31, CA-I-32, CA-N-02 (32/34 cumulative) — closes all
+      of Phase 6 (Responsive Design) and CA-N-02 of Phase 7. `src/styles.css` authored mobile-first
+      (base rules single-column and fluid; one `@media (min-width: 768px)` block for the wider
+      layout; `.board` gets `aspect-ratio: 1/1`; `button`/`select`/`.cell` get a 44×44px minimum).
+      CA-N-02 was a zero-code corollary (every action already had a `click`/`change` path). See
+      Session Log for full detail, including the structural CSS classes added to `render.js` to
+      give the stylesheet real selectors to target. `npm run verify:traceability` reports only
+      `CA-N-03` (T-099/T-100) as orphaned. **Manual verification per `manual-verification.md` is
+      still pending** — not yet run in this session.
 - [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
       column still `—` for all 34 rows — filled in during `/speckit-implement`).
+- [ ] `manual-verification.md`'s procedure executed at least once (rendered-layout half of
+      CA-I-28–CA-I-32, computed touch targets for CA-I-31, focus-contrast for CA-I-17) and logged
+      in that file's Results Log.
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-implement T-093` for `003-interface` (CA-I-28/CA-I-29, the page-layout
-fluidity and mobile-first-breakpoint structural CSS proxy — first task of Phase 6, Responsive
-Design).
+**Next step**: `/speckit-implement T-099` for `003-interface` (CA-N-03, full game completable via
+keyboard alone — last task of Phase 7), then run `manual-verification.md`'s procedure before
+`003-interface` is reported complete.
 
 ### Session Log
 
@@ -758,3 +772,45 @@ Design).
   onward, Phases 6–7) have not run yet. Requested range was `T-085`–`T-091`; per instruction to
   finish a pair rather than stop mid-pair, execution continued one task further to `T-092` to
   close the CA-I-20 RED/GREEN pair T-091 opened. **Next step: `/speckit-implement T-093`.**
+- 2026-07-27: `003-interface` implementation continued through `T-093`–`T-098`, one commit per
+  task, RED before GREEN throughout, `npm test` green at every GREEN commit (112/112 at close).
+  Covers CA-I-28, CA-I-29, CA-I-30, CA-I-31, CA-I-32, CA-N-02 (32/34 cumulative) — closes Phase 6
+  (Responsive Design) entirely and CA-N-02 of Phase 7. `src/styles.css` authored mobile-first per
+  `research.md` D-I-07: base (non-media-query) rules put `.app` in a single-column flex layout,
+  `.board`/`.config-panel`/`.scoreboard` use only relative widths (`%`, `vw`, `min()`, `max-width`
+  + `width: 100%`, never a fixed pixel value wider than 320px), and one `@media (min-width: 768px)`
+  block (D10) switches `.app` to a two-column grid — no `max-width` query used anywhere. T-093/T-094
+  (CA-I-28/29) also required first adding the `.app`/`.board`/`.config-panel`/`.scoreboard`
+  structural classes and a `.cell` class to `src/ui/render.js`'s `buildStructure`/`renderScoreboard`
+  (previously the DOM had no CSS hooks beyond `data-*` attributes), and moving the scoreboard's
+  dynamically-created `[data-score]` spans into a dedicated `[data-scoreboard]` container so
+  `.scoreboard` has a real element to style — a structural change, not a behavioral one; no test
+  queries by class name, only by `data-*`, so nothing in the existing 103 tests needed touching.
+  T-095/T-096 (CA-I-30/31/32) added `aspect-ratio: 1 / 1` plus a relative `width` to `.board`, and
+  `min-width`/`min-height: 44px` to `button`, `select`, and `.cell` (three separate rules rather
+  than one grouped selector list, since `tests/interface/responsive-static.test.js`'s regex-based
+  CSS-source proxy resolves one selector at a time and does not parse comma-separated selector
+  groups — noted here since it shaped the CSS's literal structure, not just its declared values).
+  `.config-panel` already had no `overflow: hidden` + narrow-fixed-width combination from T-094, so
+  CA-I-32 needed no further change beyond its own dedicated test. T-097/T-098 (CA-N-02) turned out
+  to be a fourth zero-code corollary (same pattern as CA-I-08/CA-I-11/CA-I-15/CA-I-09's render
+  half) — every action built across Phases 2–5 was already wired to `click`/`change`, never
+  requiring a `keydown`, so `tests/interface/non-functional.test.js`'s full-game-via-mouse-only
+  test (classic mode to a win and back through restart, plus continuous-mode movement-phase
+  selection and destination clicks) passed on first run; documented in `traceability.md` alongside
+  the other three corollary notes. No spec or process deviations; no bugs found in this block.
+  `npm run verify:traceability` reports only `CA-N-03` as orphaned — expected, its task (`T-099`/
+  `T-100`, the last of Phase 7) has not run yet. Requested range was exactly `T-093`–`T-098`, which
+  landed precisely on a closed RED/GREEN pair (T-097/T-098), so no extension was needed.
+  **Manual verification is now due**: `manual-verification.md`'s procedure closes the
+  rendered-layout half of CA-I-28–CA-I-32 (structural CSS proxy only, per `research.md` D-I-04) —
+  run `npm run dev`, open the result in Chrome stable at 100% zoom, and check each of the six
+  widths (320×568, 375×667, 767×1024, 768×1024, 1024×768, 1440×900) against that file's checklist
+  table (no horizontal scroll, square board, single-column below 768px / two-column at and above
+  it, no clipped configuration controls), plus the separate 44×44px computed-touch-target check at
+  320×568 and 1440×900 for CA-I-31 and the focus-visibility contrast check at 375×667 and 1440×900
+  for CA-I-17 (deferred from `T-085`/`T-086`, since only the behavioral hook was closed there).
+  Record every result in `manual-verification.md`'s own Results Log (append-only, one dated entry
+  citing the commit SHA under test — do not overwrite prior entries). **Next step:
+  `/speckit-implement T-099`, then the manual-verification run above before `003-interface` is
+  reported complete.**
