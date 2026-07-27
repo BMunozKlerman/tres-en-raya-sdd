@@ -1,14 +1,42 @@
 // @vitest-environment jsdom
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { mountApp } from '../../src/ui.js';
 import { createAppState, startGame, applyPlayerMove, resolveAgentMove } from '../../src/ui/app-state.js';
 import { render } from '../../src/ui/render.js';
+import { attachEvents } from '../../src/ui/events.js';
 
 function mount() {
   document.body.innerHTML = '<div id="app"></div>';
   const root = document.getElementById('app');
   mountApp(root);
   return root;
+}
+
+function mountWithState(initialState) {
+  const root = document.createElement('div');
+  document.body.appendChild(root);
+  let state = initialState;
+  const getState = () => state;
+  const setState = (next) => {
+    state = next;
+  };
+  render(root, state);
+  attachEvents(root, getState, setState);
+  return { root, getState };
+}
+
+function startHumanVsComplexAgent(root) {
+  root.querySelector('[data-config-opponent]').value = 'agent';
+  root.querySelector('[data-config-opponent]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-agent-level]').value = 'complex';
+  root
+    .querySelector('[data-config-agent-level]')
+    .dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-mark]').value = 'X';
+  root.querySelector('[data-config-mark]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-mode]').value = 'classic';
+  root.querySelector('[data-config-mode]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-start-button]').click();
 }
 
 function startHumanVsHuman(root, mode = 'classic') {
@@ -217,6 +245,45 @@ describe('CA-I-09 — resolvedFromMemory indicator', () => {
     state = resolveAgentMove(state, cachedDecision);
     render(root, state);
     expect(root.querySelector('[data-memory-indicator]')).not.toBeNull();
+  });
+});
+
+describe('CA-I-09 — resolvedFromMemory reflects real cross-game memory reuse', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('a second game seeded with the first game\'s real agentMemory resolves the identical position from memory', () => {
+    // Game 1: drives the real requestAgentMove -> chooseMove -> resolveAgentMove pipeline in
+    // events.js through a genuine human move; nothing here is a hand-built Decision.
+    const game1 = mountWithState(createAppState());
+    startHumanVsComplexAgent(game1.root);
+    game1.root.querySelector('[data-cell="0"]').click();
+    vi.advanceTimersByTime(300);
+
+    expect(game1.root.querySelector('[data-memory-indicator]')).toBeNull();
+
+    const game1FinalState = game1.getState();
+
+    // Game 2: a fresh AppState seeded with game 1's real agentMemory/scoreboard — exactly what
+    // `restart` (T-083/T-084, not yet implemented) will produce — driven through the same real
+    // human move, reaching the identical position (mode|phase|turn|board) game 1's agent already
+    // cached, per the same fixture strategy as specs/002-agents's CA-A-10.
+    const game2 = mountWithState({
+      ...createAppState(),
+      agentMemory: game1FinalState.agentMemory,
+      scoreboard: game1FinalState.scoreboard,
+    });
+    startHumanVsComplexAgent(game2.root);
+    game2.root.querySelector('[data-cell="0"]').click();
+    vi.advanceTimersByTime(300);
+
+    expect(game2.root.querySelector('[data-memory-indicator]')).not.toBeNull();
   });
 });
 
