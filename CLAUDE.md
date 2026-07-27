@@ -273,13 +273,25 @@ never decide on your own.
       traceability.md`'s Task column updated to the new numbering for all 34 rows (SHA column
       still `—`, no SHAs invented). **003-interface spec, plan, tasks, and analyze are all
       complete. Not yet implemented.**
+- [x] `003-interface` implementation started: `T-060`–`T-068` done and committed, one commit per
+      task, RED before GREEN. `src/ui.js`, `src/ui/app-state.js`, `src/ui/render.js`,
+      `src/ui/events.js` created and grown incrementally (configuration slice, turn indicator,
+      illegal-move rejection including `game_over`, occupied-cell edge case, winning-line
+      highlight + scoreboard win increment, draw indicator + scoreboard draw increment). `npm
+      test` 75/75 green. Covers CA-I-01, CA-I-02, CA-I-03, CA-I-05, CA-I-11, CA-I-14, CA-I-15,
+      CA-I-21, CA-I-24 (9/34). `npm run verify:traceability` correctly reports the remaining 23
+      `003-interface` criteria as orphaned — expected, since their tasks (`T-069` onward) have not
+      run yet. One deviation from `tasks.md`'s assumption, documented in `traceability.md`: T-067/
+      T-068 (CA-I-11/CA-I-15) turned out to be a zero-code corollary — `applyPlayerMove`
+      (T-064/T-066) already branches generically on any non-null `result` (mark or `'draw'`), so
+      both draw-case tests passed on first run; T-068 recorded the corollary the same way
+      `specs/002-agents/traceability.md` documents CA-A-14's.
 - [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
       column still `—` for all 34 rows — filled in during `/speckit-implement`).
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-implement T-060` for `003-interface` (tooling/scaffold — `jsdom`
-devDependency, `index.html`, `src/ui.js` stub, `src/styles.css` reset, `tests/interface/`
-directory; no CA-ID, same precedent as `001-engine`'s `T-001`/`T-002`).
+**Next step**: `/speckit-implement T-069` for `003-interface` (CA-I-08, color-independent
+information — corollary test over the states T-064/T-066 already built).
 
 ### Session Log
 
@@ -595,3 +607,24 @@ directory; no CA-ID, same precedent as `001-engine`'s `T-001`/`T-002`).
   `manual-verification.md`) committed together as `bd0bc71`, identifying this analysis pass as
   required by `CLAUDE.md`'s rule for grouping process-artifact corrections. **003-interface spec,
   plan, tasks, and analyze are all complete. Next step: `/speckit-implement T-060`.**
+- 2026-07-27: `/speckit-implement` run for `003-interface`, `T-060`–`T-068`, one commit per task,
+  RED before GREEN, `npm test` green throughout (75/75 at close). `jsdom` installed as a
+  devDependency (commit `958126e`, T-060 — no test, tooling/scaffold precedent); `index.html`,
+  `src/ui.js` stub, `src/styles.css` reset, `tests/interface/` created. `src/ui/app-state.js`,
+  `src/ui/render.js`, `src/ui/events.js` created at T-062 and grown incrementally: configuration
+  controls/start transition/config lockout (T-061/T-062, CA-I-01/CA-I-02/CA-I-24); turn indicator,
+  illegal-move rejection over the engine's full `ErrorResult.reason` enumeration including
+  `game_over`, occupied-cell edge case (T-063/T-064, CA-I-03/CA-I-05/CA-I-21); winning-line
+  highlight, move-blocking, scoreboard win increment (T-065/T-066, CA-I-04/CA-I-14, hand-verified
+  top-row fixture); draw indicator, move-blocking, scoreboard draw increment (T-067/T-068,
+  CA-I-11/CA-I-15, hand-verified 9-move no-winner fixture). **Deviation from `tasks.md`'s
+  assumption, documented in `specs/003-interface/traceability.md`**: T-067/T-068 turned out to be
+  a zero-code corollary of T-064/T-066 — `applyPlayerMove` was implemented to branch generically
+  on any truthy `result` (mark or `'draw'`) rather than the mark-only branch `tasks.md` described,
+  so both `CA-I-11`/`CA-I-15` tests passed on first run; `T-068`'s commit records this the same
+  way `specs/002-agents/traceability.md` documents `CA-A-14`'s corollary. `npm run
+  verify:traceability` correctly reports the remaining 23 `003-interface` criteria as orphaned
+  (their tasks, `T-069` onward, have not run yet) — `001-engine`/`002-agents` still fully traced.
+  Stopped at `T-068` per explicit instruction (one task beyond the requested `T-067`, to close the
+  RED/GREEN pair rather than leave `CA-I-11`/`CA-I-15` mid-pair). **Next step:
+  `/speckit-implement T-069`.**
