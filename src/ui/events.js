@@ -1,4 +1,4 @@
-import { startGame } from './app-state.js';
+import { startGame, applyPlayerMove } from './app-state.js';
 import { render } from './render.js';
 
 export function attachEvents(root, getState, setState) {
@@ -51,6 +51,18 @@ export function attachEvents(root, getState, setState) {
   root.querySelector('[data-start-button]').addEventListener('click', () => {
     const state = getState();
     setState(startGame(state, readConfig()));
+    rerender();
+  });
+
+  root.querySelector('[data-board]').addEventListener('click', (event) => {
+    const cell = event.target.closest('[data-cell]');
+    if (!cell) return;
+    const state = getState();
+    if (state.uiState !== 'IN_GAME') return;
+    const index = Number(cell.dataset.cell);
+    setState(
+      applyPlayerMove(state, { type: 'place', player: state.engineState.turn, cell: index })
+    );
     rerender();
   });
 }

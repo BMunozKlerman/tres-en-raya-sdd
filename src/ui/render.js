@@ -42,10 +42,31 @@ function renderConfigControls(root, state) {
 
 function renderBoard(root, state) {
   const board = root.querySelector('[data-board]');
+  const marks = state.engineState ? state.engineState.board : Array(9).fill(null);
   for (let i = 0; i < 9; i += 1) {
     const cell = board.querySelector(`[data-cell="${i}"]`);
     cell.disabled = state.uiState !== 'IN_GAME';
+    const mark = marks[i];
+    cell.dataset.cellState = mark === null || mark === undefined ? 'empty' : 'own';
   }
+}
+
+function renderStatus(root, state) {
+  let turnIndicator = root.querySelector('[data-turn-indicator]');
+  if (!turnIndicator) {
+    turnIndicator = document.createElement('p');
+    turnIndicator.setAttribute('data-turn-indicator', '');
+    root.appendChild(turnIndicator);
+  }
+  turnIndicator.textContent = state.engineState ? `Turno de ${state.engineState.turn}` : '';
+
+  let errorIndicator = root.querySelector('[data-error-indicator]');
+  if (!errorIndicator) {
+    errorIndicator = document.createElement('p');
+    errorIndicator.setAttribute('data-error-indicator', '');
+    root.appendChild(errorIndicator);
+  }
+  errorIndicator.textContent = state.lastError ? state.lastError.reason : '';
 }
 
 function buildStructure(root) {
@@ -78,4 +99,5 @@ export function render(root, state) {
   }
   renderConfigControls(root, state);
   renderBoard(root, state);
+  renderStatus(root, state);
 }

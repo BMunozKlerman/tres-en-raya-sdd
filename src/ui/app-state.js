@@ -1,4 +1,4 @@
-import { createGame } from '../engine.js';
+import { createGame, applyMove } from '../engine.js';
 
 export function createAppState() {
   return {
@@ -25,6 +25,33 @@ export function startGame(state, config) {
     config,
     engineState: createGame(config.mode),
     uiState: 'IN_GAME',
+  };
+}
+
+export function applyPlayerMove(state, move) {
+  if (state.uiState !== 'IN_GAME') return state;
+
+  const result = applyMove(state.engineState, move);
+
+  if (result && result.error) {
+    return { ...state, lastError: { reason: result.reason } };
+  }
+
+  let nextUiState = state.uiState;
+  let scoreboard = state.scoreboard;
+  if (result.result) {
+    nextUiState = 'FINISHED';
+    const key = result.result === 'draw' ? 'draw' : result.result;
+    scoreboard = { ...state.scoreboard, [key]: state.scoreboard[key] + 1 };
+  }
+
+  return {
+    ...state,
+    engineState: result,
+    uiState: nextUiState,
+    scoreboard,
+    movementSelection: null,
+    lastError: null,
   };
 }
 
