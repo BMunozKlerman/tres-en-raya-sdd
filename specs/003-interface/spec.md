@@ -137,6 +137,7 @@ indicator appears and the board is blocked.
 | CA-I-11 | WHEN a classic-mode game reaches the `FINISHED` state as a draw, THE SYSTEM SHALL display a draw indicator and block further moves. | Added by Clarifications (2026-07-27): the draw-case counterpart to CA-I-04, which only covers the win case. Continuous mode has no draw (`specs/001-engine` CA-M-17), so this criterion cannot apply there — not a gap, a consequence of the engine contract. |
 | CA-I-12 | WHEN it becomes the agent's turn to move, THE SYSTEM SHALL transition from `IN_GAME` to `WAITING_FOR_AGENT`. | Added by Clarifications (2026-07-27): makes the state-machine edge `IN_GAME → (agent's turn) WAITING_FOR_AGENT` explicit and traceable, rather than only inferable from CA-I-06's `WHILE`. |
 | CA-I-13 | WHEN the agent's chosen move is ready and the minimum waiting duration (CA-I-10) has elapsed, THE SYSTEM SHALL apply that move and transition from `WAITING_FOR_AGENT` to `IN_GAME`. | Added by Clarifications (2026-07-27): makes the state-machine edge `WAITING_FOR_AGENT → (move ready) IN_GAME` explicit. Ordered after CA-I-10 to avoid a race between "the move is ready" and "the waiting state has been visible long enough." |
+| CA-I-33 | WHILE a cell is occupied, THE SYSTEM SHALL display the occupying mark's symbol in that cell, including when the cell is also part of a highlighted winning line (CA-I-04). | Added by Amendments (2026-07-27, BUG-008): no prior criterion required the board to visibly render its own contents. Numbered 33 (out of document order) to avoid renumbering any already-implemented criterion — see Amendments section. |
 
 ---
 
@@ -291,6 +292,7 @@ Assumptions below.
 | CA-I-32 | Responsive Design | THE SYSTEM SHALL keep all configuration controls reachable without any control being clipped or hidden outside the viewport at the narrowest supported viewport (320px). | ⚠️ not jsdom-verifiable — see Clarifications |
 | CA-N-02 | Non-Functional | THE SYSTEM SHALL be fully operable with a mouse at any point in the game. | ✅ ready |
 | CA-N-03 | Non-Functional | WHERE the browser receives keyboard focus, THE SYSTEM SHALL allow completing a full game without using the mouse. | ✅ ready |
+| CA-I-33 | US-I-2 (Amendment) | WHILE a cell is occupied, THE SYSTEM SHALL display the occupying mark's symbol in that cell, including when the cell is also part of a highlighted winning line (CA-I-04). | ⚠️ pending — see Amendments |
 
 ### Key Entities
 
@@ -326,6 +328,28 @@ Assumptions below.
 | SC-I-08 | The interface is usable with no horizontal scrolling and no control smaller than 44×44 px at any width from 320px to 1440px, including the 320×568 reference viewport. | CA-I-28, CA-I-29, CA-I-30, CA-I-31, CA-I-32 |
 | SC-I-09 | Whenever the complex agent reuses a previously resolved position, that reuse is visible on screen during the same session it happened. | CA-I-09 |
 | SC-I-10 | Every entry and exit of the `WAITING_FOR_AGENT` state is demonstrable, not just instrumentable: it is visible for at least 300ms regardless of the agent's actual computation time. | CA-I-06, CA-I-10, CA-I-12, CA-I-13 |
+| SC-I-11 | An observer can state which mark occupies every non-empty cell by reading the board alone, including cells that are also part of a highlighted winning line. | CA-I-33 |
+
+## Amendments (Post-Implementation)
+
+`003-interface` implementation reached `T-093`–`T-098` (2026-07-27, `npm test` 112/112 green)
+before this gap was found during manual verification. This entry records the correction, per
+constitution P3 (spec is the source of truth for any behavioral change) and P7 (spec-first
+debugging): a bug is first reproduced as a failing test, diagnosed as an incomplete criterion,
+corrected in `spec.md`, and only then is the affected code regenerated.
+
+| # | Trigger | Amendment | Justification | Resolved by |
+|---|---------|-----------|----------------|-------------|
+| A1 | Manual testing showed occupied cells never display their mark's symbol (`'X'`/`'O'`) — `render.js`'s `renderBoard` only ever wrote a visible glyph (`'★'`) into a cell's `textContent` when that cell was part of `winningLine`; every other occupied cell's `textContent` was forced to `''`. No `CA-I-nn` in this spec required the board to visibly render its own state: CA-I-03 covers the turn indicator, CA-I-04 covers only the three winning cells, CA-I-08 only requires that information *already conveyed elsewhere* also be conveyed via text/icon — none of them establish the base requirement that a placed mark is visible at all. The entire automated suite passed throughout `T-060`–`T-098` because every test asserted `cell.dataset.cellState` (`'empty'`/`'own'`), never `cell.textContent` — the oracle the tests themselves used, not the representation a player actually sees. | New criterion **CA-I-33** added (see US-I-2 table and Functional Requirements below): WHILE a cell is occupied, THE SYSTEM SHALL display the occupying mark's symbol in that cell, including when the cell is also part of a highlighted winning line (CA-I-04) — so the mark does not disappear when the cell becomes part of the win highlight. Numbered 33 (not inserted in document order among CA-I-01–32) specifically to avoid renumbering any already-implemented and committed criterion, unlike the pre-implementation renumbering `/speckit-clarify`/`/speckit-analyze` did for CA-I-10–13 and T-081/T-082 — those happened before any task had a commit; this one happens after 36 of 42 tasks are already committed. | Logged as **BUG-008** in `docs/bugs.md`. Discovered by manual play, not by the automated suite — the suite's tests were internally consistent (green) but never encoded the one thing a human observer needs to see: the board's actual contents. This is the same class of gap `research.md` D-I-04 already documents for the six layout-dependent criteria (automated proxy vs. authoritative manual check), but here no criterion existed for the automated suite to even attempt. | Group — 2026-07-27, found during `manual-verification.md` play-testing |
+
+**Note**: while diagnosing A1, `render.js`'s `renderBoard` was separately found to collapse
+`contracts/dom-contract.md`'s documented `data-cell-state` enum (`"empty" | "own" | "opponent"`)
+into just two values (an opponent's mark was also labeled `"own"`). This is a pre-existing
+**contract non-compliance** (`dom-contract.md`, a `plan.md`-level artifact), not a spec gap — no
+`CA-I-nn` requires the distinction, so it carries no new CA-ID and is not part of this Amendment.
+It is fixed as its own commit, tracked as **BUG-009** in `docs/bugs.md`, kept separate from
+CA-I-33's RED/GREEN pair so `git log --grep="CA-I-33"` returns only commits that satisfy that
+criterion.
 
 ## Assumptions
 

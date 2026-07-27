@@ -49,7 +49,8 @@ row — this skeleton is a `/speckit-plan` output, before task generation.
 | CA-I-31 | T-095/T-096 | responsive-static.test.js | `CA-I-31 — interactive controls declare 44x44px minimum` | — (declared-value check — see `research.md` D-I-04 for why this one is closer to direct) |
 | CA-I-32 | T-095/T-096 | responsive-static.test.js | `CA-I-32 — configuration controls not clipped or overflow-hidden` | — (structural proxy only — see `manual-verification.md`) |
 | CA-N-02 | T-097/T-098 | non-functional.test.js | `CA-N-02 — fully operable with mouse (click handlers cover every action)` | — |
-| CA-N-03 | T-099/T-100 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | — |
+| CA-I-33 | T-099/T-100 | us-i2-state-feedback.test.js | `CA-I-33 — occupied cell displays the mark's symbol` | — |
+| CA-N-03 | T-101/T-102 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | — |
 
 ---
 
@@ -134,6 +135,23 @@ test of its own yet. `restart`'s own mechanics (the button, returning to `CONFIG
 preserving the scoreboard) remain fully covered by T-083/T-084 as planned; this note only records
 why T-081 did not literally click it. No `traceability.md` "Test-strategy limitations" entry was
 needed — the integration is fully exercised, not partially.
+
+## CA-I-33 — added post-implementation (BUG-008, T-099/T-100)
+
+`spec.md`'s Amendments section (2026-07-27) records why: no criterion in `T-060`–`T-098`'s scope
+ever required an occupied cell to visibly display its mark, so `render.js`'s `renderBoard` never
+wrote one into `textContent` except the `'★'` win glyph. Found by manual play, not by the
+automated suite — see `docs/bugs.md` BUG-008 for the full write-up, including why every prior test
+passed regardless (they asserted `dataset.cellState`, never `textContent`). T-099 (RED) is a
+genuine failing test — not a zero-code-corollary candidate, unlike CA-I-08/CA-I-11/CA-I-15/CA-N-02
+above — since the gap was real, not already satisfied by an earlier task. T-100 (GREEN) writes the
+mark's symbol into `textContent` for every occupied cell and keeps it alongside the `'★'` glyph on
+winning cells, so CA-I-04 and CA-I-33 do not conflict.
+
+**Kept separate, on purpose**: a second, unrelated defect found in the same file while diagnosing
+this one — `render.js` collapsing `contracts/dom-contract.md`'s `data-cell-state` enum
+(`"own" | "opponent"`) into just `"own"` — is fixed in its own commit, not T-100's, and tracked as
+**BUG-009**, so this criterion's commit history stays about CA-I-33 alone.
 
 ## CA-N-02 — corollary confirmation, no production code (T-098)
 

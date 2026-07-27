@@ -23,6 +23,93 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-009: `render.js` collapsed `dom-contract.md`'s `"own" | "opponent"` cell-state enum into just `"own"`
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Detection**: Found while diagnosing BUG-008 (below) and reading `render.js`'s `renderBoard`
+against `contracts/dom-contract.md`'s Board section, which documents `data-cell-state` on each
+cell as `"empty" | "own" | "opponent"`. The actual code was:
+`cell.dataset.cellState = mark === null || mark === undefined ? 'empty' : 'own';` — any occupied
+cell, regardless of which mark occupies it, is labeled `'own'`.
+
+**Diagnosis**: Not a spec gap — no `CA-I-nn` requires distinguishing "the current player's mark"
+from "the opponent's mark" in a cell (CA-I-07/CA-I-25 only ever query the *current* player's own
+marks through `legalMoves(state)`, never through `data-cell-state`). This is a **contract
+non-compliance**: `contracts/dom-contract.md` is a `plan.md`-level artifact `render.js` is
+supposed to satisfy exactly, and it never did for this one attribute. No test caught it because
+no test in `tests/interface/` ever asserted `dataset.cellState === 'opponent'` — every existing
+assertion only checked `'empty'` vs. `'own'` (see BUG-008's lesson: tests only ever exercised the
+oracle they themselves needed, not the full documented contract).
+
+**Fix**: `render.js`'s `renderBoard` changed to compare the occupying mark against
+`state.config.marks.player1` (the human player's configured mark) to set `'own'` or `'opponent'`
+correctly, in a commit of its own, deliberately kept separate from CA-I-33's RED/GREEN pair (see
+BUG-008) so the two unrelated fixes do not share a commit message. Commit: `fix: render.js
+distinguishes own from opponent cell state per dom-contract.md` (SHA recorded once committed —
+not invented here, see `CLAUDE.md`'s "Do not invent SHAs" rule).
+
+**Result**: `npm test` green after the fix; no existing test needed to change, since none of them
+asserted the (wrong) `'own'`-for-everyone value in the first place — the defect was invisible to
+the suite, only visible by reading the contract text directly against the code.
+
+**Lesson**: same shape as BUG-008 below, one contract layer removed from acceptance criteria — a
+DOM/API contract (`contracts/*.md`) can drift from its own implementation exactly like a spec can,
+and nothing catches it automatically unless a test is written against the contract's literal
+documented values, not just the values a particular criterion happens to need.
+
+---
+
+## BUG-008: no acceptance criterion ever required a placed mark to be visible on the board
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Detection**: Manual play-testing after `T-093`–`T-098` (responsive CSS and CA-N-02) showed that
+placing a mark never displays an `'X'`/`'O'` symbol in the cell — the board looked empty even mid-
+game. Inspecting the DOM showed each occupied cell's `textContent` was `''`; only the three cells
+of a completed `winningLine` ever received visible text (the `'★'` glyph from CA-I-04/T-066).
+
+**Diagnosis**: Not a CSS bug and not a rendering bug in the narrow sense — `render.js`'s
+`renderBoard` was doing exactly what it was written to do. The actual root cause is a **spec gap**:
+re-reading every criterion in `specs/003-interface/spec.md` that touches the board (CA-I-03 — the
+turn indicator; CA-I-04 — only the three winning cells; CA-I-08 — requires information *already
+conveyed elsewhere* to also be conveyed via text/icon, not the base requirement to convey it in
+the first place) showed none of them ever asserted the most basic requirement of a tic-tac-toe UI:
+that a placed mark is visible in its cell. The gap was invisible to the entire `T-060`–`T-098`
+automated suite because every test that touched cell state asserted `cell.dataset.cellState`
+(`'empty'`/`'own'`) — the internal attribute the tests themselves used as their oracle — and never
+once asserted `cell.textContent` for a non-winning occupied cell. 112/112 tests were green while
+the product, played by a human, did not show the board's own contents.
+
+**Fix** (spec-first, per constitution P3/P7): `specs/003-interface/spec.md` amended (see
+"Amendments (Post-Implementation)" section) with a new criterion, **CA-I-33** — WHILE a cell is
+occupied, THE SYSTEM SHALL display the occupying mark's symbol in that cell, including when the
+cell is also part of a highlighted winning line (CA-I-04), so the mark is not lost when the `'★'`
+glyph is added. Numbered 33, out of document order, specifically to avoid renumbering any of the
+32 already-implemented and committed criteria. `specs/003-interface/tasks.md` extended with a new
+Phase 7.5 (T-099 RED, T-100 GREEN) inserted before the CA-N-03 pair (renumbered T-101/T-102) and
+before the final traceability-closure task (renumbered T-103). `render.js`'s `renderBoard` now
+writes the mark's symbol into `textContent` for every occupied cell, keeping the `'★'` glyph
+alongside it (not replacing it) on winning cells.
+
+**Result**: T-099 (RED) failed exactly as expected before the fix (occupied, non-winning cells had
+empty `textContent`); T-100 (GREEN) implemented the fix, `npm test` green afterward.
+
+**Lesson**: a green suite proves internal consistency between tests and code, not that the product
+does what a criterion never asked for — CA-I-08 already establishes the principle that
+*conveyed* information must not depend on color alone, but nothing in this spec had established
+the more basic fact that the board's contents must be conveyed *at all*. `/speckit-analyze` did
+not, and structurally could not, catch this: it cross-checks spec/plan/tasks/traceability/
+contracts/constitution against each other for internal consistency, but it has no step that asks
+"is there a criterion for this obviously-necessary behavior?" — it cannot detect the absence of a
+criterion nobody wrote, only inconsistencies between criteria that already exist. The same failure
+mode as BUG-006/BUG-007 (a real gap invisible until a concrete consumer — here, a human player —
+actually exercised the missing behavior), but one layer closer to the user: those were contract
+gaps between features; this one is a spec gap between the spec and the product it is supposed to
+describe.
+
+---
+
 ## BUG-007: `001-engine`'s contract had no way to expose which line won, blocking a legitimate `003-interface` consumer
 
 **Found**: 2026-07-27 | **Status**: Fixed

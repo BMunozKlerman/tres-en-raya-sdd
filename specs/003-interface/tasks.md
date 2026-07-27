@@ -12,7 +12,9 @@ branch — see `CLAUDE.md` session log, 2026-07-27) immediately after `001-engin
 already closed at `T-057` and no `T-060` exists anywhere in the repo. The first task here is
 `T-060`.
 
-**Total tasks**: 42 (T-060 to T-101)
+**Total tasks**: 44 (T-060 to T-103), plus one untracked bug-fix commit (BUG-009, no `T-NNN`,
+between T-100 and T-101 — see Phase 7.5). Originally 42 (T-060–T-101); grew by 2 when CA-I-33 was
+added post-implementation (BUG-008, `spec.md` Amendments) — see Phase 7.5 below.
 
 **Grouping principle** (same standard as `001-engine`'s and `002-agents`'s): one RED/GREEN pair
 per criterion or per homogeneous group (same contract function, same code layer). Where
@@ -633,7 +635,7 @@ for CA-A-13/CA-A-14.
 
 ### Full game completable via keyboard alone (CA-N-03)
 
-- [ ] T-099 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
+- [ ] T-101 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
   `describe('CA-N-03 — full game completable via keyboard alone', ...)`: complete a full game —
   tab through configuration controls (`change` events triggered via keyboard-equivalent
   interaction), select/activate board cells via `ArrowKey`+`Enter`/`Space` (T-088/T-090), restart
@@ -641,24 +643,58 @@ for CA-A-13/CA-A-14.
   this test. Expected to fail only if some action lacks a keyboard path. Expected commit:
   `test(CA-N-03): failing/asserting test — full game completable via keyboard alone`
 
-- [ ] T-100 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
+- [ ] T-102 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
   path, add it (per whichever of T-086/T-088/T-090/T-092's mechanisms it belongs to); otherwise no
-  production change is needed. `npm test` must be fully green. Expected commit: `T-100: confirm
+  production change is needed. `npm test` must be fully green. Expected commit: `T-102: confirm
   CA-N-03 — full game completable via keyboard alone`
+
+---
+
+## Phase 7.5: Amendment — Board Mark Visibility (BUG-008)
+
+**Goal**: close the gap found by manual play-testing after `T-093`–`T-098`: occupied cells never
+displayed their mark's symbol, because no `CA-I-nn` ever required it (`spec.md`'s Amendments
+section, A1). New criterion **CA-I-33** (numbered out of document order, deliberately, to avoid
+renumbering any already-committed criterion — see `spec.md`).
+
+**Prerequisite**: T-098 GREEN complete (board rendering exists to extend). Inserted before
+`T-101`/`T-102` (CA-N-03) since CA-N-03's keyboard-only playthrough should exercise the corrected
+rendering too, not a stale one.
+
+**Separate, deliberately excluded from this pair's commits**: `render.js`'s `data-cell-state`
+collapsing `"opponent"` into `"own"` (a `contracts/dom-contract.md` compliance defect, not a
+`CA-I-nn` gap — no criterion requires the distinction). Tracked as **BUG-009**, fixed in its own
+commit (`fix: render.js distinguishes own from opponent cell state per dom-contract.md`) right
+after T-100, so `git log --grep="CA-I-33"` returns only commits that satisfy that criterion.
+
+- [ ] T-099 [US-I-2] [AC: CA-I-33] RED — Add to `us-i2-state-feedback.test.js`:
+  `describe('CA-I-33 — occupied cell displays the mark's symbol', ...)`: play a move; assert the
+  occupied cell's `textContent` is non-empty and states the mark that occupies it (read via
+  `cell.textContent`, not `dataset.cellState`). Add a second case: drive a game to a win; assert
+  every winning-line cell's `textContent` still identifies its mark's symbol (not solely `'★'`
+  with the mark lost) — proving CA-I-33 and CA-I-04 do not conflict. Fails because `renderBoard`
+  only ever writes `'★'` (winning cells) or `''` (every other cell) into `textContent`. Expected
+  commit: `test(CA-I-33): failing test — occupied cell displays the mark's symbol`
+
+- [ ] T-100 [US-I-2] [AC: CA-I-33] GREEN — In `render.js`'s `renderBoard`, write the mark's symbol
+  into the cell's `textContent` whenever the cell is occupied; when the cell is also part of
+  `winningLine`, keep both the mark's symbol and the `'★'` win indicator (e.g. `"X ★"`), so neither
+  CA-I-04 nor CA-I-33 is lost. `npm test` must be fully green. Expected commit: `T-100: occupied
+  cell displays the mark's symbol (CA-I-33)`
 
 ---
 
 ## Final Phase: Traceability Closure
 
-- [ ] T-101 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
+- [ ] T-103 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
   CA-I-10, CA-I-11, CA-I-12, CA-I-13, CA-I-14, CA-I-15, CA-I-16, CA-I-17, CA-I-18, CA-I-19,
   CA-I-20, CA-I-21, CA-I-22, CA-I-23, CA-I-24, CA-I-25, CA-I-26, CA-I-27, CA-I-28, CA-I-29,
-  CA-I-30, CA-I-31, CA-I-32, CA-N-02, CA-N-03] Run `npm run verify:traceability`; fill the Task
-  column (T-NNN) and Commit SHA column for all 34 rows in `specs/003-interface/traceability.md`
-  using real SHAs from `git log`; execute `manual-verification.md`'s procedure for CA-I-17
-  (rendered-visibility half), CA-I-28–CA-I-32, and record the result in that file; verify
-  `npm run verify:traceability` exits 0 for all three features (37 + 34 = 71 CA-IDs combined)
-  after the commit. Expected commit: `T-101: record real SHAs in traceability matrix —
+  CA-I-30, CA-I-31, CA-I-32, CA-I-33, CA-N-02, CA-N-03] Run `npm run verify:traceability`; fill the
+  Task column (T-NNN) and Commit SHA column for all 35 rows in `specs/003-interface/
+  traceability.md` using real SHAs from `git log`; execute `manual-verification.md`'s procedure
+  for CA-I-17 (rendered-visibility half), CA-I-28–CA-I-32, and record the result in that file;
+  verify `npm run verify:traceability` exits 0 for all three features (37 + 35 = 72 CA-IDs
+  combined) after the commit. Expected commit: `T-103: record real SHAs in traceability matrix —
   003-interface complete`
 
 ---
@@ -700,13 +736,14 @@ for CA-A-13/CA-A-14.
 | CA-I-31 | T-095 | T-096 | responsive-static.test.js | ⚠️ Declared-value check, closer to direct — manual-verification.md still authoritative for computed size |
 | CA-I-32 | T-095 | T-096 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
 | CA-N-02 | T-097 | T-098 | non-functional.test.js | Corollary of every click handler built in Phases 2–5 |
-| CA-N-03 | T-099 | T-100 | non-functional.test.js | Corollary of every keyboard handler built in Phases 5 |
+| CA-I-33 | T-099 | T-100 | us-i2-state-feedback.test.js | Added post-implementation (BUG-008, Amendment A1) — own pair, board mark visibility |
+| CA-N-03 | T-101 | T-102 | non-functional.test.js | Corollary of every keyboard handler built in Phase 5 |
 
 ---
 
 ## Dependencies & Execution Order
 
-All 42 tasks are strictly sequential (every GREEN task touches at least one of
+All 44 tasks are strictly sequential (every GREEN task touches at least one of
 `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js`, or `src/styles.css`, each grown
 incrementally; no `[P]` markers).
 
@@ -731,8 +768,10 @@ T-060 (setup)
   → T-093(RED) → T-094(GREEN)  CA-I-28, CA-I-29
   → T-095(RED) → T-096(GREEN)  CA-I-30, CA-I-31, CA-I-32
   → T-097(RED) → T-098(GREEN)  CA-N-02
-  → T-099(RED) → T-100(GREEN)  CA-N-03
-  → T-101                      traceability closure
+  → T-099(RED) → T-100(GREEN)  CA-I-33 (Amendment, BUG-008)
+  → (fix, no T-NNN)             BUG-009 — dom-contract.md own/opponent compliance
+  → T-101(RED) → T-102(GREEN)  CA-N-03
+  → T-103                      traceability closure
 ```
 
 **Phase gates**:
@@ -746,7 +785,9 @@ T-060 (setup)
 | Phase 5 (T-085) | T-084 GREEN — restart complete |
 | Phase 6 (T-093) | T-092 GREEN — every interactive control exists to style |
 | Phase 7 (T-097) | T-096 GREEN — styles complete |
-| Final (T-101) | T-100 GREEN — `npm test` fully green |
+| Phase 7.5 (T-099) | T-098 GREEN — CA-N-02 confirmed |
+| Phase 7 cont'd (T-101) | T-100 GREEN, plus BUG-009 fixed — CA-I-33 and the DOM contract are both correct before the keyboard-only playthrough exercises them |
+| Final (T-103) | T-102 GREEN — `npm test` fully green |
 
 ---
 
@@ -754,17 +795,18 @@ T-060 (setup)
 
 | Check | Result |
 |-------|--------|
-| CA-ID with no task | None — 34/34 covered (see Coverage Audit) |
+| CA-ID with no task | None — 35/35 covered (see Coverage Audit; CA-I-33 added post-implementation, BUG-008) |
 | Task with no CA-ID | Only T-060 (Phase 1 tooling/scaffold) — same documented exception `001-engine`'s T-001/T-002 established; explicitly labeled "no behavioral CA-ID" in its phase header, per project precedent, not a deviation invented here |
 | GREEN preceding its RED | None — every pair is listed RED-then-GREEN in both the task list and the dependency graph above |
 | Tasks likely to exceed one commit | Flagged and pre-emptively split during generation: the original single "all 5 responsive criteria" pair was split into T-093/T-094 (CA-I-28, CA-I-29 — page layout) and T-095/T-096 (CA-I-30, CA-I-31, CA-I-32 — component-level), mirroring `002-agents`'s T-047/T-048 split. Remaining borderline case: **T-062** (the first behavioral GREEN task) creates all three of `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js` in one commit — larger than a typical single-criterion GREEN, but judged acceptable because it mirrors `002-agents`'s T-035 (first commit creating the entire `src/agents.js` file) and the three files' *content* here is scoped tightly to configuration only (no gameplay logic yet); flagged here for the user's review rather than split further, since splitting "create app-state.js" from "create render.js" from "create events.js" would leave two of the three commits unable to pass any test on their own (an untestable intermediate commit is a worse traceability outcome than one slightly larger commit, per P5's red-before-green intent). |
 | CA-ID with unclear test strategy | None outright unclear, but three are worth flagging: **CA-I-19** (T-089/T-090) — GREEN may end up requiring zero production code if jsdom's native `<button>` keyboard semantics already dispatch `click` on Enter/Space; the task is written to handle either outcome, but the actual result is only knowable at implementation time. **CA-I-17/CA-I-28–CA-I-32** — test strategy is deliberately partial by design (documented proxy + manual procedure, per `research.md` D-I-04), not unclear; flagged here only so the distinction between "partial by design" and "unclear" is explicit. **CA-I-09**'s T-081/T-082 — the real cross-game integration test's feasibility inside jsdom (no wall clock, deterministic transposition-table cache hit) is not yet proven; T-082's description carries an explicit contingency to fall back to a documented `traceability.md` limitation, same pattern as the six partial criteria, if it turns out infeasible. |
 
-**Documented-exception note**: T-070 (CA-I-08), T-090 (CA-I-19), T-098 (CA-N-02), and T-100
+**Documented-exception note**: T-070 (CA-I-08), T-090 (CA-I-19), T-098 (CA-N-02), and T-102
 (CA-N-03) may turn out to require zero production changes if the behavior they check is already a
 correct corollary of earlier tasks — the same pattern `002-agents` used for CA-A-13/CA-A-14/
 CA-N-01's confirmation-only GREEN commits (T-052, T-054, T-056). Each still gets its own
 `describe`, its own RED/GREEN pair, and its own commit message citing its CA-ID. If any of these
 four fails, per P7 (spec-first debugging) the fix path is: diagnose which earlier task's
 implementation is actually incomplete, fix it there, and re-verify — never add special-casing
-inside the confirmation task itself.
+inside the confirmation task itself. **T-100 (CA-I-33) is not in this list** — it is a genuine
+implementation gap (BUG-008), not expected to be a zero-code corollary.
