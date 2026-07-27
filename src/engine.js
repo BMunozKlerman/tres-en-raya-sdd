@@ -21,6 +21,10 @@ export function applyMove(state, move) {
     return { error: true, reason: 'wrong_phase' };
   }
 
+  if (move.type === 'place' && state.phase === 'movement') {
+    return { error: true, reason: 'wrong_phase' };
+  }
+
   if (state.board[move.cell] !== null) {
     return { error: true, reason: 'cell_occupied' };
   }
