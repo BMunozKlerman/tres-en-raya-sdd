@@ -79,3 +79,18 @@ describe('CA-I-16 — restart returns to CONFIGURATION, scoreboard preserved', (
     expect(root.querySelector('[data-score="draw"]').textContent).toBe('0');
   });
 });
+
+describe('CA-I-14/CA-I-15 (amended) — scoreboard counts are identifiable by label', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('shows a label identifying each score entry', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    expect(root.querySelector('[data-score-label="X"]').textContent).toBe('X');
+    expect(root.querySelector('[data-score-label="O"]').textContent).toBe('O');
+    expect(root.querySelector('[data-score-label="draw"]').textContent).toBe('Empates');
+  });
+});
