@@ -260,7 +260,7 @@ Assumptions below.
 | CA-I-01 | US-I-1 | WHILE the system is in the `CONFIGURATION` state, THE SYSTEM SHALL display selectable controls for opponent type (human or agent), the mark assigned to each player, and game mode (classic or continuous), plus an agent level control whenever the opponent type is agent. | ✅ ready |
 | CA-I-02 | US-I-1 | IF the player activates start while opponent type, mark assignment, and game mode are selected, and an agent level is selected whenever the opponent type is agent, THEN THE SYSTEM SHALL transition from `CONFIGURATION` to `IN_GAME`. | ✅ ready |
 | CA-I-03 | US-I-2 | THE SYSTEM SHALL indicate at all times whose turn it is and which mark they play. | ✅ ready |
-| CA-I-04 | US-I-2 | WHEN a player aligns three marks, THE SYSTEM SHALL highlight the winning line and block further moves. | ⚠️ depends on `specs/001-engine` BUG-007 (T-058/T-059, not yet implemented) |
+| CA-I-04 | US-I-2 | WHEN a player aligns three marks, THE SYSTEM SHALL highlight the winning line and block further moves. | ✅ ready — `specs/001-engine` BUG-007 closed (T-058/T-059, commits `71d9e29`/`cef0a5b`); `state.winningLine` now exists |
 | CA-I-05 | US-I-2 | IF the player attempts an illegal move, THEN THE SYSTEM SHALL reject it stating the reason, without altering the board state. | ✅ ready |
 | CA-I-06 | US-I-2 | WHILE the agent is computing its move, THE SYSTEM SHALL show a waiting state and disable the board. | ✅ ready |
 | CA-I-07 | US-I-2 | WHILE continuous mode is in the movement phase, THE SYSTEM SHALL indicate which of the player's own marks can move and to which cells. | ✅ ready |
@@ -330,7 +330,7 @@ Assumptions below.
 ## Assumptions
 
 - The UI calls `createGame`, `legalMoves`, `applyMove` (`specs/001-engine`, including the
-  amended `winningLine` field once T-058/T-059 land) and `chooseMove` (`specs/002-agents`)
+  amended `winningLine` field, landed by T-058/T-059) and `chooseMove` (`specs/002-agents`)
   exactly as specified in their contracts; this feature introduces no new engine or agent
   behavior beyond that already-amended field.
 - Arrow-key navigation (CA-I-18) at the grid's edge (e.g., pressing "up" from the top row) has no
