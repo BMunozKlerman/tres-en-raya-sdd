@@ -99,7 +99,11 @@ function renderStatus(root, state) {
     turnIndicator.setAttribute('data-turn-indicator', '');
     root.appendChild(turnIndicator);
   }
-  turnIndicator.textContent = state.engineState ? `Turno de ${state.engineState.turn}` : '';
+  if (state.uiState === 'FINISHED') {
+    turnIndicator.textContent = 'Partida terminada';
+  } else {
+    turnIndicator.textContent = state.engineState ? `Turno de ${state.engineState.turn}` : '';
+  }
 
   let waitingIndicator = root.querySelector('[data-waiting-indicator]');
   if (state.uiState === 'WAITING_FOR_AGENT') {
