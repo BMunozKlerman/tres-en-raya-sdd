@@ -23,6 +23,57 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-005: T-046's CA-A-09 fixture was an unwinnable fork, not a fair test position
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Detection**: While implementing T-047 (continuous-mode minimax + horizon cutoff), running the
+real search against T-046's committed CA-A-09 fixture (`O` owning `{0,1,6,7}` from an earlier
+draft, later `{1,4,6}`) returned a move that still lost to the opponent's very next reply — for
+every one of the 9 legal moves available to the complex level, minimax's own evaluation (verified
+with a standalone debug script, both with and without a depth-preference tie-break on the
+terminal scores) returned `LOSS_SCORE`. The real search agreed unanimously that the position was
+lost no matter what; this was not a search bug.
+
+**Diagnosis**: Not a spec-first bug — CA-A-09 itself is fine. The fixture was the defect. `O`'s
+three pieces were chosen to form a threat at one cell (e.g. via line `[1,4,7]`), but the same
+pieces also shared the center cell with a second, unnoticed pair on a different line (e.g.
+`[2,4,6]`), producing two independent one-move wins for `O` on two different cells. A single `X`
+move can occupy only one cell, so this is a genuine fork: unblockable in one ply, and (as
+confirmed by the exhaustive search) unrecoverable within the horizon either. `plan.md`'s
+calibration-position guidance explicitly calls for positions "with no immediate win or forced
+loss present" precisely to avoid this — the fixture violated its own design constraint, and
+nothing before T-047 actually ran a real search against it to catch that (T-046's RED check only
+needed the naive stub to fail, which it did, for the wrong reason: any move loses, so the stub's
+arbitrary first move losing proved nothing about blocking specifically).
+
+**Fix**: Rebuilt the fixture from scratch with a documented, hand-verified single-threat
+position (`O` at `{0,3,7}` with a movement-only threat completed by moving the piece at `7` to
+`6`, keeping `0` and `3` in place; `X` at `{1,4,8}`) and checked by exhaustive enumeration of the
+8 winning lines that no other 2-owned/1-empty pattern exists for either side before writing the
+assertions — the same discipline BUG-002's fix established for `001-engine`'s movement-phase
+fixtures. Verified with a standalone script that the real minimax search (a) finds a fully safe
+move (blocking cell `6`) and (b) that this differs from the arbitrary first legal move in
+`legalMoves` enumeration order, so the RED state before T-047 is a genuine test of the missing
+search, not an artifact of an unwinnable position. `tests/agents/us-a1-complex.test.js` updated
+in a commit separate from T-047's GREEN commit, T-046 itself left untouched (same convention as
+BUG-002's T-023).
+
+**Result**: Re-run against the committed T-046 stub: fails as expected (`moves[0]` doesn't block,
+opponent wins). Re-run against the real T-047 search: passes, resolves in ~11 ms. `npm test`
+green throughout except for the intentional RED window.
+
+**Lesson**: same underlying lesson as BUG-002, now recurring for the agents feature — a
+hand-built board fixture that involves 2+ marks of the same player on a shared line needs an
+exhaustive check against all 8 winning lines (not just the one line the fixture author had in
+mind) before it's trustworthy, especially once a mark sits on a highly-connected cell like the
+center. This applies doubly to continuous-mode fixtures, where an unnoticed second threat doesn't
+just make a test fixture wrong — it can make the *position itself* uncoverable by any level,
+silently turning a "does the agent search correctly" test into "is this position lost," which is
+a different and unintended question.
+
+---
+
 ## BUG-004: `tasks.md`'s T-041 pseudocode described an algorithm that cannot satisfy CA-A-16
 
 **Found**: 2026-07-27 | **Status**: Fixed

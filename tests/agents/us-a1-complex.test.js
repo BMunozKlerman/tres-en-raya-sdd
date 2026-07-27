@@ -32,7 +32,7 @@ describe('CA-A-08 — complex: never loses a classic game', () => {
 describe('CA-A-09 — complex: safe within the search horizon in continuous mode', () => {
   it('returns a move after which no legal opponent reply sets the result to the opponent', () => {
     const state = {
-      board: ['X', 'O', null, 'X', 'O', null, 'O', null, 'X'],
+      board: ['O', 'X', null, 'O', 'X', null, null, 'O', 'X'],
       turn: 'X',
       mode: 'continuous',
       phase: 'movement',
