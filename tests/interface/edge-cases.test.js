@@ -129,6 +129,31 @@ describe('CA-I-22 — input ignored during WAITING_FOR_AGENT', () => {
   });
 });
 
+describe('CA-I-23 — restart during movement phase clears pending selection', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('returns to CONFIGURATION and leaves no stale selection on the next game', () => {
+    const root = mount();
+    startContinuousToMovementPhase(root);
+
+    root.querySelector('[data-cell="0"]').click();
+    expect(root.querySelector('[data-cell="0"]').dataset.selected).toBe('true');
+
+    root.querySelector('[data-restart-button]').click();
+
+    expect(root.querySelector('[data-config-opponent]').disabled).toBe(false);
+
+    startContinuousToMovementPhase(root);
+
+    for (let i = 0; i < 9; i += 1) {
+      expect(root.querySelector(`[data-cell="${i}"]`).dataset.selected).toBeUndefined();
+      expect(root.querySelector(`[data-cell="${i}"]`).dataset.destination).toBeUndefined();
+    }
+  });
+});
+
 describe('CA-I-21 — occupied cell rejected', () => {
   beforeEach(() => {
     document.body.innerHTML = '';

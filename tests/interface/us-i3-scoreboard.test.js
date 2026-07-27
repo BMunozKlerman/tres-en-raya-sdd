@@ -56,3 +56,26 @@ describe('CA-I-15 — draw increments scoreboard', () => {
     expect(root.querySelector('[data-score="O"]').textContent).toBe('0');
   });
 });
+
+describe('CA-I-16 — restart returns to CONFIGURATION, scoreboard preserved', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('returns to CONFIGURATION with a null engineState and an unchanged scoreboard', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    ['0', '3', '1', '4', '2'].forEach((cellIndex) => {
+      root.querySelector(`[data-cell="${cellIndex}"]`).click();
+    });
+    expect(root.querySelector('[data-score="X"]').textContent).toBe('1');
+
+    root.querySelector('[data-restart-button]').click();
+
+    expect(root.querySelector('[data-config-opponent]').disabled).toBe(false);
+    expect(root.querySelector('[data-score="X"]').textContent).toBe('1');
+    expect(root.querySelector('[data-score="O"]').textContent).toBe('0');
+    expect(root.querySelector('[data-score="draw"]').textContent).toBe('0');
+  });
+});
