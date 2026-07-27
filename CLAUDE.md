@@ -307,14 +307,24 @@ never decide on your own.
       or process deviations beyond the CA-I-08 corollary noted above; no bugs found in this block.
       `npm run verify:traceability` correctly reports the remaining 16 `003-interface` criteria
       (CA-I-09, CA-I-10, CA-I-13, CA-I-16–CA-I-20, CA-I-23, CA-I-28–CA-I-32, CA-N-02, CA-N-03) as
-      orphaned — expected, their tasks (`T-077` onward) have not run yet. **Next step:
-      `/speckit-implement T-077`.**
+      orphaned — expected, their tasks (`T-077` onward) have not run yet.
+- [x] `003-interface` implementation continued: `T-077`–`T-084` done and committed, one commit
+      per task, RED before GREEN throughout, `npm test` green at every GREEN commit (91/91 at
+      close). Covers CA-I-09, CA-I-10, CA-I-13, CA-I-16, CA-I-23 (22/34 cumulative). `resolveAgentMove`
+      (`app-state.js`) and the real `chooseMove` call plus a 300ms `setTimeout` floor
+      (`events.js`) close the waiting-state timing; `[data-memory-indicator]` (`render.js`) closes
+      the memory-reuse indicator, including a real cross-game integration test; `restart`
+      (`app-state.js`) and `[data-restart-button]` close the session-scoreboard story. One
+      documented deviation (T-081's real-integration test, `traceability.md`) — see Session Log.
+      `npm run verify:traceability` reports the remaining 11 `003-interface` criteria (CA-I-17–
+      CA-I-20, CA-I-28–CA-I-32, CA-N-02, CA-N-03) as orphaned — expected, their tasks (`T-085`
+      onward) have not run yet.
 - [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
       column still `—` for all 34 rows — filled in during `/speckit-implement`).
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-implement T-077` for `003-interface` (CA-I-10/CA-I-13, the 300ms minimum
-waiting duration and `WAITING_FOR_AGENT → IN_GAME` transition via `resolveAgentMove`).
+**Next step**: `/speckit-implement T-085` for `003-interface` (CA-I-17, the focus-visible hook
+that toggles `data-focus-visible` on real `focus`/`blur` event dispatch).
 
 ### Session Log
 
@@ -651,3 +661,38 @@ waiting duration and `WAITING_FOR_AGENT → IN_GAME` transition via `resolveAgen
   Stopped at `T-068` per explicit instruction (one task beyond the requested `T-067`, to close the
   RED/GREEN pair rather than leave `CA-I-11`/`CA-I-15` mid-pair). **Next step:
   `/speckit-implement T-069`.**
+- 2026-07-27: `003-interface` implementation continued through `T-069`–`T-076` (configuration
+  detail already summarized in Current Status above), then `T-077`–`T-084`, one commit per task,
+  RED before GREEN throughout, `npm test` green at every GREEN commit (91/91 at close). Covers
+  CA-I-09, CA-I-10, CA-I-13, CA-I-16, CA-I-23 for this last block (22/34 cumulative for
+  `003-interface`). T-077/T-078 added `resolveAgentMove(state, decision)` to `app-state.js` and,
+  in `events.js`'s `maybeHandOffToAgent`, the real `chooseMove` call plus a
+  `setTimeout(..., 300)` floor (`research.md` D-I-05) so `WAITING_FOR_AGENT → IN_GAME` cannot fire
+  before 300ms elapse — tested with `vi.useFakeTimers()`, advancing to 299ms (still waiting) and
+  300ms (resolved) in separate cases. T-079/T-080 added `[data-memory-indicator]` to `render.js`,
+  read from `lastDecision.resolvedFromMemory`, verified with a direct `resolveAgentMove` call
+  against a hand-built `Decision` (proving `render.js` alone). T-081/T-082 (the
+  `/speckit-analyze`-added real-integration pair) passed on first run — a third zero-code
+  corollary, same pattern as CA-I-08/CA-I-11/CA-I-15 — since T-078/T-080 already implement
+  everything the integration needs. **One deviation from `tasks.md`'s literal text, documented in
+  `specs/003-interface/traceability.md`**: T-081's description says to reach the second game via
+  `[data-restart-button]`, but `restart` is Phase 4 (T-083/T-084), strictly after this pair per
+  `tasks.md`'s own Phase gate table, so that control did not exist yet when T-081 ran. Rather than
+  fabricate a `Decision` (explicitly ruled out by the analysis that created T-081/T-082) or
+  implement `restart` early without its own preceding RED (would violate P5), the test seeds the
+  second game's initial `AppState` directly with the first game's real `agentMemory`/`scoreboard`
+  — exactly the transformation `contracts/app-state-api.md` documents `restart` performing — then
+  drives that second game through the same real `events.js`/`render.js` pipeline as the first
+  (both games mounted via a small in-test harness reusing the real `render`/`attachEvents`, not a
+  mock). `restart`'s own button mechanics remain fully covered by T-083/T-084 as planned. No
+  `traceability.md` "Test-strategy limitations" entry was needed — the integration is fully
+  exercised, not partially; the CA-I-09 contingency for an infeasible-in-jsdom fallback (which the
+  user pre-authorized) was not triggered, since the blocker was task ordering, not jsdom. T-083/
+  T-084 added `restart(state)` to `app-state.js` (fresh `createAppState()` except
+  `scoreboard`/`agentMemory` carried over, per its contract), a `[data-restart-button]` in
+  `render.js`'s base structure, and its `click` wiring in `events.js`. No other spec or process
+  deviations; no bugs found in this block. `npm run verify:traceability` correctly reports the
+  remaining 11 `003-interface` criteria (CA-I-17–CA-I-20, CA-I-28–CA-I-32, CA-N-02, CA-N-03) as
+  orphaned — expected, their tasks (`T-085` onward) have not run yet. Stopped at `T-084` per
+  explicit instruction (the requested range `T-077`–`T-084`), landing exactly on a closed RED/
+  GREEN pair. **Next step: `/speckit-implement T-085`.**
