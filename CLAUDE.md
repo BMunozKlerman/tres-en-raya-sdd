@@ -241,8 +241,8 @@ never decide on your own.
       itself), justified there per P1's explicit-approval clause and Governance's Exceptions
       procedure — not one of the four absolute non-negotiables, so a documented exception is
       permitted. **003-interface spec and plan are both complete.**
-- [x] `specs/003-interface/tasks.md` — generated (`/speckit-tasks`, 2026-07-27): 40 tasks,
-      `T-060`–`T-099`, numbering continuing the global sequence right after `001-engine`'s
+- [x] `specs/003-interface/tasks.md` — generated (`/speckit-tasks`, 2026-07-27): originally 40
+      tasks, `T-060`–`T-099`, numbering continuing the global sequence right after `001-engine`'s
       `T-059` (no dedicated feature branch; confirmed with the user, since no `T-060` existed
       anywhere in the repo). Full coverage of all 34 criteria (32 `CA-I-nn` + `CA-N-02`/
       `CA-N-03`), RED before GREEN throughout, grouped by `contracts/app-state-api.md`'s function
@@ -250,13 +250,36 @@ never decide on your own.
       `001-engine`/`002-agents` used. Self-review split the original single responsive-CSS pair
       into `T-091`/`T-092` (CA-I-28/29, page layout) and `T-093`/`T-094` (CA-I-30/31/32,
       component-level), mirroring `002-agents`'s `T-047`/`T-048` split, before the file was
-      finalized. `specs/003-interface/traceability.md`'s Task column filled in for all 34 rows
-      (SHA column left as `—`, no SHAs invented). Not yet analyzed or implemented.
+      finalized.
+- [x] `/speckit-analyze` run for `003-interface` (2026-07-27, commit `bd0bc71`): no CRITICAL/HIGH
+      findings (full coverage, no GREEN before RED, no invented SHAs, no `NEEDS CLARIFICATION`
+      remaining, no P4-prohibited words inside any `CA-I-nn`'s EARS text, no constitution
+      conflict). Three MEDIUM/LOW findings resolved directly as documented corrections (same
+      review, one commit, per `CLAUDE.md`'s rule for analyze-driven artifact fixes): (1) CA-I-05's
+      `ErrorResult.reason` enumeration in `spec.md` was missing `'game_over'`, the sixth reason
+      `specs/001-engine/contracts/engine-api.md` defines — added, and `T-063`/`T-064` extended to
+      test it; (2) `data-model.md`'s `AppState.pendingAgentMove` field/entity was dead — no
+      contract function in `app-state-api.md` ever read or wrote it, superseded by `research.md`
+      D-I-05's actual `setTimeout`-closure mechanism — removed from both files; (3) CA-I-09's
+      original `T-079`/`T-080` pair only proved `render.js` reads a hand-built `Decision`, never
+      that `events.js`'s real `agentMemory` threading across two consecutive games produces a
+      genuine `resolvedFromMemory: true` — a new `T-081`/`T-082` pair was inserted to test that
+      integration, with an explicit fallback to a documented `traceability.md` limitation if it
+      proves infeasible in jsdom. Every task from the original `T-081` onward renumbered +2
+      (**40 → 42 tasks, `T-060`–`T-099` → `T-060`–`T-101`**), mirroring `002-agents`'s `T-047`/
+      `T-048` split precedent. `manual-verification.md` also tightened: browser pinned to Chrome
+      stable at 100% zoom (previously unpinned), and CA-I-17's subjective focus-visibility check
+      replaced with WCAG 2.2 SC 2.4.11's citable 3:1 contrast threshold. `specs/003-interface/
+      traceability.md`'s Task column updated to the new numbering for all 34 rows (SHA column
+      still `—`, no SHAs invented). **003-interface spec, plan, tasks, and analyze are all
+      complete. Not yet implemented.**
 - [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
       column still `—` for all 34 rows — filled in during `/speckit-implement`).
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-analyze` for `003-interface`.
+**Next step**: `/speckit-implement T-060` for `003-interface` (tooling/scaffold — `jsdom`
+devDependency, `index.html`, `src/ui.js` stub, `src/styles.css` reset, `tests/interface/`
+directory; no CA-ID, same precedent as `001-engine`'s `T-001`/`T-002`).
 
 ### Session Log
 
@@ -535,3 +558,40 @@ never decide on your own.
   traceability.md`'s Task column filled in for all 34 rows (SHA column left as `—`, no SHAs
   invented). **003-interface has spec, plan, and tasks all complete. Next step:
   `/speckit-analyze` for `003-interface`.**
+- 2026-07-27: `/speckit-analyze` run for `003-interface` (read-only pass over spec/plan/tasks/
+  traceability/contracts/constitution, cross-checked against `specs/001-engine` and
+  `specs/002-agents`'s published contracts the way the audit that opened BUG-007 did). No
+  CRITICAL or HIGH findings: 34/34 criteria covered, no task declaring a missing or nonexistent
+  `CA-ID`, no GREEN preceding its RED, every planned `describe` carries its `CA-ID` literally, no
+  SHA invented in `traceability.md`, no `NEEDS CLARIFICATION` remaining, no P4-prohibited word
+  inside any `CA-I-nn`'s EARS text, no conflict against the constitution (the one P1 exception —
+  `jsdom` — remains properly documented per Governance § Exceptions). Three MEDIUM/LOW findings,
+  resolved as artifact corrections in the same commit (`bd0bc71`), per `CLAUDE.md`'s rule for
+  analyze-driven fixes outside the task cycle: (1) CA-I-05's `spec.md` Notes enumerated
+  `ErrorResult.reason` without `'game_over'`, the sixth value `specs/001-engine/contracts/
+  engine-api.md` actually defines — the same class of gap that opened BUG-007, though here the
+  engine already exposed the data and only the interface spec's transcription was incomplete;
+  fixed in `spec.md` and `tasks.md`'s `T-063`/`T-064`. (2) `data-model.md`'s
+  `AppState.pendingAgentMove` field and its `PendingAgentMove` entity were documented but never
+  read or written by any of `app-state-api.md`'s seven exported functions — dead since
+  `research.md` D-I-05 resolved the 300ms floor via an `events.js`-owned `setTimeout` closure
+  instead; removed from both files. (3) CA-I-09's original `T-079`/`T-080` pair called
+  `resolveAgentMove` with a hand-built `Decision`, proving only that `render.js` reads
+  `resolvedFromMemory` correctly — it never exercised `events.js`'s real `chooseMove` call or
+  `restart`'s `agentMemory` carryover across two actual games, so it could not show genuine
+  cross-game memory reuse the way `SC-I-09` claims. A new pair, `T-081`/`T-082`, was inserted
+  right after the original pair to close that gap (reusing `specs/002-agents`'s CA-A-10 cache-hit
+  fixture strategy, routed through the real UI pipeline instead of calling `chooseMove` directly),
+  with an explicit fallback in `T-082`'s description to a documented `traceability.md` limitation
+  — following the CA-M-17/CA-I-28–32 disclosure pattern — if the integration turns out infeasible
+  to drive deterministically in jsdom. Every task from the original `T-081` onward renumbered +2,
+  mirroring `002-agents`'s `T-047`/`T-048` mid-sequence split: **40 → 42 tasks, `T-060`–`T-099` →
+  `T-060`–`T-101`**. Two smaller findings closed the same way: `SC-I-10` and the CA-I-18
+  Assumptions sentence reworded to drop "fast"/"reasonable" (outside any `CA-I-nn`'s EARS text, so
+  not a P4 violation, but unnecessary vagueness); `manual-verification.md` pinned to Chrome stable
+  at 100% zoom and given a citable WCAG 2.2 SC 2.4.11 (3:1 contrast) threshold for CA-I-17 in
+  place of an untestable "visibly perceivable" judgment call. All six touched files
+  (`spec.md`, `data-model.md`, `contracts/app-state-api.md`, `tasks.md`, `traceability.md`,
+  `manual-verification.md`) committed together as `bd0bc71`, identifying this analysis pass as
+  required by `CLAUDE.md`'s rule for grouping process-artifact corrections. **003-interface spec,
+  plan, tasks, and analyze are all complete. Next step: `/speckit-implement T-060`.**
