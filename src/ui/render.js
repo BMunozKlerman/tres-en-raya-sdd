@@ -107,6 +107,18 @@ function renderStatus(root, state) {
     waitingIndicator.remove();
   }
 
+  let memoryIndicator = root.querySelector('[data-memory-indicator]');
+  if (state.lastDecision?.resolvedFromMemory === true) {
+    if (!memoryIndicator) {
+      memoryIndicator = document.createElement('p');
+      memoryIndicator.setAttribute('data-memory-indicator', '');
+      root.appendChild(memoryIndicator);
+    }
+    memoryIndicator.textContent = 'Movimiento resuelto desde memoria';
+  } else if (memoryIndicator) {
+    memoryIndicator.remove();
+  }
+
   let errorIndicator = root.querySelector('[data-error-indicator]');
   if (!errorIndicator) {
     errorIndicator = document.createElement('p');
