@@ -18,12 +18,14 @@ function renderConfigControls(root, state) {
       placeholder.value = '';
       placeholder.textContent = 'Nivel…';
       agentLevel.appendChild(placeholder);
-      ['simple', 'medium', 'complex'].forEach((level) => {
-        const option = document.createElement('option');
-        option.value = level;
-        option.textContent = level;
-        agentLevel.appendChild(option);
-      });
+      [['simple', 'Simple'], ['medium', 'Medio'], ['complex', 'Complejo']].forEach(
+        ([level, label]) => {
+          const option = document.createElement('option');
+          option.value = level;
+          option.textContent = label;
+          agentLevel.appendChild(option);
+        }
+      );
       opponent.insertAdjacentElement('afterend', agentLevel);
     }
     agentLevel.disabled = locked;
@@ -194,8 +196,8 @@ function buildStructure(root) {
     <div class="config-panel">
       <select data-config-opponent>
         <option value="">Oponente…</option>
-        <option value="human">human</option>
-        <option value="agent">agent</option>
+        <option value="human">Humano</option>
+        <option value="agent">Agente</option>
       </select>
       <select data-config-mark>
         <option value="">Ficha…</option>
@@ -204,8 +206,8 @@ function buildStructure(root) {
       </select>
       <select data-config-mode>
         <option value="">Modalidad…</option>
-        <option value="classic">classic</option>
-        <option value="continuous">continuous</option>
+        <option value="classic">Clásica</option>
+        <option value="continuous">Continua</option>
       </select>
       <button class="action-button" data-start-button type="button">start</button>
     </div>
