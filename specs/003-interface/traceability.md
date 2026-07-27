@@ -95,6 +95,17 @@ event handling, and state-machine transitions are all real jsdom (or, for `choos
 synchronous-timer criteria, fake-timer-driven) assertions, with no manual-verification
 counterpart needed.
 
+## CA-I-08 — corollary confirmation, no production code (T-070)
+
+T-064/T-066's implementation already rendered every state CA-I-08 covers (turn, rejected move,
+winning line) through `textContent`/a `data-*`-driven child node, never a class-only signal — the
+`data-turn-indicator`/`data-error-indicator` paragraphs and the winning cells' `"★"` text child
+were all built as part of the base RED/GREEN pairs, not added specially for accessibility. T-069's
+dedicated cross-cutting test passed on first run; T-070 required no change to `src/ui/*.js`. Same
+convention as `specs/002-agents/traceability.md`'s CA-A-14 note and this spec's own CA-I-11/CA-I-15
+documented-exception pattern below: the RED/GREEN pair still exists so CA-I-08 has its own commit
+citing its ID (P6), not because the behavior was ever missing.
+
 ## CA-I-11/CA-I-15 — corollary confirmation, no production code (T-068)
 
 `tasks.md`'s T-067/T-068 description assumed `applyPlayerMove` would branch on a winning mark
