@@ -149,6 +149,20 @@ function renderScoreboard(root, state) {
   });
 }
 
+function attachFocusVisible(root) {
+  root.addEventListener('focus', (event) => {
+    if (event.target.matches('[data-config-opponent], [data-config-agent-level], [data-config-mark], [data-config-mode], [data-start-button], [data-restart-button], [data-cell]')) {
+      event.target.dataset.focusVisible = 'true';
+    }
+  }, true);
+
+  root.addEventListener('blur', (event) => {
+    if (event.target.dataset) {
+      delete event.target.dataset.focusVisible;
+    }
+  }, true);
+}
+
 function buildStructure(root) {
   root.innerHTML = `
     <select data-config-opponent>
@@ -177,6 +191,7 @@ function buildStructure(root) {
 export function render(root, state) {
   if (!root.querySelector('[data-board]')) {
     buildStructure(root);
+    attachFocusVisible(root);
   }
   renderConfigControls(root, state);
   renderBoard(root, state);
