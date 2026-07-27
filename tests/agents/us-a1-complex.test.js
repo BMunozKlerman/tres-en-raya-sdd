@@ -47,3 +47,16 @@ describe('CA-A-09 — complex: safe within the search horizon in continuous mode
     expect(opponentReplies.some((reply) => reply.result === afterX.turn)).toBe(false);
   });
 });
+
+describe('CA-A-10 — complex: cheaper resolution on a memoized position', () => {
+  it('reuses memory from an earlier game to resolve the same position more cheaply', () => {
+    const firstGameState = createGame('classic');
+    const firstGameDecision = chooseMove(firstGameState, 'complex', {});
+
+    const secondGameState = createGame('classic');
+    const secondGameDecision = chooseMove(secondGameState, 'complex', firstGameDecision.memory);
+
+    expect(secondGameDecision.resolvedFromMemory).toBe(true);
+    expect(secondGameDecision.nodesEvaluated).toBeLessThan(firstGameDecision.nodesEvaluated);
+  });
+});
