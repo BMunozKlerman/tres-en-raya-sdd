@@ -56,7 +56,11 @@ function renderBoard(root, state) {
     const cell = board.querySelector(`[data-cell="${i}"]`);
     cell.disabled = state.uiState !== 'IN_GAME';
     const mark = marks[i];
-    cell.dataset.cellState = mark === null || mark === undefined ? 'empty' : 'own';
+    if (mark === null || mark === undefined) {
+      cell.dataset.cellState = 'empty';
+    } else {
+      cell.dataset.cellState = mark === state.config.marks.player1 ? 'own' : 'opponent';
+    }
 
     const markSymbol = mark === null || mark === undefined ? '' : mark;
 
