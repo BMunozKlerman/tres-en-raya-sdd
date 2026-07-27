@@ -122,7 +122,11 @@ state = {
 
 - `legalMoves(state) -> Move[]`
 - `applyMove(state, move) -> state' | {error, reason}`
-- `chooseMove(state, level, memory) -> {move, memory'}` — deterministic.
+- `chooseMove(state, level, memory, options?) -> {move, memory, nodesEvaluated, resolvedFromMemory}`
+  — deterministic for `medium` and `complex`. **Supersedes** the earlier two-field sketch
+  (`{move, memory'}`): decision D7 requires `nodesEvaluated`/`resolvedFromMemory` so that memory
+  reuse is observable, and `options?` (currently `{random?: () => number}`) is a test-determinism
+  seam for the simple level. Full contract in `specs/002-agents/contracts/agents-api.md`.
 
 ## Work Sequence (Spec Kit)
 
@@ -187,8 +191,14 @@ never decide on your own.
 - [ ] Spec 002-agents — `/speckit-specify` done (17 criteria CA-A-01–CA-A-16 + CA-N-01, D5–D8
       encoded); `/speckit-clarify` applied (N=20 fixed in CA-A-13, CA-A-01 split by level,
       phase-agnostic note on CA-A-09); CA-A-06 (medium memory) resolved with option C — see
-      Session Log below. Spec complete, checklist fully passed, ready for `/speckit-plan`.
-      `/speckit-plan`, `/speckit-tasks`, `/speckit-analyze` not started.
+      Session Log below. `/speckit-plan` done (commit `eb7ac58`): technique per level, D7
+      contract change (`chooseMove` now returns `nodesEvaluated`/`resolvedFromMemory`), search
+      horizon calibration procedure, test strategy. **⚠️ Branch note**: `spec.md`/`plan.md`
+      declare `Branch: 002-agents`, but all work so far (including this plan) has actually been
+      committed directly to `main` — no `002-agents` git branch exists yet (`git branch -a`
+      shows only `main`). Do not forget to create it and reconcile before closing this feature
+      if a separate branch is still intended; otherwise update the spec/plan headers to say
+      `main` instead. `/speckit-tasks`, `/speckit-analyze` not started.
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
@@ -277,3 +287,17 @@ never decide on your own.
   Pending Decisions, Key Entities) and `checklists/requirements.md` ("Requirements are testable
   and unambiguous" now checked), commit `5c1ed58`. **002-agents spec is complete** — 17 criteria
   (CA-A-01–CA-A-16 + CA-N-01), checklist fully passed, ready for `/speckit-plan`.
+- 2026-07-27: `/speckit-plan` run for 002-agents (commit `eb7ac58`). Generated `plan.md`,
+  `research.md`, `data-model.md`, `contracts/agents-api.md`, `quickstart.md`, and a
+  `traceability.md` skeleton (17 CA-IDs, no SHAs invented). Technique per level: simple = uniform
+  random pick with an injectable `options.random` seam; medium = win-then-block rule enumeration,
+  no search; complex = minimax + alpha-beta with a transposition table, exhaustive in classic
+  mode and bounded by `HORIZON_DEPTH` (starting at 6 plies, calibration procedure documented) in
+  continuous mode. **Contract change declared**: D7 requires `chooseMove` to return
+  `nodesEvaluated`/`resolvedFromMemory` alongside the move — this supersedes the `{move, memory'}`
+  sketch previously in this file's Contracts section; that section has now been updated to match
+  (see above) and points to `specs/002-agents/contracts/agents-api.md` for the full signature.
+  **Note on branching**: this session's work (spec, clarify, plan) was committed directly to
+  `main`, even though `spec.md`/`plan.md` declare `Branch: 002-agents` — see the ⚠️ under
+  Current Status above. Flagging now so the merge/reconciliation isn't forgotten when this
+  feature closes. Next step: `/speckit-tasks` for 002-agents.
