@@ -138,12 +138,13 @@ function renderStatus(root, state) {
 }
 
 function renderScoreboard(root, state) {
+  const scoreboard = root.querySelector('[data-scoreboard]');
   ['X', 'O', 'draw'].forEach((key) => {
-    let scoreEl = root.querySelector(`[data-score="${key}"]`);
+    let scoreEl = scoreboard.querySelector(`[data-score="${key}"]`);
     if (!scoreEl) {
       scoreEl = document.createElement('span');
       scoreEl.setAttribute('data-score', key);
-      root.appendChild(scoreEl);
+      scoreboard.appendChild(scoreEl);
     }
     scoreEl.textContent = String(state.scoreboard[key]);
   });
@@ -164,27 +165,31 @@ function attachFocusVisible(root) {
 }
 
 function buildStructure(root) {
+  root.classList.add('app');
   root.innerHTML = `
-    <select data-config-opponent>
-      <option value=""></option>
-      <option value="human">human</option>
-      <option value="agent">agent</option>
-    </select>
-    <select data-config-mark>
-      <option value=""></option>
-      <option value="X">X</option>
-      <option value="O">O</option>
-    </select>
-    <select data-config-mode>
-      <option value=""></option>
-      <option value="classic">classic</option>
-      <option value="continuous">continuous</option>
-    </select>
-    <button data-start-button type="button">start</button>
-    <button data-restart-button type="button">restart</button>
-    <div data-board role="grid">
-      ${Array.from({ length: 9 }, (_, i) => `<button data-cell="${i}" type="button"></button>`).join('')}
+    <div class="config-panel">
+      <select data-config-opponent>
+        <option value=""></option>
+        <option value="human">human</option>
+        <option value="agent">agent</option>
+      </select>
+      <select data-config-mark>
+        <option value=""></option>
+        <option value="X">X</option>
+        <option value="O">O</option>
+      </select>
+      <select data-config-mode>
+        <option value=""></option>
+        <option value="classic">classic</option>
+        <option value="continuous">continuous</option>
+      </select>
+      <button data-start-button type="button">start</button>
     </div>
+    <div class="board" data-board role="grid">
+      ${Array.from({ length: 9 }, (_, i) => `<button class="cell" data-cell="${i}" type="button"></button>`).join('')}
+    </div>
+    <div class="scoreboard" data-scoreboard></div>
+    <button data-restart-button type="button">restart</button>
     <p data-live-region role="status" aria-live="polite"></p>
   `;
 }

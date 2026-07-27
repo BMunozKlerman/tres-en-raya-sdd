@@ -3,3 +3,38 @@
 *::after {
   box-sizing: border-box;
 }
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100%;
+  padding: 1rem;
+}
+
+.config-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.board {
+  width: min(90vw, 480px);
+  max-width: 100%;
+}
+
+.scoreboard {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .app {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: start;
+  }
+}
