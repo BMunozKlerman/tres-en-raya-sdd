@@ -71,3 +71,60 @@ describe('CA-M-16 — legal movement', () => {
     expect(returned.turn).toBe('O');
   });
 });
+
+function movementState(board, turn) {
+  return {
+    board,
+    turn,
+    mode: 'continuous',
+    phase: 'movement',
+    piecesPlaced: 6,
+    result: null,
+  };
+}
+
+function ownAndEmptyCells(board, turn) {
+  const own = [];
+  const empty = [];
+  board.forEach((value, i) => {
+    if (value === turn) own.push(i);
+    if (value === null) empty.push(i);
+  });
+  return { own, empty };
+}
+
+describe('CA-M-17 — no draw in continuous mode', () => {
+  // Each board below was verified with a brute-force script (see traceability.md)
+  // to confirm that NO legal movement, for either player, completes a winning line —
+  // a precondition required for this test to actually exercise the "never draw" property
+  // rather than an unreachable "board full" state that this mode cannot produce.
+  const safeStates = [
+    { label: 'balanced', board: ['X', 'X', 'O', 'O', null, 'X', null, 'O', null], turn: 'X' },
+    { label: 'near-win-but-blocked', board: ['X', 'X', 'O', 'O', null, 'X', null, null, 'O'], turn: 'O' },
+    { label: 'constrained', board: ['X', 'O', 'X', 'X', null, 'O', 'O', null, null], turn: 'X' },
+  ];
+
+  it.each(safeStates)(
+    'no legal movement from the $label state ever produces a draw',
+    ({ board, turn }) => {
+      const state = movementState(board, turn);
+      const { own, empty } = ownAndEmptyCells(board, turn);
+      expect(own).toHaveLength(3);
+      expect(empty).toHaveLength(3);
+      for (const from of own) {
+        for (const to of empty) {
+          const next = applyMove(state, { type: 'move', player: turn, from, to });
+          expect(next.error).toBeUndefined();
+          expect(next.result).not.toBe('draw');
+          expect(next.result).toBeNull();
+        }
+      }
+    }
+  );
+
+  it('detects a win completed by a movement rather than leaving result null', () => {
+    const state = movementState(['X', 'O', 'X', 'O', 'X', 'O', null, null, null], 'X');
+    const next = applyMove(state, { type: 'move', player: 'X', from: 0, to: 6 });
+    expect(next.result).toBe('X');
+  });
+});
