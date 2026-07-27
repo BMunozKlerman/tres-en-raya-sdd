@@ -58,14 +58,18 @@ const testText = collectTestFiles(TESTS_DIR)
   .join('\n');
 const TEST_IDS = extractIds(testText);
 
-// 4. COMMIT_IDS
+// 4. COMMIT_IDS — only subjects following the task/RED naming convention
+//    (T-NNN: ... or test(...): ...) count as implementation evidence;
+//    docs:/chore:/etc. subjects are excluded even if they mention a CA-ID.
+const TASK_COMMIT_RE = /^(T-\d+:|test\(.+\):)/;
 let log = '';
 try {
   log = execSync('git log --pretty=format:%s', { cwd: ROOT, encoding: 'utf8' });
 } catch {
   log = '';
 }
-const COMMIT_IDS = extractIds(log);
+const commitSubjects = log.split('\n').filter((subject) => TASK_COMMIT_RE.test(subject));
+const COMMIT_IDS = extractIds(commitSubjects.join('\n'));
 
 // 5. Orphan scan
 let exitCode = 0;
