@@ -241,11 +241,22 @@ never decide on your own.
       itself), justified there per P1's explicit-approval clause and Governance's Exceptions
       procedure — not one of the four absolute non-negotiables, so a documented exception is
       permitted. **003-interface spec and plan are both complete.**
-- [ ] `specs/003-interface/tasks.md` — not yet generated.
-- [ ] `traceability.md` with real SHAs up to date for `003-interface` (skeleton only so far).
+- [x] `specs/003-interface/tasks.md` — generated (`/speckit-tasks`, 2026-07-27): 40 tasks,
+      `T-060`–`T-099`, numbering continuing the global sequence right after `001-engine`'s
+      `T-059` (no dedicated feature branch; confirmed with the user, since no `T-060` existed
+      anywhere in the repo). Full coverage of all 34 criteria (32 `CA-I-nn` + `CA-N-02`/
+      `CA-N-03`), RED before GREEN throughout, grouped by `contracts/app-state-api.md`'s function
+      boundaries (e.g. `startGame` → CA-I-01/02/24 in one pair) per the same grouping principle
+      `001-engine`/`002-agents` used. Self-review split the original single responsive-CSS pair
+      into `T-091`/`T-092` (CA-I-28/29, page layout) and `T-093`/`T-094` (CA-I-30/31/32,
+      component-level), mirroring `002-agents`'s `T-047`/`T-048` split, before the file was
+      finalized. `specs/003-interface/traceability.md`'s Task column filled in for all 34 rows
+      (SHA column left as `—`, no SHAs invented). Not yet analyzed or implemented.
+- [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
+      column still `—` for all 34 rows — filled in during `/speckit-implement`).
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-tasks` for `003-interface`.
+**Next step**: `/speckit-analyze` for `003-interface`.
 
 ### Session Log
 
@@ -498,4 +509,29 @@ never decide on your own.
   in a same-day follow-up commit after first being justified only in `research.md`, per explicit
   review request. Also corrected two stale `spec.md` status markers left over from before
   BUG-007 closed (CA-I-04's row, the Assumptions note). **003-interface spec and plan are both
-  complete. Next step: `/speckit-tasks` for `003-interface`.**
+  complete.**
+- 2026-07-27: `/speckit-tasks` run for `003-interface` (commit `b80476a`). Generated `tasks.md`:
+  40 tasks, `T-060`–`T-099`, numbering confirmed with the user to continue right after
+  `001-engine`'s `T-059` (no `T-060` existed anywhere in the repo, despite the session opening
+  with a different assumed starting number). Full coverage of all 34 criteria (32 `CA-I-nn` +
+  `CA-N-02`/`CA-N-03`), RED before GREEN throughout. Tasks grouped by `contracts/
+  app-state-api.md`'s declared "Covered criteria" per function (e.g. `startGame` → CA-I-01,
+  CA-I-02, CA-I-24 in one pair; `selectOwnMark` → CA-I-07, CA-I-25, CA-I-27 in another) — the
+  same one-function-one-layer grouping principle `001-engine`/`002-agents` used, extended here to
+  a "vertical slice" pattern since this feature's criteria are only observable through the full
+  `app-state.js` → `render.js` → `events.js` stack rather than one pure file. Each of the 6
+  criteria not fully verifiable in jsdom (CA-I-17, CA-I-28–CA-I-32) explicitly states in its task
+  description what the automated proxy proves and what `manual-verification.md` alone closes,
+  per `research.md` D-I-04. Self-review pre-split the original single responsive-CSS pair into
+  `T-091`/`T-092` (CA-I-28/29, page-layout fluidity and the mobile-first breakpoint) and
+  `T-093`/`T-094` (CA-I-30/31/32, board squareness, touch targets, configuration overflow) before
+  the file was finalized, mirroring `002-agents`'s `T-047`/`T-048` split after the equivalent
+  `/speckit-analyze` finding. Self-check reported: 34/34 criteria covered, no task without a
+  CA-ID except `T-060` (tooling/scaffold, same precedent as `001-engine`'s `T-001`/`T-002`), no
+  GREEN ordered before its RED, and `T-062` (the first behavioral GREEN task, creating all three
+  UI modules at once for the configuration slice) flagged as a deliberately accepted
+  larger-than-usual commit rather than split further, since splitting it would leave two of the
+  three resulting commits unable to pass any test on their own. `specs/003-interface/
+  traceability.md`'s Task column filled in for all 34 rows (SHA column left as `—`, no SHAs
+  invented). **003-interface has spec, plan, and tasks all complete. Next step:
+  `/speckit-analyze` for `003-interface`.**
