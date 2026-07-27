@@ -63,6 +63,13 @@ English CA-I-nn IDs, quoting the original Spanish text so the correspondence is 
    one test whose name contains the corresponding CA-ID.
 4. **One commit per task**, with tests green before committing. No monolithic commits or squash:
    the commit history is the process evidence.
+   - During `/speckit-implement`, each `T-NNN` produces **exactly one commit**, without
+     exception and without bundling tasks together — even when several tasks are small or
+     touch the same file.
+   - Corrections to process artifacts (`spec.md`, `plan.md`, `tasks.md`) made **outside** the
+     task cycle — e.g. fixes surfaced by `/speckit-analyze` — may be grouped into a single
+     commit when they all derive from the same review. The commit message MUST identify which
+     review or analysis produced them.
 5. **Manual edits only for non-behavioral details** (UI text, CSS). Must be recorded in the
    manual-edits table in `README.md`.
 6. **All AI usage outside the SDD flow must be declared in `README.md`.**
