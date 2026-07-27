@@ -354,16 +354,47 @@ never decide on your own.
       give the stylesheet real selectors to target. `npm run verify:traceability` reports only
       `CA-N-03` (T-099/T-100) as orphaned. **Manual verification per `manual-verification.md` is
       still pending** — not yet run in this session.
+- [x] `003-interface` manual play-testing surfaced four gaps, closed as `T-099`–`T-106`, one
+      commit per task, RED before GREEN throughout, `npm test` green at every GREEN commit
+      (118/118 at close). **BUG-008** (spec gap): occupied cells never rendered their mark's
+      symbol — new **CA-I-33**, closed by T-099/T-100. **BUG-009** (contract non-compliance, no
+      CA-ID): `render.js` collapsed `dom-contract.md`'s `data-cell-state` enum to just `"own"`,
+      never `"opponent"` — fixed in its own commit, kept separate from CA-I-33's pair. **BUG-010**
+      (spec gap): the scoreboard showed bare numbers with no label identifying X/O/draw — CA-I-14
+      and CA-I-15 amended in place to require a label, closed by T-101/T-102. **BUG-011** (plan
+      gap, no CA-ID): the live region duplicated `[data-result-indicator]`'s visible text — closed
+      by a new `research.md` decision (D-I-09) and a `.sr-only` clip-based hide, T-103/T-104.
+      **BUG-012** (spec gap): the turn indicator kept stating a pending turn after `FINISHED` — new
+      **CA-I-34**, closed by T-105/T-106. All four logged in `docs/bugs.md`; `spec.md` grew to 34
+      `CA-I-nn` criteria. `npm run verify:traceability` reported only `CA-N-03` as orphaned after
+      this block.
+- [x] Further manual play-testing (this session) surfaced two more gaps, closed as `T-107`–`T-110`,
+      one commit per task, RED before GREEN throughout, `npm test` green at every GREEN commit
+      (122/122 at close). **BUG-013** (spec gap): after `restart`, all three static configuration
+      `<select>`s appeared blank — their real `<option>`s were intact, but `config` resets to
+      `null` and selects the placeholder `<option value="">`, which never had a `textContent` (not
+      introduced by restart — present since the very first page load). New **CA-I-35** requires
+      each control's own identifying Spanish placeholder label ("Oponente…", "Ficha…",
+      "Modalidad…", "Nivel…") instead of blank text; closed by T-107/T-108. **BUG-014** (spec gap):
+      action controls (start, restart) stretched to the full width of their grid column at wide
+      viewports (≥768px) — a `justify-items: stretch` default with no width constraint on the
+      buttons — while `.board` stayed capped at `min(90vw, 480px)`. New **CA-I-36** (Design
+      Decision D11) bounds every action control to 480px, the same cap `.board` already declares;
+      closed by T-109/T-110 via a shared `.action-button` CSS class. Both logged in `docs/bugs.md`;
+      `spec.md` grew to 36 `CA-I-nn` criteria (38 total with `CA-N-02`/`CA-N-03`). `tasks.md` grew
+      to 54 tasks — CA-N-03 renumbered `T-111`/`T-112` (not yet run), traceability closure
+      renumbered `T-113`. `npm run verify:traceability` reports only `CA-N-03` as orphaned —
+      expected, its task has not run yet.
 - [ ] `traceability.md` with real SHAs up to date for `003-interface` (Task column filled; SHA
-      column still `—` for all 34 rows — filled in during `/speckit-implement`).
+      column still `—` for all 38 rows — filled in during `T-113`).
 - [ ] `manual-verification.md`'s procedure executed at least once (rendered-layout half of
-      CA-I-28–CA-I-32, computed touch targets for CA-I-31, focus-contrast for CA-I-17) and logged
-      in that file's Results Log.
+      CA-I-28–CA-I-32 and CA-I-36, computed touch targets for CA-I-31, action-control width for
+      CA-I-36, focus-contrast for CA-I-17) and logged in that file's Results Log.
 - [ ] README cold-tested (fresh clone, 3 steps or fewer).
 
-**Next step**: `/speckit-implement T-099` for `003-interface` (CA-N-03, full game completable via
-keyboard alone — last task of Phase 7), then run `manual-verification.md`'s procedure before
-`003-interface` is reported complete.
+**Next step**: `/speckit-implement T-111` for `003-interface` (CA-N-03, full game completable via
+keyboard alone — last functional task before closure), then `T-113` (traceability closure) and
+`manual-verification.md`'s procedure before `003-interface` is reported complete.
 
 ### Session Log
 
@@ -814,3 +845,66 @@ keyboard alone — last task of Phase 7), then run `manual-verification.md`'s pr
   citing the commit SHA under test — do not overwrite prior entries). **Next step:
   `/speckit-implement T-099`, then the manual-verification run above before `003-interface` is
   reported complete.**
+- 2026-07-27: Manual play-testing (not the automated suite) surfaced four gaps in a row, each
+  closed spec-first per constitution P3/P7: reproduce as a failing test, diagnose against
+  `spec.md`, correct the spec, regenerate code. **BUG-008**: occupied cells never displayed their
+  mark's symbol — `renderBoard` only ever wrote the `'★'` win glyph into `textContent`, never the
+  mark itself, for every other occupied cell. No `CA-I-nn` had ever required the board to visibly
+  render its own contents (CA-I-03 covers the turn indicator, CA-I-04 only the three winning
+  cells, CA-I-08 only requires information *already conveyed elsewhere* to also be non-color).
+  New **CA-I-33** added; closed by T-099 (RED, `6c5c447`) / T-100 (GREEN, `41485ba`). **BUG-009**
+  (found while diagnosing BUG-008, kept in its own commit): `render.js` collapsed
+  `dom-contract.md`'s `data-cell-state` enum to just `"own"`, never `"opponent"` — a contract
+  non-compliance, not a spec gap, so no CA-ID; fixed in commit `0df3cfa`. **BUG-010**: the
+  scoreboard showed three bare numbers with no label identifying which count was X's, O's, or the
+  draw's. CA-I-14/CA-I-15 amended in place to require an identifying label; closed by T-101 (RED,
+  `6f5c800`) / T-102 (GREEN, `b468269`). **BUG-011**: `[data-result-indicator]` and
+  `[data-live-region]` both displayed the same "Gana X"/"Empate" text simultaneously — a
+  `research.md`-level gap (no decision had specified the live region's visual treatment), not a
+  `spec.md` amendment, so no CA-ID; resolved by decision D-I-09 (`.sr-only` clip-based hiding) and
+  closed by T-103 (RED, `1dc7f5a`) / T-104 (GREEN, `7665580`). **BUG-012**: the turn indicator kept
+  stating "Turno de O" after the game reached `FINISHED`, simultaneously with the result shown
+  elsewhere — CA-I-03 ("at all times") was never scoped for the terminal state. New **CA-I-34**
+  added as a boundary clause (CA-I-03's own text untouched); closed by T-105 (RED, `8f529a7`) /
+  T-106 (GREEN, `0c60a1c`). All four logged in `docs/bugs.md`; the BUG-010/011/012 trio closed
+  together in one docs commit (`84da4c0`). `npm test` 118/118 green at close; `spec.md` now holds
+  34 `CA-I-nn` criteria. `npm run verify:traceability` reports only `CA-N-03` as orphaned.
+  **Manual verification (per `manual-verification.md`) remains not yet run.**
+- 2026-07-27: User play-tested the app directly (not the automated suite) after a `restart` and
+  found two more issues, diagnosed together in this session before any code was touched, per the
+  same spec-first discipline. **Diagnosis first, then approval, then implementation** — the user
+  explicitly asked for the classification (spec gap vs. contract non-compliance vs. implementation
+  defect) before any file was edited. **BUG-013**: all three static configuration `<select>`s
+  rendered blank after `restart` — confirmed by manual play that their real `<option>`s
+  (`human`/`agent`, `X`/`O`, `classic`/`continuous`) were intact when the dropdown was opened, so
+  this was never a lost-options defect. Root cause: `restart` resets `config` to `null` in every
+  field, selecting each `<select>`'s placeholder `<option value="">`, which never had a
+  `textContent` — present since the very first page load, not introduced by `restart`. CA-I-01
+  only requires controls to be displayed and selectable, which the blank placeholder still
+  satisfied; no criterion ever specified the "no selection" state's own appearance. New **CA-I-35**
+  added, with per-control Spanish labels carrying ellipses ("Oponente…", "Ficha…", "Modalidad…",
+  "Nivel…" — chosen over a single generic placeholder repeated three times, and over labels without
+  ellipsis, since "Oponente" alone would read as a selected value rather than an unselected state);
+  closed by T-107 (RED, `881c9de`) / T-108 (GREEN, `1ec5c86`). **BUG-014**: the restart button
+  rendered at the full width of its grid column at wide viewports while the board occupied roughly
+  a third of it — `.app`'s `@media (min-width: 768px)` grid defaults to `justify-items: stretch`,
+  and no button ever declared a width constraint, while `.board` stayed capped at
+  `min(90vw, 480px)`. User explicitly asked that this be governed by a criterion (not a manual CSS
+  edit in the README's exception table), reasoning that layout is exactly what `jsdom` cannot
+  verify, so it is the last place to leave undocumented CSS. New **CA-I-36** added (Design
+  Decision D11: reuse `.board`'s own 480px cap rather than invent a second threshold), verified by
+  a static-CSS-source proxy on a new shared `.action-button` class, with the rendered-width claim
+  deferred to `manual-verification.md` (extended with a seventh not-fully-jsdom-verifiable
+  criterion, its own checklist row at 768×1024/1024×768/1440×900, and a `CA-I-36` column in the
+  Results Log table); closed by T-109 (RED, `ad5965e`) / T-110 (GREEN, `b59fa9e`). Docs (`spec.md`,
+  `tasks.md`, `traceability.md`, `docs/bugs.md`, `contracts/dom-contract.md`,
+  `manual-verification.md`) committed together first (`e158931`), per the same discipline the
+  BUG-008 block used, before either RED/GREEN pair. `tasks.md` grew to 54 tasks: `CA-N-03`
+  renumbered `T-111`/`T-112` (placed after this new Phase 7.7, same reasoning `002-agents`'s
+  T-047/T-048 split and this spec's own BUG-008/010/011/012 insertions used — the keyboard-only
+  playthrough should exercise the corrected controls, not stale ones), traceability closure
+  renumbered `T-113`. `npm test` 122/122 green at close; `spec.md` now holds 36 `CA-I-nn` criteria
+  (38 total with `CA-N-02`/`CA-N-03`). `npm run verify:traceability` reports only `CA-N-03` as
+  orphaned — expected, `T-111`/`T-112` have not run yet. **Next step: `/speckit-implement T-111`,
+  then `T-113`, then the `manual-verification.md` run (now covering seven criteria) before
+  `003-interface` is reported complete.**
