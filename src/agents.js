@@ -1,4 +1,4 @@
-import { legalMoves } from './engine.js';
+import { legalMoves, applyMove } from './engine.js';
 
 export function chooseMove(state, level, memory, options = {}) {
   if (level === 'simple') {
@@ -10,7 +10,16 @@ export function chooseMove(state, level, memory, options = {}) {
 
   if (level === 'medium') {
     const moves = legalMoves(state);
-    const move = moves[0];
-    return { move, memory: null, nodesEvaluated: moves.length, resolvedFromMemory: false };
+    let nodesEvaluated = 0;
+
+    for (const move of moves) {
+      nodesEvaluated += 1;
+      const next = applyMove(state, { ...move, player: state.turn });
+      if (next.result === state.turn) {
+        return { move, memory: null, nodesEvaluated, resolvedFromMemory: false };
+      }
+    }
+
+    return { move: moves[0], memory: null, nodesEvaluated, resolvedFromMemory: false };
   }
 }
