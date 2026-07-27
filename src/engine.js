@@ -41,11 +41,15 @@ export function applyMove(state, move) {
     newBoard[move.from] = null;
     newBoard[move.to] = move.player;
     const newTurn = state.turn === 'X' ? 'O' : 'X';
+    const hasWinner = WINNING_LINES.some((line) =>
+      line.every((i) => newBoard[i] === move.player)
+    );
 
     return {
       ...state,
       board: newBoard,
       turn: newTurn,
+      result: hasWinner ? move.player : null,
     };
   }
 
