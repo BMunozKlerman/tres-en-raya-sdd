@@ -43,11 +43,20 @@ function renderConfigControls(root, state) {
 function renderBoard(root, state) {
   const board = root.querySelector('[data-board]');
   const marks = state.engineState ? state.engineState.board : Array(9).fill(null);
+  const winningLine = state.engineState ? state.engineState.winningLine : null;
   for (let i = 0; i < 9; i += 1) {
     const cell = board.querySelector(`[data-cell="${i}"]`);
     cell.disabled = state.uiState !== 'IN_GAME';
     const mark = marks[i];
     cell.dataset.cellState = mark === null || mark === undefined ? 'empty' : 'own';
+
+    if (winningLine && winningLine.includes(i)) {
+      cell.dataset.winning = 'true';
+      cell.textContent = '★';
+    } else {
+      delete cell.dataset.winning;
+      cell.textContent = '';
+    }
   }
 }
 
@@ -67,6 +76,27 @@ function renderStatus(root, state) {
     root.appendChild(errorIndicator);
   }
   errorIndicator.textContent = state.lastError ? state.lastError.reason : '';
+
+  let resultIndicator = root.querySelector('[data-result-indicator]');
+  if (!resultIndicator) {
+    resultIndicator = document.createElement('p');
+    resultIndicator.setAttribute('data-result-indicator', '');
+    root.appendChild(resultIndicator);
+  }
+  const result = state.engineState ? state.engineState.result : null;
+  resultIndicator.textContent = result ? (result === 'draw' ? 'Empate' : `Gana ${result}`) : '';
+}
+
+function renderScoreboard(root, state) {
+  ['X', 'O', 'draw'].forEach((key) => {
+    let scoreEl = root.querySelector(`[data-score="${key}"]`);
+    if (!scoreEl) {
+      scoreEl = document.createElement('span');
+      scoreEl.setAttribute('data-score', key);
+      root.appendChild(scoreEl);
+    }
+    scoreEl.textContent = String(state.scoreboard[key]);
+  });
 }
 
 function buildStructure(root) {
@@ -100,4 +130,5 @@ export function render(root, state) {
   renderConfigControls(root, state);
   renderBoard(root, state);
   renderStatus(root, state);
+  renderScoreboard(root, state);
 }
