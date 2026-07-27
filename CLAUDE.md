@@ -203,8 +203,18 @@ never decide on your own.
       literal "D7" citations to the tasks that materialize its `Decision` shape — see Session
       Log below. Headers say `Branch: main` (group decision, 2026-07-27 — see Session Log: no
       dedicated `002-agents` git branch, to keep 001-engine's linear history unbroken).
-      **Spec, plan, tasks, and analyze are all complete. Next step: `/speckit-implement`
-      starting at T-034.**
+- [x] Spec 002-agents implementation complete — T-034–T-057 done and committed, one commit per
+      task, RED before GREEN (`npm test` 63/63 green); `npm run verify:traceability` exits 0 for
+      both features (37/37 CA-IDs); `specs/002-agents/traceability.md` holds real SHAs for all 17
+      CA-IDs. Three process bugs found and fixed during this block (see `docs/bugs.md` and
+      Session Log below): BUG-004 (`tasks.md`'s T-041 block-check pseudocode could not satisfy a
+      genuine double threat — corrected to a direct single-ply check), BUG-005 (T-046's CA-A-09
+      fixture was an unwinnable fork, not a fair test position — rebuilt and hand-verified),
+      BUG-006 (`scripts/verify-traceability.mjs` was hardcoded to `001-engine` and had never once
+      inspected `002-agents`, despite `plan.md` claiming otherwise — generalized to scan every
+      feature). `src/agents.js` now implements all three levels (simple: uniform random;
+      medium: win-then-block rule; complex: minimax + alpha-beta, `HORIZON_DEPTH=6`, transposition
+      table). **002-agents is closed.**
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
@@ -340,3 +350,38 @@ never decide on your own.
   Both fixes logged as **BUG-003** in `docs/bugs.md`, since this is a process bug (a derived
   artifact drifting from the constitution) rather than a gameplay bug. **002-agents spec, plan,
   tasks, and analyze are all complete. Next step: `/speckit-implement` starting at T-034.**
+- 2026-07-27: `/speckit-implement` run for 002-agents, T-034–T-057, one commit per task, RED
+  before GREEN, `npm test` green throughout (63/63 at close). `src/agents.js` created and built
+  incrementally: simple level (uniform random pick, `options.random` seam, T-034/T-035); medium
+  level (base dispatch T-036/T-037, win-this-turn T-038/T-039, block-next-turn T-040/T-041);
+  complex level (deterministic stub T-042/T-043, classic-mode minimax + alpha-beta T-044/T-045,
+  continuous-mode horizon cutoff with static evaluation T-046–T-048, transposition table for
+  cross-game memory reuse T-049/T-050); corollary confirmations for CA-A-14, CA-A-13, and CA-N-01
+  (T-051–T-056, no production code); traceability closure with real SHAs (T-057). Three process
+  bugs found and fixed along the way, all logged in `docs/bugs.md`:
+  - **BUG-004**: `tasks.md`'s T-041 pseudocode (a two-ply "does any opponent reply win" check)
+    could never satisfy CA-A-16 under a genuine double threat — occupying one threatened cell
+    never clears a second, distinct one, so the check always fell through to an arbitrary
+    fallback. Replaced with a direct single-ply check (does *this* cell, played by the opponent,
+    win right now) that blocks the first threat found by construction. `tasks.md`'s T-041
+    description corrected in place with a note explaining the discard; CA-A-05/CA-A-15/CA-A-16
+    themselves were never touched.
+  - **BUG-005**: T-046's first CA-A-09 fixture was an unnoticed fork (`O`'s three pieces created
+    two independent one-move wins through a shared center cell) — an unwinnable position, not a
+    fair test of the search. Caught only once the real minimax search (T-047) unanimously scored
+    every legal move as a loss. Rebuilt as a single-threat position, hand-verified against all 8
+    winning lines before the assertions were written (same discipline as 001-engine's BUG-002).
+  - **BUG-006**: `specs/002-agents/plan.md`'s Constitution Check (P6 row) claimed
+    `scripts/verify-traceability.mjs` "already scans any `CA-\d+` pattern... no change needed for
+    the `CA-A-nn` prefix" — false on both counts (the regex was `CA-M-\d+` literally, and every
+    path was hardcoded to `001-engine`). Every `verify:traceability` run during T-034–T-056 had
+    therefore silently re-checked only `001-engine`'s already-closed 20 criteria. Found while
+    preparing T-057, the first task that actually depended on `002-agents` coverage. Generalized
+    the script to iterate every `specs/<feature>/` directory, report per feature, and use a
+    table-row-anchored generic pattern (avoiding false orphans from cross-feature prose mentions
+    like `002-agents/spec.md` citing `CA-M-12`). `npm run verify:traceability` now reports
+    `001-engine: OK: all 20 CA-IDs fully traced` / `002-agents: OK: all 17 CA-IDs fully traced` /
+    `OK: all 37 CA-IDs fully traced across 2 feature(s)`. `/speckit-analyze` did not catch this —
+    it checks artifacts against each other, not claims a plan makes about tooling behavior.
+  **002-agents is closed**: 24 tasks, 17 CA-IDs, `npm test` 63/63, `verify:traceability` exits 0
+  for both features. Next step: `/speckit-specify` for `003-interface`.
