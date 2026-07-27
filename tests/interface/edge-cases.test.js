@@ -87,6 +87,25 @@ describe('CA-I-27 — reselecting own mark cancels selection', () => {
   });
 });
 
+describe('CA-I-26 — destination selection applies the move', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('moves the mark from source to destination and clears the selection', () => {
+    const root = mount();
+    startContinuousToMovementPhase(root);
+
+    root.querySelector('[data-cell="0"]').click();
+    root.querySelector('[data-cell="7"]').click();
+
+    expect(root.querySelector('[data-cell="0"]').dataset.cellState).toBe('empty');
+    expect(root.querySelector('[data-cell="7"]').dataset.cellState).toBe('own');
+    expect(root.querySelector('[data-cell="0"]').dataset.selected).toBeUndefined();
+    expect(root.querySelector('[data-cell="7"]').dataset.destination).toBeUndefined();
+  });
+});
+
 describe('CA-I-21 — occupied cell rejected', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
