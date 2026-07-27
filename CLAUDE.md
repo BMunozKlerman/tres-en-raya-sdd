@@ -159,10 +159,10 @@ never decide on your own.
 
 | # | Question | Decision | Date |
 |---|----------|----------|------|
-| 1 | Movement phase: any empty cell or only adjacent? | _pending_ | |
-| 2 | What happens if a position repeats indefinitely? | _pending_ | |
-| 3 | Can a player return the next turn to the cell just vacated? | _pending_ | |
-| 4 | Who opens the movement phase after the 6th placement? | _pending_ | |
+| 1 | Movement phase: any empty cell or only adjacent? | ✅ Any empty cell. Adjacency restriction would leave a player with no legal moves, a case the assignment does not define. | 2026-07-26 |
+| 2 | What happens if a position repeats indefinitely? | ✅ Game continues; no repetition rule. Ending by repetition would produce a terminal state without a winning line, contradicting the "no draw" rule. | 2026-07-26 |
+| 3 | Can a player return the next turn to the cell just vacated? | ✅ Allowed. Prohibiting it would require storing the previous move in state, breaking P2 immutability. | 2026-07-26 |
+| 4 | Who opens the movement phase after the 6th placement? | ✅ The player who did NOT place the 6th mark — follows naturally from turn alternation, no new rule needed. | 2026-07-26 |
 | 5 | Do all 3 levels also play in continuous mode? | _pending_ | |
 | 6 | "Persistent memory": browser session only or across reloads? | _pending_ | |
 | 7 | How is memory observable if minimax already plays optimally without it? | _pending_ | |
@@ -184,3 +184,6 @@ never decide on your own.
   running `/speckit-constitution`.
 - 2026-07-26: Constitution v1.0.0 drafted (P1–P9). Language convention added: all artifacts
   in English; game UI in Spanish (Class 6 demo). spec-template.md adapted to EARS + CA-IDs.
+- 2026-07-26: specs/001-engine/spec.md written. 18 criteria CA-M-01–CA-M-18 (EARS, no
+  prohibited words). Group decisions D1–D4 resolved and encoded in spec. D5–D8 still
+  pending (block specs/002-agents).
