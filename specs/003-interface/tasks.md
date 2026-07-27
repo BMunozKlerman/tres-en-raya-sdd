@@ -797,7 +797,7 @@ showing a pending turn after `FINISHED` (BUG-012, spec gap — new CA-I-34).
 
 ## Final Phase: Traceability Closure
 
-- [ ] T-113 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
+- [x] T-113 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
   CA-I-10, CA-I-11, CA-I-12, CA-I-13, CA-I-14, CA-I-15, CA-I-16, CA-I-17, CA-I-18, CA-I-19,
   CA-I-20, CA-I-21, CA-I-22, CA-I-23, CA-I-24, CA-I-25, CA-I-26, CA-I-27, CA-I-28, CA-I-29,
   CA-I-30, CA-I-31, CA-I-32, CA-I-33, CA-I-34, CA-I-35, CA-I-36, CA-N-02, CA-N-03] Run `npm run
@@ -807,6 +807,85 @@ showing a pending turn after `FINISHED` (BUG-012, spec gap — new CA-I-34).
   and CA-I-36, and record the result in that file; verify `npm run verify:traceability` exits 0
   for all three features (37 + 38 = 75 CA-IDs combined) after the commit. Expected commit:
   `T-113: record real SHAs in traceability matrix — 003-interface complete`
+
+---
+
+## Reopening: BUG-015/BUG-016/BUG-017 (manual-verification play-testing, 2026-07-27)
+
+`003-interface` was closed at T-113 (75/75 CA-IDs across all three features). Further manual
+play-testing surfaced three more gaps, following the same spec-first discipline as the
+BUG-008–BUG-014 reopening: two new criteria added to `spec.md` for the two spec gaps
+(CA-I-37, CA-I-38/CA-I-39 — see Amendments A6/A7), and a direct implementation fix plus new test
+fixtures for the one implementation defect (BUG-017, `CA-I-12` — no new CA-ID, the criterion was
+already correct).
+
+- [ ] T-114 [US-I-1] [AC: CA-I-37] RED — In `us-i1-configuration.test.js`, add
+  `describe('CA-I-37 — configuration option text is in Spanish', ...)` asserting the
+  `textContent` of every populated `<option>` in `[data-config-opponent]`, `[data-config-mode]`,
+  and `[data-config-agent-level]` matches the Spanish mapping in `dom-contract.md` (`human`→
+  `"Humano"`, `agent`→`"Agente"`, `classic`→`"Clásica"`, `continuous`→`"Continua"`, `simple`→
+  `"Simple"`, `medium`→`"Medio"`, `complex`→`"Complejo"`), and that each `value` is unchanged.
+  Must fail against the current code (options render their literal English `value` as text).
+  Expected commit: `test(CA-I-37): failing test — configuration option text is in Spanish`
+
+- [ ] T-115 [US-I-1] [AC: CA-I-37] GREEN — In `render.js`, change every populated `<option>`'s
+  `textContent` (both the static options in `buildStructure` and the dynamically-created
+  `data-config-agent-level` options in `renderConfigControls`) to the Spanish mapping from
+  `dom-contract.md`; `value`s unchanged. `npm test` must be fully green.
+  Expected commit: `T-115: configuration option text renders in Spanish (CA-I-37)`
+
+- [ ] T-116 [US-I-4] [AC: CA-I-38] RED — In `us-i4-keyboard.test.js`, add
+  `describe('CA-I-38 — visible keyboard instruction', ...)` asserting
+  `[data-keyboard-instructions]` exists with non-empty `textContent` naming arrow keys and
+  Enter/Space, present in both `IN_GAME` and `WAITING_FOR_AGENT`. Must fail against the current
+  code (no such element exists). Expected commit:
+  `test(CA-I-38): failing test — visible keyboard instruction`
+
+- [ ] T-117 [US-I-4] [AC: CA-I-38] GREEN — Add `[data-keyboard-instructions]` to
+  `buildStructure` in `render.js` with static Spanish instructional text (game-UI language
+  convention). `npm test` must be fully green. Expected commit:
+  `T-117: visible instruction states how to operate the board by keyboard (CA-I-38)`
+
+- [ ] T-118 [US-I-4] [AC: CA-I-39] RED — In `us-i4-keyboard.test.js`, add
+  `describe('CA-I-39 — focus moves to the board on CONFIGURATION to IN_GAME transition', ...)`
+  asserting (a) `document.activeElement` is a `[data-cell]` immediately after `startGame`'s
+  transition, (b) that cell's `aria-label` states its position and state, and (c) a subsequent
+  render (e.g. after a move) does not move focus again if the player has since moved it
+  elsewhere. Must fail against the current code (nothing calls `.focus()` on start).
+  Expected commit:
+  `test(CA-I-39): failing test — focus moves to the board on the CONFIGURATION to IN_GAME transition`
+
+- [ ] T-119 [US-I-4] [AC: CA-I-39] GREEN — In `events.js`'s `[data-start-button]` `click`
+  listener, after a successful `startGame` transition, call `.focus()` on `[data-cell="0"]`.
+  In `render.js`'s `renderBoard`, set each cell's `aria-label` from its index (row/column) and
+  `data-cell-state`. Guard the focus call so it fires only on the actual `CONFIGURATION →
+  IN_GAME` edge (e.g. check the previous `uiState` before the transition), not on every
+  re-render. `npm test` must be fully green. Expected commit:
+  `T-119: keyboard focus moves to the board once a game starts (CA-I-39)`
+
+- [ ] T-120 [US-I-2] [AC: none — BUG-017, `CA-I-12` implementation defect] RED — In
+  `us-i2-waiting-state.test.js`, add a fixture with `marks.player1: 'O'` (agent = `X`) that
+  starts a game and asserts `[data-waiting-indicator]` is present **without** any board `click`.
+  Must fail against the current code (`maybeHandOffToAgent` is never invoked at start).
+  Expected commit:
+  `test(CA-I-12): failing test — agent opens the game when it holds the first turn (BUG-017)`
+
+- [ ] T-121 [US-I-2] [AC: none — BUG-017, `CA-I-12` implementation defect] GREEN — In
+  `events.js`'s `[data-start-button]` `click` listener, call `maybeHandOffToAgent()` immediately
+  after `setState(startGame(...))`, exactly as the board's `click` listener already does after a
+  human move. `npm test` must be fully green. Expected commit:
+  `T-121: agent opens the game when it holds the first turn (CA-I-12, BUG-017)`
+
+---
+
+## Final Phase (Reopened): Traceability Closure
+
+- [ ] T-122 [AC: CA-I-37, CA-I-38, CA-I-39] Run `npm run verify:traceability`; fill the Task
+  column (T-NNN) and Commit SHA column for the three new rows (CA-I-37, CA-I-38, CA-I-39) in
+  `specs/003-interface/traceability.md` using real SHAs from `git log`; verify `npm run
+  verify:traceability` exits 0 for all three features (37 + 41 = 78 CA-IDs combined) after the
+  commit. Expected commit:
+  `T-122: record real SHAs for CA-I-37/38/39 — 003-interface reopening closed (BUG-015/016/017)`
 
 ---
 
@@ -852,6 +931,9 @@ showing a pending turn after `FINISHED` (BUG-012, spec gap — new CA-I-34).
 | CA-I-35 | T-107 | T-108 | us-i1-configuration.test.js | Added post-implementation (BUG-013, Amendment A4) — own pair, configuration placeholder labels |
 | CA-I-36 | T-109 | T-110 | responsive-static.test.js | Added post-implementation (BUG-014, Amendment A5) — own pair, action-control width bound; ⚠️ structural proxy only, see CA-I-28 |
 | CA-N-03 | T-111 | T-112 | non-functional.test.js | Corollary of every keyboard handler built in Phase 5 |
+| CA-I-37 | T-114 | T-115 | us-i1-configuration.test.js | Added post-implementation (BUG-015, Amendment A6) — own pair, Spanish option text |
+| CA-I-38 | T-116 | T-117 | us-i4-keyboard.test.js | Added post-implementation (BUG-016, Amendment A7) — own pair, visible keyboard instruction |
+| CA-I-39 | T-118 | T-119 | us-i4-keyboard.test.js | Added post-implementation (BUG-016, Amendment A7) — own pair, initial focus on board entry |
 
 ---
 

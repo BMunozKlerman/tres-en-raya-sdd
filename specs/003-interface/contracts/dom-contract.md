@@ -58,6 +58,21 @@ in `src/ui/render.js` and referenced verbatim by tests — not illustrative exam
   `textContent` — `"Oponente…"`, `"Ficha…"`, `"Modalidad…"`, `"Nivel…"` respectively — shown
   whenever the control has no selection, including right after `restart` resets `config` to
   `null` (CA-I-35, Amendment BUG-013).
+- Every populated (non-placeholder) `<option>`'s `textContent` is in Spanish; the `value` is
+  unchanged (CA-I-37, Amendment BUG-015):
+
+  | Control | `value` | `textContent` |
+  |---|---|---|
+  | `data-config-opponent` | `human` | `Humano` |
+  | `data-config-opponent` | `agent` | `Agente` |
+  | `data-config-mode` | `classic` | `Clásica` |
+  | `data-config-mode` | `continuous` | `Continua` |
+  | `data-config-agent-level` | `simple` | `Simple` |
+  | `data-config-agent-level` | `medium` | `Medio` |
+  | `data-config-agent-level` | `complex` | `Complejo` |
+
+  `data-config-mark`'s options (`X`/`O`) are not translated — they are symbols, already
+  language-neutral, consistent with the scoreboard labels below.
 - `[data-start-button]` — disabled (`disabled` attribute, not merely a CSS class) until all
   required fields are set (CA-I-02).
 - All four controls above and `data-start-button` carry `disabled` while
@@ -81,6 +96,20 @@ in `src/ui/render.js` and referenced verbatim by tests — not illustrative exam
 - `.action-button` — shared class on `[data-start-button]` and `[data-restart-button]`; the
   CSS selector `styles.css` uses to cap their width at 480px at every viewport, so neither ever
   renders wider than `.board`'s own cap (CA-I-36, Amendment BUG-014, Design Decision D11).
+
+## Keyboard Discoverability
+
+- `[data-keyboard-instructions]` — a static, always-present text element (present in every
+  `uiState`, per the "IN_GAME or WAITING_FOR_AGENT" clause of CA-I-38 being a subset of "always
+  rendered") stating that arrow keys move the cell selection and Enter/Space activates it
+  (CA-I-38, Amendment BUG-016). Not `aria-live` — it is static instructional text, read by a
+  screen reader's linear/browse-mode cursor, not announced as a change.
+- On the `CONFIGURATION → IN_GAME` transition only, keyboard focus moves to `[data-cell="0"]`
+  (CA-I-39, Amendment BUG-016). No later render (a move, a restart back into a new game, etc.)
+  repeats this focus move — it fires exactly once per transition edge. Each `[data-cell]`
+  carries an `aria-label` stating its row/column position and current state (`"empty"`,
+  `"own"`, or `"opponent"`, mirroring `data-cell-state`), so the accessible name announced on
+  the automatic jump identifies what the player just landed on.
 
 ---
 

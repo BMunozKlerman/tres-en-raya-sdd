@@ -54,6 +54,9 @@ row — this skeleton is a `/speckit-plan` output, before task generation.
 | CA-I-35 | T-107/T-108 | us-i1-configuration.test.js | `CA-I-35 — configuration controls show identifying placeholder labels` | 881c9de209fb49c1d0815390aca9e0d950a9a4f9 (RED) / 1ec5c863ab38b93db500525d83ee21b0edb47601 (GREEN) |
 | CA-I-36 | T-109/T-110 | responsive-static.test.js | `CA-I-36 — action controls bounded to the board's max width at wide viewports` | ad5965e476df983fde7cad6077f54d475fbf95b4 (RED) / b59fa9e45d04e6ea7ec6c4c712c2a976dff74283 (GREEN) (structural proxy only — see `manual-verification.md`) |
 | CA-N-03 | T-111/T-112 | non-functional.test.js | `CA-N-03 — full game completable via keyboard alone` | d7f278fdf8df87ad07f3928c6361c5ed5b9bb247 (RED) / 0f9d5836b779ff527bd1b61249521d79a9d77049 (GREEN) |
+| CA-I-37 | T-114/T-115 | us-i1-configuration.test.js | `CA-I-37 — configuration option text is in Spanish` | — |
+| CA-I-38 | T-116/T-117 | us-i4-keyboard.test.js | `CA-I-38 — visible keyboard instruction` | — |
+| CA-I-39 | T-118/T-119 | us-i4-keyboard.test.js | `CA-I-39 — focus moves to the board on CONFIGURATION to IN_GAME transition` | — |
 
 ### Bug-fix commits (BUG-008–BUG-014, no dedicated `T-NNN` for some)
 

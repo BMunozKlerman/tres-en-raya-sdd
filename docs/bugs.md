@@ -23,6 +23,105 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-017: `maybeHandOffToAgent` never invoked at game start — the agent does not open when it holds the first turn
+
+**Found**: 2026-07-27 | **Status**: Open
+
+**Classification**: implementation defect of an existing criterion (`CA-I-12`), not a spec gap.
+
+**Detection**: Manual play-testing — configuring mark `O` against an agent (agent = `X`) left
+the board waiting indefinitely for a human move, even though the engine's `createGame` always
+opens on turn `X`, i.e. the agent's turn.
+
+**Diagnosis**: `src/ui/events.js`'s `maybeHandOffToAgent()` is only invoked from the board's
+`click` listener, right after a human `applyPlayerMove` (lines ~152, ~163) — never from
+`[data-start-button]`'s `click` listener, which only calls `setState(startGame(...))` and
+`rerender()`. `CA-I-12` ("WHEN it becomes the agent's turn to move, THE SYSTEM SHALL transition
+from `IN_GAME` to `WAITING_FOR_AGENT`") already covers this literally: "becomes the agent's
+turn" is not conditioned on a prior human move having occurred. This is a genuine implementation
+gap against an already-correct criterion, not a spec gap.
+
+**Why the suite missed it**: every fixture covering `CA-I-06`/`CA-I-10`/`CA-I-12`/`CA-I-13`
+(`tests/interface/us-i2-waiting-state.test.js`) sets `marks.player1: 'X'` — the human is always
+X, the agent is always O — and always triggers a human `click` before asserting the waiting
+state. No fixture exercises `marks.player1: 'O'` (agent = X, agent opens), so the branch was
+never run. Per-`CA-ID` coverage counting could not have caught this: it only asks "does at least
+one passing test cite this `CA-ID`", not "are all of this criterion's observable branches
+exercised."
+
+**Lesson**: the spec was correct and the criterion already existed. The defect survived because
+every fixture in the suite shared the same bias (human = X), so an entire branch of the
+criterion went unexercised without any `CA-ID` coverage count ever revealing it. `CA-ID`
+coverage is not branch coverage — it is worth auditing other `003-interface` criteria for the
+same shared-fixture bias (same mark assumption, or any other unstated shared assumption) before
+considering this class of gap closed for the feature.
+
+**Fix**: `events.js`'s `[data-start-button]` `click` listener calls `maybeHandOffToAgent()`
+immediately after `setState(startGame(...))`, exactly as the board's `click` listener already
+does after every human move.
+
+**Test**: new fixture in `us-i2-waiting-state.test.js` with `marks.player1: 'O'` that starts a
+game and asserts `[data-waiting-indicator]` is present **without** any board `click` — RED
+against the current code (nothing transitions to `WAITING_FOR_AGENT` without a prior human
+move), GREEN once the fix lands.
+
+---
+
+## BUG-016: keyboard navigation works once a cell has focus, but nothing tells the player how to get there
+
+**Found**: 2026-07-27 | **Status**: Open
+
+**Classification**: spec gap.
+
+**Detection**: Manual keyboard-only play-testing — Tab does reach the board and arrow keys do
+move the selection once a cell has focus, but nothing communicates that Tab is how to reach the
+board's keyboard interaction, and nothing places focus on the board automatically when a game
+starts.
+
+**Diagnosis**: `CA-I-18`/`CA-I-19` define what happens once a cell already has focus; no
+criterion in US-I-4 ever addressed how a keyboard-only player discovers, or arrives at, that
+interaction in the first place. `tests/interface/us-i4-keyboard.test.js`'s `CA-I-18` tests call
+`cell.focus()` directly before dispatching the arrow key — a faithful test of exactly what the
+criterion asks, which is why it is green, but it does not (and per the criterion's current text,
+was never asked to) cover the moment of first arriving at the board.
+
+**Fix**: two new criteria, added as separate, independently testable responses rather than one
+combined criterion — see `spec.md` Amendments A7:
+- **CA-I-38**: a static, always-visible instruction stating that arrow keys move the selection
+  and Enter/Space activates it.
+- **CA-I-39**: keyboard focus moves automatically to a board cell (with an identifying
+  accessible name) on the `CONFIGURATION → IN_GAME` transition only — not on any later render —
+  so a keyboard-only player always has a known way to reach the board without guessing.
+
+**Result**: pending T-116–T-119.
+
+---
+
+## BUG-015: configuration option text renders in English despite the project's Spanish game-UI convention
+
+**Found**: 2026-07-27 | **Status**: Open
+
+**Classification**: spec gap.
+
+**Detection**: Manual play-testing showed every configuration `<select>`'s populated options
+(`human`, `agent`, `classic`, `continuous`, and the three agent levels) render their literal
+English identifiers as visible text.
+
+**Diagnosis**: No `CA-I-nn` ever required the *language* of an option's text once populated —
+`CA-I-01` only requires the controls to exist and be selectable, and `CA-I-35` (BUG-013) only
+covers the unselected/placeholder state. `CLAUDE.md`'s game-UI-in-Spanish convention was
+acknowledged only in `spec.md`'s Assumptions section (a descriptive note, not a testable
+criterion), so it was never translated into anything the suite could check.
+
+**Fix**: new criterion **CA-I-37** (see `spec.md` Amendments A6) requiring Spanish option text
+per an explicit mapping (`human`→"Humano", `agent`→"Agente", `classic`→"Clásica",
+`continuous`→"Continua", `simple`→"Simple", `medium`→"Medio", `complex`→"Complejo"); `value`s
+unchanged, marks (`X`/`O`) not translated.
+
+**Result**: pending T-114/T-115.
+
+---
+
 ## BUG-014: action controls (start, restart) stretch to the full grid-column width, far wider than the board
 
 **Found**: 2026-07-27 | **Status**: Fixed
