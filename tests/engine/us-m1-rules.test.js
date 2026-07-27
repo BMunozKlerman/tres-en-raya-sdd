@@ -79,3 +79,20 @@ describe('CA-M-08 — illegal: wrong phase', () => {
     expect(state).toEqual(frozen);
   });
 });
+
+describe('CA-M-20 — illegal: placement during movement phase', () => {
+  it('rejects a placement action during the movement phase', () => {
+    const state = {
+      board: ['X', 'O', null, 'O', 'X', 'O', null, null, 'X'],
+      turn: 'X',
+      mode: 'continuous',
+      phase: 'movement',
+      piecesPlaced: 6,
+      result: null,
+    };
+    const frozen = { ...state, board: [...state.board] };
+    const result = applyMove(state, { type: 'place', player: 'X', cell: 6 });
+    expect(result).toEqual({ error: true, reason: 'wrong_phase' });
+    expect(state).toEqual(frozen);
+  });
+});
