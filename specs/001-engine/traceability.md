@@ -12,26 +12,45 @@ Run `npm run verify:traceability` to check that no CA-ID is orphaned.
 
 | CA-ID   | Task   | Test file                    | `describe` label                              | Commit SHA |
 |---------|--------|------------------------------|-----------------------------------------------|------------|
-| CA-M-01 | T-???  | us-m1-rules.test.js          | `CA-M-01 — initial state`                     | —          |
-| CA-M-02 | T-???  | us-m1-rules.test.js          | `CA-M-02 — turn alternation`                  | —          |
-| CA-M-03 | T-???  | us-m1-rules.test.js          | `CA-M-03 — legal placement`                   | —          |
-| CA-M-04 | T-???  | us-m1-rules.test.js          | `CA-M-04 — illegal: occupied cell`            | —          |
-| CA-M-05 | T-???  | us-m1-rules.test.js          | `CA-M-05 — illegal: wrong turn`               | —          |
-| CA-M-06 | T-???  | us-m1-rules.test.js          | `CA-M-06 — illegal: game over`                | —          |
-| CA-M-07 | T-???  | us-m1-rules.test.js          | `CA-M-07 — illegal: opponent mark`            | —          |
-| CA-M-08 | T-???  | us-m1-rules.test.js          | `CA-M-08 — illegal: wrong phase`              | —          |
-| CA-M-09 | T-???  | us-m1-rules.test.js          | `CA-M-09 — legalMoves in placement phase`     | —          |
-| CA-M-10 | T-???  | us-m1-rules.test.js          | `CA-M-10 — legalMoves in movement phase`      | —          |
-| CA-M-11 | T-???  | us-m1-rules.test.js          | `CA-M-11 — legalMoves after game over`        | —          |
-| CA-M-12 | T-???  | us-m2-results.test.js        | `CA-M-12 — win detection all 8 lines`         | —          |
-| CA-M-13 | T-???  | us-m2-results.test.js        | `CA-M-13 — classic draw`                      | —          |
-| CA-M-14 | T-???  | us-m2-results.test.js        | `CA-M-14 — win over draw precedence`          | —          |
-| CA-M-15 | T-???  | us-m3-phases.test.js         | `CA-M-15 — placement to movement transition`  | —          |
-| CA-M-16 | T-???  | us-m3-phases.test.js         | `CA-M-16 — legal movement`                    | —          |
-| CA-M-17 | T-???  | us-m3-phases.test.js         | `CA-M-17 — no draw in continuous mode`        | —          |
-| CA-M-18 | T-???  | edge-cases.test.js           | `CA-M-18 — illegal: empty source cell`        | —          |
-| CA-M-19 | T-???  | edge-cases.test.js           | `CA-M-19 — illegal: occupied destination`     | —          |
-| CA-M-20 | T-???  | us-m1-rules.test.js          | `CA-M-20 — illegal: placement during movement phase` | —   |
+| CA-M-01 | T-003 (RED), T-004 (GREEN) | us-m1-rules.test.js | `CA-M-01 — initial state`                     | 75be062cee902895ce300355ad8450ea59a5cdbe, b31e868e41d1170c5084b4af306026d1d4634619 |
+| CA-M-02 | T-005 (RED), T-006 (GREEN) | us-m1-rules.test.js | `CA-M-02 — turn alternation`                  | a01df8e279977d700320780b5124f0bb3bc29942, 1db9c868a5de0e39fddc106606bd85c2c731f788 |
+| CA-M-03 | T-005 (RED), T-006 (GREEN) | us-m1-rules.test.js | `CA-M-03 — legal placement`                   | a01df8e279977d700320780b5124f0bb3bc29942, 1db9c868a5de0e39fddc106606bd85c2c731f788 |
+| CA-M-04 | T-009 (RED), T-010 (GREEN) | us-m1-rules.test.js | `CA-M-04 — illegal: occupied cell`            | 262c7f437acd4ff72f1ac07aa8689b98e75967b1, 3e73130cfa14e94df403f60434d0e4a0f7fb67d8 |
+| CA-M-05 | T-007 (RED), T-008 (GREEN) | us-m1-rules.test.js | `CA-M-05 — illegal: wrong turn`                | 3744488d88544f5e331bcfc49b5d6cb6b943566d, 9bd617c74b80d6756ebb7fbcae5ccbb5fcb4d5e7 |
+| CA-M-06 | T-007 (RED), T-008 (GREEN) | us-m1-rules.test.js | `CA-M-06 — illegal: game over`                 | 3744488d88544f5e331bcfc49b5d6cb6b943566d, 9bd617c74b80d6756ebb7fbcae5ccbb5fcb4d5e7 |
+| CA-M-07 | T-027 (RED), T-028 (GREEN) | us-m1-rules.test.js | `CA-M-07 — illegal: opponent mark`             | c43fc3457a928d1ee72f143828d270684dc212d5, 8ebe682fd3fb82daf3df591336db8f55c913d06d |
+| CA-M-08 | T-011 (RED), T-012 (GREEN) | us-m1-rules.test.js | `CA-M-08 — illegal: wrong phase`               | 3320ba035805df1e16e2cd5d012f5ba30bb2edcd, 8c8136f40db84107dccbc65a2e4dc45a2600ca38 |
+| CA-M-09 | T-015 (RED), T-016 (GREEN) | us-m1-rules.test.js | `CA-M-09 — legalMoves in placement phase`      | 41f4b905bd39bcca6f3e0d65197fc8e1ad56a7f2, 2b567ceab345dbb4ca0a5a964679a228927ce00d |
+| CA-M-10 | T-029 (RED), T-030 (GREEN) | us-m1-rules.test.js | `CA-M-10 — legalMoves in movement phase`       | 2c1b9e80cc6e142e60652be9c5b48198d9224937, 6b28fefeec54dbba060e31572f7eeb47ee79fc47 |
+| CA-M-11 | T-015 (RED), T-016 (GREEN) | us-m1-rules.test.js | `CA-M-11 — legalMoves after game over`         | 41f4b905bd39bcca6f3e0d65197fc8e1ad56a7f2, 2b567ceab345dbb4ca0a5a964679a228927ce00d |
+| CA-M-12 | T-017 (RED), T-018 (GREEN) | us-m2-results.test.js | `CA-M-12 — win detection all 8 lines`        | 7ff9ca65c4a7789c9fa587cdd0554f056cba5c2f, 65ee7787db24d7f23e86955b0a89b6bd9b44a2ec |
+| CA-M-13 | T-019 (RED), T-020 (GREEN) | us-m2-results.test.js | `CA-M-13 — classic draw`                     | bdc0a947e4b48b754a1833de230ae2118be8923f, f781218e146e02808eb1bd5fb7e449859e331bf6 |
+| CA-M-14 | T-019 (RED), T-020 (GREEN) | us-m2-results.test.js | `CA-M-14 — win over draw precedence`         | bdc0a947e4b48b754a1833de230ae2118be8923f, f781218e146e02808eb1bd5fb7e449859e331bf6 |
+| CA-M-15 | T-021 (RED), T-022 (GREEN) | us-m3-phases.test.js  | `CA-M-15 — placement to movement transition` | f4a5f835ea23d0167b7531f41498aed401b76df7, 3c43205ed65bfa656e8b8d1ba335968d355dc3ae |
+| CA-M-16 | T-023 (RED), T-024 (GREEN) | us-m3-phases.test.js  | `CA-M-16 — legal movement`                   | 2e6b82057639041143fda0f36ea636229b0d5514, 4f0e0c51c57d857a1a1c53895bc2465de037284e (fixture corrected by BUG-002, see below) |
+| CA-M-17 | T-025 (RED), T-026 (GREEN) | us-m3-phases.test.js  | `CA-M-17 — no draw in continuous mode`       | 5582a0e816dee570d7bc8d857c2f51bbc2c1e641, 63655d61d7a416c677194bbd47156cc676e03419 |
+| CA-M-18 | T-031 (RED), T-032 (GREEN) | edge-cases.test.js    | `CA-M-18 — illegal: empty source cell`       | 8e0008826dde261d7b4f1872018fd0c8ac039bac, 296fdadededf6b278bf7810b2e08ea4116339c59 |
+| CA-M-19 | T-031 (RED), T-032 (GREEN) | edge-cases.test.js    | `CA-M-19 — illegal: occupied destination`    | 8e0008826dde261d7b4f1872018fd0c8ac039bac, 296fdadededf6b278bf7810b2e08ea4116339c59 |
+| CA-M-20 | T-013 (RED), T-014 (GREEN) | us-m1-rules.test.js   | `CA-M-20 — illegal: placement during movement phase` | 410a9215bb3de246d3d8bf816753648d8e5ef8b8, 56a3ec6e4e0bc501080516d13e7052d5f92eff59 |
+
+---
+
+## Tooling Tasks (no CA-ID)
+
+| Task  | Description | Commit SHA |
+|-------|-------------|------------|
+| T-001 | Add `verify:traceability` npm script | 0babcc66bdd5d51b64d6b12bc280d845b24471c1 |
+| T-002 | Scaffold Vite/Vitest project | a6b09bd84731ec612abed1944c802ddf976073ab |
+
+---
+
+## Bug Fix Commits (process bugs, see `docs/bugs.md`)
+
+| Bug | Description | Commit SHA |
+|-----|-------------|------------|
+| BUG-001 | `plan.md` corrected: restrict `verify-traceability` git-log matching to task-commit conventions | 706bafc1757db3f63b8b9ef95923d9e670fb8b8e |
+| BUG-001 | `scripts/verify-traceability.mjs` regenerated to match the corrected plan | 809f0d8e5013642ba133a571685ec8de83742616 |
+| BUG-002 | CA-M-16 (T-023) test fixture rewritten to a neutral movement — the original fixture completed a winning line once T-026 added the winner scan | bfe0a61a73ff5e1075491f796488b1f19baa74e4 |
 
 ---
 

@@ -207,7 +207,7 @@ _CA-M-18 (source null) and CA-M-19 (destination occupied) are both guards in the
 
 ## Final Phase: Traceability Closure
 
-- [ ] T-033 [AC: CA-M-01, CA-M-02, CA-M-03, CA-M-04, CA-M-05, CA-M-06, CA-M-07, CA-M-08, CA-M-09, CA-M-10, CA-M-11, CA-M-12, CA-M-13, CA-M-14, CA-M-15, CA-M-16, CA-M-17, CA-M-18, CA-M-19, CA-M-20] Run `npm run verify:traceability`; fill Task column (T-NNN) and Commit SHA column for all 20 rows in `specs/001-engine/traceability.md` using real SHAs from `git log`; verify `npm run verify:traceability` exits 0 after the commit. Expected commit: `T-033: record real SHAs in traceability matrix — 001-engine complete`
+- [X] T-033 [AC: CA-M-01, CA-M-02, CA-M-03, CA-M-04, CA-M-05, CA-M-06, CA-M-07, CA-M-08, CA-M-09, CA-M-10, CA-M-11, CA-M-12, CA-M-13, CA-M-14, CA-M-15, CA-M-16, CA-M-17, CA-M-18, CA-M-19, CA-M-20] Run `npm run verify:traceability`; fill Task column (T-NNN) and Commit SHA column for all 20 rows in `specs/001-engine/traceability.md` using real SHAs from `git log`; verify `npm run verify:traceability` exits 0 after the commit. Expected commit: `T-033: record real SHAs in traceability matrix — 001-engine complete`
 
 ---
 
