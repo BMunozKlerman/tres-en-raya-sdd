@@ -156,3 +156,64 @@ describe('CA-I-19 — Enter/Space activates like a click', () => {
     expect(getState().movementSelection).toBe(ownMarkCell);
   });
 });
+
+describe('CA-I-20 — turn/result announced without moving focus', () => {
+  it('exposes a single role=status aria-live=polite live region at startup', () => {
+    const { root } = mount();
+    const liveRegion = root.querySelector('[data-live-region]');
+    expect(liveRegion).not.toBeNull();
+    expect(liveRegion.getAttribute('role')).toBe('status');
+    expect(liveRegion.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('announces a turn change without moving focus', () => {
+    const { root, getState, setState } = mount();
+    setState(
+      startGame(createAppState(), {
+        opponentType: 'human',
+        agentLevel: null,
+        marks: { player1: 'X' },
+        mode: 'classic',
+      })
+    );
+    render(root, getState());
+
+    const cell = root.querySelector('[data-cell="4"]');
+    cell.focus();
+    cell.click();
+
+    const liveRegion = root.querySelector('[data-live-region]');
+    expect(liveRegion.textContent).not.toBe('');
+    expect(document.activeElement).toBe(cell);
+  });
+
+  it('announces the result without moving focus', () => {
+    const { root, getState, setState } = mount();
+    let state = startGame(createAppState(), {
+      opponentType: 'human',
+      agentLevel: null,
+      marks: { player1: 'X' },
+      mode: 'classic',
+    });
+    // Hand-verified winning sequence for X: top row (0,1,2).
+    const moves = [
+      { cell: 0, player: 'X' },
+      { cell: 3, player: 'O' },
+      { cell: 1, player: 'X' },
+      { cell: 4, player: 'O' },
+      { cell: 2, player: 'X' },
+    ];
+    for (const { cell, player } of moves) {
+      state = applyPlayerMove(state, { type: 'place', player, cell });
+    }
+    setState(state);
+    render(root, getState());
+
+    const cell = root.querySelector('[data-cell="2"]');
+    cell.focus();
+
+    const liveRegion = root.querySelector('[data-live-region]');
+    expect(liveRegion.textContent).not.toBe('');
+    expect(document.activeElement).toBe(cell);
+  });
+});
