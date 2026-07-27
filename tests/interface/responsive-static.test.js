@@ -94,6 +94,16 @@ describe('CA-I-31 — interactive controls declare 44x44px minimum', () => {
   });
 });
 
+describe("CA-I-36 — action controls bounded to the board's max width at wide viewports", () => {
+  it('.action-button declares a max-width of at most 480px, matching .board\'s own cap', () => {
+    const rule = ruleFor('.action-button', css);
+    expect(rule, 'expected a rule for .action-button').not.toBeNull();
+    const maxWidthMatch = rule.match(/max-width\s*:\s*(\d+)px/);
+    expect(maxWidthMatch, '.action-button has no max-width').not.toBeNull();
+    expect(Number(maxWidthMatch[1])).toBeLessThanOrEqual(480);
+  });
+});
+
 describe('CA-I-32 — configuration controls not clipped or overflow-hidden', () => {
   it('the configuration container has no overflow:hidden paired with a narrow fixed width', () => {
     const rule = ruleFor('.config-panel', css);
