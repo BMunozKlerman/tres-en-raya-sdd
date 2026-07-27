@@ -308,3 +308,35 @@ describe('CA-I-11 — draw indicator, moves blocked', () => {
     }
   });
 });
+
+describe('CA-I-33 — occupied cell displays the mark\'s symbol', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('shows the mark that occupies the cell in its textContent, not only data-cell-state', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    root.querySelector('[data-cell="0"]').click();
+
+    expect(root.querySelector('[data-cell="0"]').textContent).toContain('X');
+    expect(root.querySelector('[data-cell="1"]').textContent.trim()).toBe('');
+  });
+
+  it('keeps the mark visible on a winning cell alongside the win indicator (CA-I-04)', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    // Hand-verified sequence: X takes the top row (0,1,2), O takes 3,4.
+    ['0', '3', '1', '4', '2'].forEach((cellIndex) => {
+      root.querySelector(`[data-cell="${cellIndex}"]`).click();
+    });
+
+    ['0', '1', '2'].forEach((cellIndex) => {
+      const cell = root.querySelector(`[data-cell="${cellIndex}"]`);
+      expect(cell.dataset.winning).toBe('true');
+      expect(cell.textContent).toContain('X');
+    });
+  });
+});
