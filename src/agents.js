@@ -2,11 +2,39 @@ import { legalMoves, applyMove } from './engine.js';
 
 const WIN_SCORE = 1000;
 const LOSS_SCORE = -1000;
+const HORIZON_DEPTH = 6;
 
-function minimax(state, player, alpha, beta) {
+const WINNING_LINES = [
+  [0, 1, 2],
+  [3, 4, 5],
+  [6, 7, 8],
+  [0, 3, 6],
+  [1, 4, 7],
+  [2, 5, 8],
+  [0, 4, 8],
+  [2, 4, 6],
+];
+
+function staticEvaluation(board, player) {
+  let score = 0;
+  for (const line of WINNING_LINES) {
+    const marks = line.map((i) => board[i]);
+    const hasOwn = marks.includes(player);
+    const hasOpponent = marks.some((mark) => mark !== null && mark !== player);
+    if (hasOwn && !hasOpponent) score += 1;
+    else if (hasOpponent && !hasOwn) score -= 1;
+  }
+  return score;
+}
+
+function minimax(state, player, alpha, beta, depth) {
   if (state.result !== null) {
     if (state.result === 'draw') return { value: 0, nodes: 1 };
     return { value: state.result === player ? WIN_SCORE : LOSS_SCORE, nodes: 1 };
+  }
+
+  if (state.mode === 'continuous' && depth >= HORIZON_DEPTH) {
+    return { value: staticEvaluation(state.board, player), nodes: 1 };
   }
 
   const moves = legalMoves(state);
@@ -17,7 +45,7 @@ function minimax(state, player, alpha, beta) {
 
   for (const move of moves) {
     const next = applyMove(state, { ...move, player: state.turn });
-    const result = minimax(next, player, alpha, beta);
+    const result = minimax(next, player, alpha, beta, depth + 1);
     nodes += result.nodes;
 
     if (maximizing) {
@@ -74,13 +102,7 @@ export function chooseMove(state, level, memory, options = {}) {
   }
 
   if (level === 'complex') {
-    if (state.mode === 'classic') {
-      const result = minimax(state, state.turn, -Infinity, Infinity);
-      return { move: result.move, memory, nodesEvaluated: result.nodes, resolvedFromMemory: false };
-    }
-
-    const moves = legalMoves(state);
-    const move = moves[0];
-    return { move, memory, nodesEvaluated: moves.length, resolvedFromMemory: false };
+    const result = minimax(state, state.turn, -Infinity, Infinity, 0);
+    return { move: result.move, memory, nodesEvaluated: result.nodes, resolvedFromMemory: false };
   }
 }
