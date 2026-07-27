@@ -69,3 +69,13 @@ describe('CA-M-04 — illegal: occupied cell', () => {
     expect(state).toEqual(frozen);
   });
 });
+
+describe('CA-M-08 — illegal: wrong phase', () => {
+  it('rejects a movement action during the placement phase', () => {
+    const state = createGame('classic');
+    const frozen = { ...state, board: [...state.board] };
+    const result = applyMove(state, { type: 'move', player: 'X', from: 0, to: 1 });
+    expect(result).toEqual({ error: true, reason: 'wrong_phase' });
+    expect(state).toEqual(frozen);
+  });
+});
