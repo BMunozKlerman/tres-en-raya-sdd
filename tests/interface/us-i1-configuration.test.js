@@ -49,6 +49,47 @@ describe('CA-I-01 — configuration controls displayed', () => {
   });
 });
 
+describe('CA-I-35 — configuration controls show identifying placeholder labels', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('labels the opponent, mark, and mode placeholders on first load', () => {
+    const root = mount();
+    expect(root.querySelector('[data-config-opponent] option[value=""]').textContent).toBe(
+      'Oponente…'
+    );
+    expect(root.querySelector('[data-config-mark] option[value=""]').textContent).toBe('Ficha…');
+    expect(root.querySelector('[data-config-mode] option[value=""]').textContent).toBe(
+      'Modalidad…'
+    );
+  });
+
+  it('labels the agent-level placeholder once it appears, unselected', () => {
+    const root = mount();
+    setConfig(root, { opponent: 'agent' });
+    expect(root.querySelector('[data-config-agent-level] option[value=""]').textContent).toBe(
+      'Nivel…'
+    );
+  });
+
+  it('keeps the placeholder labels, not blank text, after restart', () => {
+    const root = mount();
+    setConfig(root, { opponent: 'human', mark: 'X', mode: 'classic' });
+    root.querySelector('[data-start-button]').click();
+    root.querySelector('[data-restart-button]').click();
+
+    expect(root.querySelector('[data-config-opponent]').value).toBe('');
+    expect(root.querySelector('[data-config-opponent] option[value=""]').textContent).toBe(
+      'Oponente…'
+    );
+    expect(root.querySelector('[data-config-mark] option[value=""]').textContent).toBe('Ficha…');
+    expect(root.querySelector('[data-config-mode] option[value=""]').textContent).toBe(
+      'Modalidad…'
+    );
+  });
+});
+
 describe('CA-I-02 — start transitions CONFIGURATION to IN_GAME', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
