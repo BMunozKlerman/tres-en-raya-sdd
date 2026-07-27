@@ -17,6 +17,7 @@ export function createGame(mode = 'classic') {
     phase: 'placement',
     piecesPlaced: 0,
     result: null,
+    winningLine: null,
   };
 }
 
@@ -51,15 +52,16 @@ export function applyMove(state, move) {
     newBoard[move.from] = null;
     newBoard[move.to] = move.player;
     const newTurn = state.turn === 'X' ? 'O' : 'X';
-    const hasWinner = WINNING_LINES.some((line) =>
+    const winningLine = WINNING_LINES.find((line) =>
       line.every((i) => newBoard[i] === move.player)
-    );
+    ) ?? null;
 
     return {
       ...state,
       board: newBoard,
       turn: newTurn,
-      result: hasWinner ? move.player : null,
+      result: winningLine ? move.player : null,
+      winningLine,
     };
   }
 
@@ -73,10 +75,10 @@ export function applyMove(state, move) {
   const newTurn = state.turn === 'X' ? 'O' : 'X';
   const newPhase =
     state.mode === 'continuous' && newPiecesPlaced === 6 ? 'movement' : state.phase;
-  const hasWinner = WINNING_LINES.some((line) =>
+  const winningLine = WINNING_LINES.find((line) =>
     line.every((i) => newBoard[i] === move.player)
-  );
-  const newResult = hasWinner
+  ) ?? null;
+  const newResult = winningLine
     ? move.player
     : state.mode === 'classic' && newPiecesPlaced === 9
       ? 'draw'
@@ -89,6 +91,7 @@ export function applyMove(state, move) {
     turn: newTurn,
     phase: newPhase,
     result: newResult,
+    winningLine,
   };
 }
 
