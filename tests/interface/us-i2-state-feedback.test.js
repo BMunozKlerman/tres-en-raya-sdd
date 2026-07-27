@@ -144,6 +144,40 @@ describe('CA-I-08 — information conveyed without color alone', () => {
   });
 });
 
+function startContinuousToMovementPhase(root) {
+  root.querySelector('[data-config-opponent]').value = 'human';
+  root.querySelector('[data-config-opponent]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-mark]').value = 'X';
+  root.querySelector('[data-config-mark]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-mode]').value = 'continuous';
+  root.querySelector('[data-config-mode]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-start-button]').click();
+
+  // X:{0,2,4}, O:{1,3,5}, turn X, empty {6,7,8} — same fixture as
+  // specs/001-engine's CA-M-16 reachMovementPhase().
+  ['0', '1', '2', '3', '4', '5'].forEach((cellIndex) => {
+    root.querySelector(`[data-cell="${cellIndex}"]`).click();
+  });
+}
+
+describe('CA-I-07 — movement-phase legal marks and destinations indicated', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('marks every own cell that has at least one legal destination as movable', () => {
+    const root = mount();
+    startContinuousToMovementPhase(root);
+
+    ['0', '2', '4'].forEach((cellIndex) => {
+      expect(root.querySelector(`[data-cell="${cellIndex}"]`).dataset.movable).toBe('true');
+    });
+    ['1', '3', '5'].forEach((cellIndex) => {
+      expect(root.querySelector(`[data-cell="${cellIndex}"]`).dataset.movable).toBeUndefined();
+    });
+  });
+});
+
 describe('CA-I-11 — draw indicator, moves blocked', () => {
   beforeEach(() => {
     document.body.innerHTML = '';

@@ -41,6 +41,52 @@ describe('CA-I-24 — configuration inaccessible outside CONFIGURATION', () => {
   });
 });
 
+function startContinuousToMovementPhase(root) {
+  startGame(root, { mode: 'continuous' });
+  // X:{0,2,4}, O:{1,3,5}, turn X, empty {6,7,8} — same fixture as
+  // specs/001-engine's CA-M-16 reachMovementPhase().
+  ['0', '1', '2', '3', '4', '5'].forEach((cellIndex) => {
+    root.querySelector(`[data-cell="${cellIndex}"]`).click();
+  });
+}
+
+describe('CA-I-25 — own-mark selection highlights destinations', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('selects the clicked own mark and highlights its legal destinations', () => {
+    const root = mount();
+    startContinuousToMovementPhase(root);
+
+    root.querySelector('[data-cell="0"]').click();
+
+    expect(root.querySelector('[data-cell="0"]').dataset.selected).toBe('true');
+    ['6', '7', '8'].forEach((cellIndex) => {
+      expect(root.querySelector(`[data-cell="${cellIndex}"]`).dataset.destination).toBe('true');
+    });
+  });
+});
+
+describe('CA-I-27 — reselecting own mark cancels selection', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('clears the selection and destinations when the same mark is clicked again', () => {
+    const root = mount();
+    startContinuousToMovementPhase(root);
+
+    root.querySelector('[data-cell="0"]').click();
+    root.querySelector('[data-cell="0"]').click();
+
+    expect(root.querySelector('[data-cell="0"]').dataset.selected).toBeUndefined();
+    ['6', '7', '8'].forEach((cellIndex) => {
+      expect(root.querySelector(`[data-cell="${cellIndex}"]`).dataset.destination).toBeUndefined();
+    });
+  });
+});
+
 describe('CA-I-21 — occupied cell rejected', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
