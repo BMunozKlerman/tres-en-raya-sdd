@@ -41,3 +41,18 @@ export function applyMove(state, move) {
     turn: newTurn,
   };
 }
+
+export function legalMoves(state) {
+  if (state.result !== null) {
+    return [];
+  }
+
+  if (state.phase === 'placement') {
+    return state.board.reduce(
+      (acc, cell, i) => (cell === null ? [...acc, { type: 'place', cell: i }] : acc),
+      []
+    );
+  }
+
+  return [];
+}
