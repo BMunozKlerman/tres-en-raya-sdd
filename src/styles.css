@@ -50,6 +50,10 @@ select {
   width: 100%;
 }
 
+.action-button {
+  max-width: 480px;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

@@ -207,13 +207,13 @@ function buildStructure(root) {
         <option value="classic">classic</option>
         <option value="continuous">continuous</option>
       </select>
-      <button data-start-button type="button">start</button>
+      <button class="action-button" data-start-button type="button">start</button>
     </div>
     <div class="board" data-board role="grid">
       ${Array.from({ length: 9 }, (_, i) => `<button class="cell" data-cell="${i}" type="button"></button>`).join('')}
     </div>
     <div class="scoreboard" data-scoreboard></div>
-    <button data-restart-button type="button">restart</button>
+    <button class="action-button" data-restart-button type="button">restart</button>
     <p class="sr-only" data-live-region role="status" aria-live="polite"></p>
   `;
 }
