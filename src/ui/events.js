@@ -112,6 +112,14 @@ export function attachEvents(root, getState, setState) {
     root.querySelector(`[data-cell="${next}"]`).focus();
   });
 
+  root.querySelector('[data-board]').addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    const cell = event.target.closest('[data-cell]');
+    if (!cell) return;
+    event.preventDefault();
+    cell.click();
+  });
+
   root.querySelector('[data-board]').addEventListener('click', (event) => {
     const cell = event.target.closest('[data-cell]');
     if (!cell) return;

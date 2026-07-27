@@ -137,10 +137,11 @@ describe('CA-I-19 — Enter/Space activates like a click', () => {
       marks: { player1: 'X' },
       mode: 'continuous',
     });
-    // Drive to the movement phase: X places 0,1,2; O places 3,4,5.
+    // Drive to the movement phase with a hand-verified non-winning fixture: X ends up owning
+    // cells {0,1,3} (no winning line), O ends up owning {2,4,5} (no winning line either).
     // Per D4, the player who did NOT place the 6th mark (O) opens the movement phase, so X
-    // moves next and owns cells 0,1,2.
-    const placements = [0, 3, 1, 4, 2, 5];
+    // moves next and owns cells 0,1,3.
+    const placements = [0, 2, 1, 4, 3, 5];
     for (const cell of placements) {
       state = applyPlayerMove(state, { type: 'place', player: state.engineState.turn, cell });
     }
