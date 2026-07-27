@@ -20,6 +20,16 @@ export function chooseMove(state, level, memory, options = {}) {
       }
     }
 
+    const opponent = state.turn === 'X' ? 'O' : 'X';
+    const opponentTurnState = { ...state, turn: opponent };
+    for (const move of moves) {
+      nodesEvaluated += 1;
+      const opponentReply = applyMove(opponentTurnState, { ...move, player: opponent });
+      if (opponentReply.result === opponent) {
+        return { move, memory: null, nodesEvaluated, resolvedFromMemory: false };
+      }
+    }
+
     return { move: moves[0], memory: null, nodesEvaluated, resolvedFromMemory: false };
   }
 }
