@@ -44,11 +44,14 @@ export function applyMove(state, move) {
   newBoard[move.cell] = move.player;
   const newPiecesPlaced = state.piecesPlaced + 1;
   const newTurn = state.turn === 'X' ? 'O' : 'X';
-  const newResult = WINNING_LINES.some((line) =>
+  const hasWinner = WINNING_LINES.some((line) =>
     line.every((i) => newBoard[i] === move.player)
-  )
+  );
+  const newResult = hasWinner
     ? move.player
-    : null;
+    : state.mode === 'classic' && newPiecesPlaced === 9
+      ? 'draw'
+      : null;
 
   return {
     ...state,
