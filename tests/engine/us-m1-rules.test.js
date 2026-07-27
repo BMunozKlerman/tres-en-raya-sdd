@@ -122,3 +122,20 @@ describe('CA-M-11 — legalMoves after game over', () => {
     expect(legalMoves(state)).toEqual([]);
   });
 });
+
+describe('CA-M-07 — illegal: opponent mark', () => {
+  it('rejects a movement action whose source cell holds the other player\'s mark', () => {
+    const state = {
+      board: ['X', 'O', 'X', 'O', 'X', 'O', null, null, null],
+      turn: 'X',
+      mode: 'continuous',
+      phase: 'movement',
+      piecesPlaced: 6,
+      result: null,
+    };
+    const frozen = { ...state, board: [...state.board] };
+    const result = applyMove(state, { type: 'move', player: 'X', from: 1, to: 6 });
+    expect(result).toEqual({ error: true, reason: 'not_own_mark' });
+    expect(state).toEqual(frozen);
+  });
+});
