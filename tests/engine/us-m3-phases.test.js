@@ -38,35 +38,50 @@ function reachMovementPhase() {
 }
 
 describe('CA-M-16 — legal movement', () => {
+  // reachMovementPhase() yields X:{0,2,4}, O:{1,3,5}, turn X, empty {6,7,8}.
+  // Moving X from 0 to 6 would complete the [2,4,6] diagonal (see BUG-002 in
+  // docs/bugs.md), so this fixture uses 0->7 instead: X ends at {2,4,7}, which
+  // is not one of the 8 fixed winning lines. Verified with a brute-force script
+  // (see docs/bugs.md) before writing the assertions below.
   it('moves the mark from source to destination and flips the turn', () => {
     const state = reachMovementPhase();
-    const next = applyMove(state, { type: 'move', player: 'X', from: 0, to: 6 });
+    const next = applyMove(state, { type: 'move', player: 'X', from: 0, to: 7 });
+    expect(next.result).toBeNull();
     expect(next.board[0]).toBeNull();
-    expect(next.board[6]).toBe('X');
+    expect(next.board[7]).toBe('X');
     expect(next.turn).toBe('O');
   });
 
   it('D3 — allows a player to return to the cell it vacated on its previous turn', () => {
+    // X 0->7 (vacates 0) → O 1->6 (neutral, does not touch cell 0) → X 7->0
+    // (returns to the cell X itself vacated on its previous turn). None of the
+    // three moves completes a winning line — verified with a brute-force script
+    // before writing these assertions (see docs/bugs.md, BUG-002).
     const afterFirstMove = applyMove(reachMovementPhase(), {
       type: 'move',
       player: 'X',
       from: 0,
-      to: 6,
+      to: 7,
     });
+    expect(afterFirstMove.result).toBeNull();
+
     const afterONeutralMove = applyMove(afterFirstMove, {
       type: 'move',
       player: 'O',
       from: 1,
-      to: 7,
+      to: 6,
     });
+    expect(afterONeutralMove.result).toBeNull();
+
     const returned = applyMove(afterONeutralMove, {
       type: 'move',
       player: 'X',
-      from: 6,
+      from: 7,
       to: 0,
     });
     expect(returned.error).toBeUndefined();
-    expect(returned.board[6]).toBeNull();
+    expect(returned.result).toBeNull();
+    expect(returned.board[7]).toBeNull();
     expect(returned.board[0]).toBe('X');
     expect(returned.turn).toBe('O');
   });
