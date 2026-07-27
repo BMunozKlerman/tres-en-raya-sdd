@@ -55,10 +55,20 @@ which had none), but the pair proves an absence (no code path reads `memory`), n
 mechanism. This note exists so a future audit does not mistake a trivially-passing CA-A-06 test
 for an under-tested criterion.
 
-## Search Horizon Calibration — pending value confirmation
+## Search Horizon Calibration — confirmed at starting value
 
-`plan.md`'s search-horizon section starts `HORIZON_DEPTH` at 6 plies and describes a calibration
-procedure to run during the CA-A-09 / CA-N-01 implementation tasks. If the calibrated value ends
-up different from 6, record the final value and the measurement that produced it here before
-closing CA-A-09 and CA-N-01, the same way `specs/001-engine/traceability.md` documents D2/D3
-evidence and the CA-M-17 test-strategy limitation.
+`plan.md`'s search-horizon section started `HORIZON_DEPTH` at 6 plies and described a calibration
+procedure to run during the CA-A-09 / CA-N-01 implementation tasks. T-048 ran that procedure
+against the CA-A-09 fixture (`tests/agents/us-a1-complex.test.js`, continuous mode, movement
+phase, maximal branching for that phase) with a cold transposition table: ~12 ms, 12,603 nodes
+evaluated — far under the ~700 ms threshold. `HORIZON_DEPTH` was left at 6; see `plan.md` §
+Search Horizon for the full measurement log. CA-N-01's own calibration pass (T-055/T-056) is
+independent and measures the same constant against its own worst-case positions.
+
+## CA-A-14 — corollary confirmation, no production code (T-052)
+
+CA-A-14's test (`tests/agents/edge-cases.test.js`) passed on first run, with no change to
+`src/agents.js` — a direct consequence of CA-A-01/CA-A-03/CA-A-07's legality guarantee (every
+level already returns a move drawn from `legalMoves(state)`) applied to a one-element array. Same
+convention as `specs/001-engine/traceability.md`'s D3 sub-test note: the RED/GREEN pair exists so
+CA-A-14 has its own commit citing its ID (P6), not because the behavior was ever missing.
