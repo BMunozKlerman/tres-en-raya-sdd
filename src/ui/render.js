@@ -167,6 +167,7 @@ function buildStructure(root) {
       <option value="continuous">continuous</option>
     </select>
     <button data-start-button type="button">start</button>
+    <button data-restart-button type="button">restart</button>
     <div data-board role="grid">
       ${Array.from({ length: 9 }, (_, i) => `<button data-cell="${i}" type="button"></button>`).join('')}
     </div>

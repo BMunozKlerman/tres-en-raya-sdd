@@ -4,6 +4,7 @@ import {
   selectOwnMark,
   requestAgentMove,
   resolveAgentMove,
+  restart,
 } from './app-state.js';
 import { render } from './render.js';
 import { chooseMove } from '../agents.js';
@@ -84,6 +85,11 @@ export function attachEvents(root, getState, setState) {
   root.querySelector('[data-start-button]').addEventListener('click', () => {
     const state = getState();
     setState(startGame(state, readConfig()));
+    rerender();
+  });
+
+  root.querySelector('[data-restart-button]').addEventListener('click', () => {
+    setState(restart(getState()));
     rerender();
   });
 

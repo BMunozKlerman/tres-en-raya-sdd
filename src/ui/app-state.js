@@ -97,4 +97,12 @@ export function resolveAgentMove(state, decision) {
   };
 }
 
+export function restart(state) {
+  return {
+    ...createAppState(),
+    scoreboard: state.scoreboard,
+    agentMemory: state.agentMemory,
+  };
+}
+
 export { isConfigComplete };
