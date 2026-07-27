@@ -7,6 +7,10 @@ function selectValue(control, value) {
   control.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
+function pressKey(element, key) {
+  element.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+}
+
 describe('CA-N-02 — fully operable with mouse (click handlers cover every action)', () => {
   it('completes a full classic game and restarts using only click and select-change events', () => {
     const root = document.createElement('div');
@@ -58,5 +62,39 @@ describe('CA-N-02 — fully operable with mouse (click handlers cover every acti
     expect(destination).not.toBeNull();
     destination.click();
     expect(destination.dataset.cellState).not.toBe('empty');
+  });
+});
+
+describe('CA-N-03 — full game completable via keyboard alone', () => {
+  it('completes a full classic game and restarts without dispatching any click event', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+    mountApp(root);
+
+    selectValue(root.querySelector('[data-config-opponent]'), 'human');
+    selectValue(root.querySelector('[data-config-mark]'), 'X');
+    selectValue(root.querySelector('[data-config-mode]'), 'classic');
+
+    const startButton = root.querySelector('[data-start-button]');
+    startButton.focus();
+    pressKey(startButton, 'Enter');
+
+    expect(root.querySelector('[data-config-opponent]').disabled).toBe(true);
+
+    const moves = [0, 3, 1, 4, 2];
+    moves.forEach((cellIndex) => {
+      const cell = root.querySelector(`[data-cell="${cellIndex}"]`);
+      cell.focus();
+      pressKey(cell, ' ');
+    });
+
+    expect(root.querySelector('[data-result-indicator]').textContent).toContain('X');
+
+    const restartButton = root.querySelector('[data-restart-button]');
+    restartButton.focus();
+    pressKey(restartButton, 'Enter');
+
+    expect(root.querySelector('[data-config-opponent]').disabled).toBe(false);
+    expect(root.querySelector('[data-score="X"]').textContent).toBe('1');
   });
 });
