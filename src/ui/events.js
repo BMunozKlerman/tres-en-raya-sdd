@@ -100,6 +100,8 @@ export function attachEvents(root, getState, setState) {
     if (wasConfiguration && nextState.uiState === 'IN_GAME') {
       root.querySelector('[data-cell="0"]').focus();
     }
+    maybeHandOffToAgent();
+    rerender();
   });
   activateOnEnterOrSpace(startButton);
 
