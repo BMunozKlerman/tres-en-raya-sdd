@@ -93,8 +93,13 @@ export function attachEvents(root, getState, setState) {
   const startButton = root.querySelector('[data-start-button]');
   startButton.addEventListener('click', () => {
     const state = getState();
-    setState(startGame(state, readConfig()));
+    const wasConfiguration = state.uiState === 'CONFIGURATION';
+    const nextState = startGame(state, readConfig());
+    setState(nextState);
     rerender();
+    if (wasConfiguration && nextState.uiState === 'IN_GAME') {
+      root.querySelector('[data-cell="0"]').focus();
+    }
   });
   activateOnEnterOrSpace(startButton);
 

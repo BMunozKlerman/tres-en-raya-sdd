@@ -70,6 +70,15 @@ function renderBoard(root, state) {
 
     const markSymbol = mark === null || mark === undefined ? '' : mark;
 
+    const row = Math.floor(i / 3) + 1;
+    const column = (i % 3) + 1;
+    const stateText = {
+      empty: 'vacía',
+      own: 'con tu ficha',
+      opponent: 'con la ficha rival',
+    }[cell.dataset.cellState];
+    cell.setAttribute('aria-label', `Fila ${row}, columna ${column}, casilla ${stateText}`);
+
     if (winningLine && winningLine.includes(i)) {
       cell.dataset.winning = 'true';
       cell.textContent = `${markSymbol} ★`;
