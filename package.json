@@ -4,6 +4,12 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test": "vitest run",
+    "coverage": "vitest run --coverage",
     "verify:traceability": "node scripts/verify-traceability.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.4.21",
+    "vitest": "^1.6.1"
   }
 }
