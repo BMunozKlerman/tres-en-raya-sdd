@@ -90,6 +90,49 @@ describe('CA-I-35 — configuration controls show identifying placeholder labels
   });
 });
 
+describe('CA-I-37 — configuration option text is in Spanish', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  const SPANISH_TEXT = {
+    human: 'Humano',
+    agent: 'Agente',
+    classic: 'Clásica',
+    continuous: 'Continua',
+    simple: 'Simple',
+    medium: 'Medio',
+    complex: 'Complejo',
+  };
+
+  it('shows opponent and mode options in Spanish, values unchanged', () => {
+    const root = mount();
+
+    ['human', 'agent'].forEach((value) => {
+      const option = root.querySelector(`[data-config-opponent] option[value="${value}"]`);
+      expect(option.value).toBe(value);
+      expect(option.textContent).toBe(SPANISH_TEXT[value]);
+    });
+
+    ['classic', 'continuous'].forEach((value) => {
+      const option = root.querySelector(`[data-config-mode] option[value="${value}"]`);
+      expect(option.value).toBe(value);
+      expect(option.textContent).toBe(SPANISH_TEXT[value]);
+    });
+  });
+
+  it('shows agent-level options in Spanish, values unchanged', () => {
+    const root = mount();
+    setConfig(root, { opponent: 'agent' });
+
+    ['simple', 'medium', 'complex'].forEach((value) => {
+      const option = root.querySelector(`[data-config-agent-level] option[value="${value}"]`);
+      expect(option.value).toBe(value);
+      expect(option.textContent).toBe(SPANISH_TEXT[value]);
+    });
+  });
+});
+
 describe('CA-I-02 — start transitions CONFIGURATION to IN_GAME', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
