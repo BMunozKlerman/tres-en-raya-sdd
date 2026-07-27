@@ -1,0 +1,9 @@
+{
+  "name": "tres-en-raya-sdd",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify:traceability": "node scripts/verify-traceability.mjs"
+  }
+}
