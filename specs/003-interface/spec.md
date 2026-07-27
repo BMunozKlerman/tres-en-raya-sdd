@@ -126,7 +126,7 @@ indicator appears and the board is blocked.
 
 | ID | EARS Criterion | Notes |
 |----|----------------|-------|
-| CA-I-03 | THE SYSTEM SHALL indicate at all times whose turn it is and which mark they play. | Mandatory criterion #1 (assignment, verbatim). |
+| CA-I-03 | THE SYSTEM SHALL indicate at all times whose turn it is and which mark they play. | Mandatory criterion #1 (assignment, verbatim). Scope boundary for the `FINISHED` state added by CA-I-34 (Amendment, BUG-012) — this criterion's text is unchanged. |
 | CA-I-04 | WHEN a player aligns three marks, THE SYSTEM SHALL highlight the winning line and block further moves. | Mandatory criterion #2 (assignment, verbatim). "Aligns three marks" maps to `state.result` becoming a mark and the specific cells to `state.winningLine` (`specs/001-engine` CA-M-12, amended — see Clarifications and `docs/bugs.md` BUG-007). |
 | CA-I-05 | IF the player attempts an illegal move, THEN THE SYSTEM SHALL reject it stating the reason, without altering the board state. | Mandatory criterion #3 (assignment, verbatim). "The reason" is `applyMove`'s `ErrorResult.reason` (`wrong_turn`, `cell_occupied`, `wrong_phase`, `no_mark_at_source`, `not_own_mark`, `game_over` — full enumeration per `specs/001-engine/contracts/engine-api.md`), rendered as player-facing text for every value the engine can return, not only the subset expected under normal UI flow. |
 | CA-I-06 | WHILE the agent is computing its move, THE SYSTEM SHALL show a waiting state and disable the board. | Mandatory criterion #4 (assignment, verbatim). Corresponds to the `WAITING_FOR_AGENT` UI state. Does not by itself require any minimum visible duration — see CA-I-10. |
@@ -138,6 +138,7 @@ indicator appears and the board is blocked.
 | CA-I-12 | WHEN it becomes the agent's turn to move, THE SYSTEM SHALL transition from `IN_GAME` to `WAITING_FOR_AGENT`. | Added by Clarifications (2026-07-27): makes the state-machine edge `IN_GAME → (agent's turn) WAITING_FOR_AGENT` explicit and traceable, rather than only inferable from CA-I-06's `WHILE`. |
 | CA-I-13 | WHEN the agent's chosen move is ready and the minimum waiting duration (CA-I-10) has elapsed, THE SYSTEM SHALL apply that move and transition from `WAITING_FOR_AGENT` to `IN_GAME`. | Added by Clarifications (2026-07-27): makes the state-machine edge `WAITING_FOR_AGENT → (move ready) IN_GAME` explicit. Ordered after CA-I-10 to avoid a race between "the move is ready" and "the waiting state has been visible long enough." |
 | CA-I-33 | WHILE a cell is occupied, THE SYSTEM SHALL display the occupying mark's symbol in that cell, including when the cell is also part of a highlighted winning line (CA-I-04). | Added by Amendments (2026-07-27, BUG-008): no prior criterion required the board to visibly render its own contents. Numbered 33 (out of document order) to avoid renumbering any already-implemented criterion — see Amendments section. |
+| CA-I-34 | WHILE `uiState` is `FINISHED`, THE SYSTEM SHALL replace the turn indicator's text with a statement that the game has ended, since no player has a pending turn. | Added by Amendments (2026-07-27, BUG-012): CA-I-03 says "at all times" but was never scoped for the state where the game has already ended and "whose turn" is no longer meaningful. Not a rewrite of CA-I-03 (its assignment-verbatim text is untouched) — a boundary clause covering the one state CA-I-03 never addressed. Replacing the text (not clearing it) keeps CA-I-03's "indicate at all times" intent satisfied in the terminal state too, rather than leaving an unexplained blank. The result mark/draw itself remains stated by CA-I-04/CA-I-11's `[data-result-indicator]`. |
 
 ---
 
@@ -158,8 +159,8 @@ unchanged.
 
 | ID | EARS Criterion | Notes |
 |----|----------------|-------|
-| CA-I-14 | WHEN a game reaches the `FINISHED` state with a winning mark, THE SYSTEM SHALL increment that mark's win count in the session scoreboard. | |
-| CA-I-15 | WHEN a classic-mode game reaches the `FINISHED` state as a draw, THE SYSTEM SHALL increment the session scoreboard's draw count. | Continuous mode has no draw (`specs/001-engine` D2/CA-M-17), so this criterion cannot apply in that mode — not a gap, a consequence of the engine contract. |
+| CA-I-14 | WHEN a game reaches the `FINISHED` state with a winning mark, THE SYSTEM SHALL increment that mark's win count in the session scoreboard, displayed next to a label that identifies which mark it counts. | Amended (BUG-010): the count alone was not identifiable as belonging to a specific mark — see Amendments. |
+| CA-I-15 | WHEN a classic-mode game reaches the `FINISHED` state as a draw, THE SYSTEM SHALL increment the session scoreboard's draw count, displayed next to a label that identifies it as the draw count. | Continuous mode has no draw (`specs/001-engine` D2/CA-M-17), so this criterion cannot apply in that mode — not a gap, a consequence of the engine contract. Amended (BUG-010): the count alone was not identifiable as the draw count — see Amendments. |
 | CA-I-16 | WHEN the player activates restart, THE SYSTEM SHALL discard the current game and return to the `CONFIGURATION` state while preserving the session scoreboard's win and draw counts. | State-machine transition "restart → `CONFIGURATION` from any state," scoreboard-preservation half. |
 
 ---
@@ -271,8 +272,8 @@ Assumptions below.
 | CA-I-11 | US-I-2 | WHEN a classic-mode game reaches the `FINISHED` state as a draw, THE SYSTEM SHALL display a draw indicator and block further moves. | ✅ ready |
 | CA-I-12 | US-I-2 | WHEN it becomes the agent's turn to move, THE SYSTEM SHALL transition from `IN_GAME` to `WAITING_FOR_AGENT`. | ✅ ready |
 | CA-I-13 | US-I-2 | WHEN the agent's chosen move is ready and the minimum waiting duration (CA-I-10) has elapsed, THE SYSTEM SHALL apply that move and transition from `WAITING_FOR_AGENT` to `IN_GAME`. | ✅ ready |
-| CA-I-14 | US-I-3 | WHEN a game reaches the `FINISHED` state with a winning mark, THE SYSTEM SHALL increment that mark's win count in the session scoreboard. | ✅ ready |
-| CA-I-15 | US-I-3 | WHEN a classic-mode game reaches the `FINISHED` state as a draw, THE SYSTEM SHALL increment the session scoreboard's draw count. | ✅ ready |
+| CA-I-14 | US-I-3 | WHEN a game reaches the `FINISHED` state with a winning mark, THE SYSTEM SHALL increment that mark's win count in the session scoreboard, displayed next to a label that identifies which mark it counts. | ✅ ready — BUG-010 closed (T-101/T-102, commits `6f5c800`/`b468269`) |
+| CA-I-15 | US-I-3 | WHEN a classic-mode game reaches the `FINISHED` state as a draw, THE SYSTEM SHALL increment the session scoreboard's draw count, displayed next to a label that identifies it as the draw count. | ✅ ready — BUG-010 closed (T-101/T-102, commits `6f5c800`/`b468269`) |
 | CA-I-16 | US-I-3 | WHEN the player activates restart, THE SYSTEM SHALL discard the current game and return to the `CONFIGURATION` state while preserving the session scoreboard's win and draw counts. | ✅ ready |
 | CA-I-17 | US-I-4 | THE SYSTEM SHALL display a visible focus indicator on the currently focused interactive control at all times a control has focus. | ✅ ready |
 | CA-I-18 | US-I-4 | WHILE the board has keyboard focus, THE SYSTEM SHALL move cell selection to the adjacent cell in the pressed arrow key's direction. | ✅ ready |
@@ -293,6 +294,7 @@ Assumptions below.
 | CA-N-02 | Non-Functional | THE SYSTEM SHALL be fully operable with a mouse at any point in the game. | ✅ ready |
 | CA-N-03 | Non-Functional | WHERE the browser receives keyboard focus, THE SYSTEM SHALL allow completing a full game without using the mouse. | ✅ ready |
 | CA-I-33 | US-I-2 (Amendment) | WHILE a cell is occupied, THE SYSTEM SHALL display the occupying mark's symbol in that cell, including when the cell is also part of a highlighted winning line (CA-I-04). | ⚠️ pending — see Amendments |
+| CA-I-34 | US-I-2 (Amendment) | WHILE `uiState` is `FINISHED`, THE SYSTEM SHALL replace the turn indicator's text with a statement that the game has ended, since no player has a pending turn. | ✅ ready — BUG-012 closed (T-105/T-106, commits `8f529a7`/`0c60a1c`) |
 
 ### Key Entities
 
@@ -303,7 +305,9 @@ Assumptions below.
   agent level (when applicable), mark assignment per player, and game mode (classic/continuous).
   Consumed to call `createGame(mode)` and, when the opponent is an agent, `chooseMove`.
 - **Session Scoreboard**: win counts per mark plus a draw count, accumulated across games in the
-  running session; reset only by a page reload (out of scope), never by restart (CA-I-16).
+  running session; reset only by a page reload (out of scope), never by restart (CA-I-16). Each
+  count is paired with an identifying label (Spanish: `"X"`, `"O"`, `"Empates"`) — see CA-I-14,
+  CA-I-15 (amended, BUG-010).
 - **Movement Selection**: the UI-only pending state of "an own mark is selected, awaiting a
   destination" during the movement phase of continuous mode (CA-I-25–CA-I-27). Not part of the
   engine's `State` (`specs/001-engine/data-model.md`) — it is derived UI state built from
@@ -319,7 +323,7 @@ Assumptions below.
 | ID | Measurable Outcome | CA-IDs Covered |
 |----|--------------------|----------------|
 | SC-I-01 | A new player can set opponent type, agent level (if applicable), mark, and game mode, and start a game, without needing instructions beyond what is on screen. | CA-I-01, CA-I-02 |
-| SC-I-02 | At every point during a game, an observer can state whose turn it is, which mark they play, and — during a movement phase — which of their marks may move and where, by reading the screen alone. | CA-I-03, CA-I-07 |
+| SC-I-02 | At every point during a game, an observer can state whose turn it is, which mark they play, and — during a movement phase — which of their marks may move and where, by reading the screen alone. | CA-I-03, CA-I-07, CA-I-34 |
 | SC-I-03 | Every rejected move states its reason on screen, and the board looks identical to before the attempt. | CA-I-05, CA-I-21 |
 | SC-I-04 | A completed game always ends with the winning line visibly marked and no further moves accepted, or with a draw indicator shown and no further moves accepted. | CA-I-04, CA-I-11, CA-I-22 |
 | SC-I-05 | Across a session of multiple games, the scoreboard's totals equal the number of games actually won by each mark and the number of draws, and restarting never changes those totals. | CA-I-14, CA-I-15, CA-I-16, CA-I-23 |
@@ -341,6 +345,8 @@ corrected in `spec.md`, and only then is the affected code regenerated.
 | # | Trigger | Amendment | Justification | Resolved by |
 |---|---------|-----------|----------------|-------------|
 | A1 | Manual testing showed occupied cells never display their mark's symbol (`'X'`/`'O'`) — `render.js`'s `renderBoard` only ever wrote a visible glyph (`'★'`) into a cell's `textContent` when that cell was part of `winningLine`; every other occupied cell's `textContent` was forced to `''`. No `CA-I-nn` in this spec required the board to visibly render its own state: CA-I-03 covers the turn indicator, CA-I-04 covers only the three winning cells, CA-I-08 only requires that information *already conveyed elsewhere* also be conveyed via text/icon — none of them establish the base requirement that a placed mark is visible at all. The entire automated suite passed throughout `T-060`–`T-098` because every test asserted `cell.dataset.cellState` (`'empty'`/`'own'`), never `cell.textContent` — the oracle the tests themselves used, not the representation a player actually sees. | New criterion **CA-I-33** added (see US-I-2 table and Functional Requirements below): WHILE a cell is occupied, THE SYSTEM SHALL display the occupying mark's symbol in that cell, including when the cell is also part of a highlighted winning line (CA-I-04) — so the mark does not disappear when the cell becomes part of the win highlight. Numbered 33 (not inserted in document order among CA-I-01–32) specifically to avoid renumbering any already-implemented and committed criterion, unlike the pre-implementation renumbering `/speckit-clarify`/`/speckit-analyze` did for CA-I-10–13 and T-081/T-082 — those happened before any task had a commit; this one happens after 36 of 42 tasks are already committed. | Logged as **BUG-008** in `docs/bugs.md`. Discovered by manual play, not by the automated suite — the suite's tests were internally consistent (green) but never encoded the one thing a human observer needs to see: the board's actual contents. This is the same class of gap `research.md` D-I-04 already documents for the six layout-dependent criteria (automated proxy vs. authoritative manual check), but here no criterion existed for the automated suite to even attempt. | Group — 2026-07-27, found during `manual-verification.md` play-testing |
+| A2 | Manual testing showed the scoreboard displays three bare numbers ("3 0 0") with no label identifying which is X's count, O's count, or the draw count. Neither CA-I-14 nor CA-I-15 (nor `dom-contract.md`) ever required the count to be identifiable — only that it increments correctly. | CA-I-14 and CA-I-15 amended in place (see US-I-3 and Functional Requirements tables) to require the count be displayed next to an identifying label, rather than splitting labeling into its own CA-ID — it is part of the same observable behavior (a scoreboard entry), not a distinct response. | Logged as **BUG-010** in `docs/bugs.md`. Found during manual play; the automated suite never asserted anything beyond `[data-score="X"].textContent`, so it could not have caught a missing label. | Group — 2026-07-27, found during manual play-testing |
+| A3 | Manual testing showed the turn indicator keeps stating "Turno de O" after the game reaches `FINISHED`, simultaneously with the result being announced elsewhere on screen. CA-I-03 ("at all times") never scoped what "whose turn" means once no player has a pending turn. | New criterion **CA-I-34** added (see US-I-2 table): WHILE `uiState` is `FINISHED`, THE SYSTEM SHALL replace the turn indicator's text with a statement that the game has ended. CA-I-03's own text is unchanged — this is a boundary clause for a state CA-I-03 never addressed, not a rewrite of the mandatory-verbatim criterion. Replacing the text (rather than clearing it) keeps CA-I-03's "at all times" intent satisfied instead of abandoning it. | Logged as **BUG-012** in `docs/bugs.md`. Found during manual play; no test asserted `[data-turn-indicator]`'s content once `uiState === 'FINISHED'`. | Group — 2026-07-27, found during manual play-testing |
 
 **Note**: while diagnosing A1, `render.js`'s `renderBoard` was separately found to collapse
 `contracts/dom-contract.md`'s documented `data-cell-state` enum (`"empty" | "own" | "opponent"`)
@@ -350,6 +356,14 @@ into just two values (an opponent's mark was also labeled `"own"`). This is a pr
 It is fixed as its own commit, tracked as **BUG-009** in `docs/bugs.md`, kept separate from
 CA-I-33's RED/GREEN pair so `git log --grep="CA-I-33"` returns only commits that satisfy that
 criterion.
+
+**Note**: a second issue found in the same manual-testing pass as A2/A3 — `[data-result-indicator]`
+and `[data-live-region]` both display the same "Gana X"/"Empate" text simultaneously — is **not**
+a spec gap: CA-I-04, CA-I-11, and CA-I-20 are each independently satisfied by their own element,
+and no criterion here ever forbade the duplication. It is a **plan-level gap** (no decision in
+`research.md` ever specified the live region's visual treatment) — tracked as **BUG-011** in
+`docs/bugs.md`, resolved by a new `research.md` decision (D-I-09) and a `dom-contract.md` update,
+not a `spec.md` amendment; CA-I-20 is unchanged.
 
 ## Assumptions
 

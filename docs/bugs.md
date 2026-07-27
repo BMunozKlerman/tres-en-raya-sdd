@@ -23,6 +23,108 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-012: turn indicator keeps stating a pending turn after the game reaches FINISHED
+
+**Found**: 2026-07-27 | **Status**: Fixed (commits `8f529a7`/`0c60a1c`)
+
+**Classification**: spec gap.
+
+**Detection**: Manual play-testing showed `[data-turn-indicator]` still reads "Turno de O" after
+the game ends, simultaneously with the result being shown elsewhere ("Gana X").
+
+**Diagnosis**: **Spec gap.** CA-I-03 ("at all times") is the assignment's verbatim mandatory
+criterion #1 and is not rewritten. It was simply never scoped for the one state where "whose
+turn" stops being a meaningful question — `FINISHED`. `dom-contract.md` mirrored the same
+unscoped wording. Not a contract non-compliance (the contract never said anything about
+`FINISHED` either) and not an implementation defect of an existing criterion (`render.js` does
+exactly what CA-I-03's literal text requires — "at all times" — it just never occurred to anyone
+that "at all times" would keep applying past the point where there is no turn to indicate).
+
+**Fix** (spec-first, per constitution P3/P7): new criterion **CA-I-34** added to `spec.md`
+(Amendments section, A3) as a boundary clause for the `FINISHED` state — CA-I-03's own EARS text
+is untouched. Chosen wording replaces the turn indicator's text with a statement that the game
+has ended ("Partida terminada"), rather than clearing it to an empty string, per explicit group
+decision: an indicator that goes blank leaves an unexplained visual gap, while stating the game
+ended keeps satisfying CA-I-03's "indicate at all times" intent through the terminal state too.
+`dom-contract.md`'s `[data-turn-indicator]` entry extended to note the `FINISHED`-state text.
+`tasks.md` extended with T-105 (RED, `8f529a7`) / T-106 (GREEN, `0c60a1c`).
+
+**Result**: `npm test` 118/118 green after the fix.
+
+**Lesson**: a criterion transcribed verbatim from an external mandatory source can still have an
+unscoped boundary; the fix is an additive clause with its own CA-ID, never an edit to the
+verbatim text itself. Found by manual play, not by the automated suite — no test ever asserted
+`[data-turn-indicator]`'s content once `uiState === 'FINISHED'`.
+
+---
+
+## BUG-011: `[data-result-indicator]` and `[data-live-region]` both show the same result text visibly
+
+**Found**: 2026-07-27 | **Status**: Fixed (commits `1dc7f5a`/`7665580`)
+
+**Classification**: plan gap (not a spec gap, not a contract non-compliance).
+
+**Detection**: Manual play-testing showed "Gana X" (or "Empate") displayed twice on screen at
+once after a game ends.
+
+**Diagnosis**: **Plan gap.** CA-I-04, CA-I-11, and CA-I-20 are each independently satisfied —
+`[data-result-indicator]` (CA-I-04/CA-I-11) and `[data-live-region]` (CA-I-20) are two distinct,
+individually-required elements, and neither `render.js` nor `dom-contract.md` violates what either
+criterion asks for. What was missing is a `research.md`/`dom-contract.md` decision about the live
+region's visual treatment — nothing ever said it should be hidden from sighted users while
+remaining in the accessibility tree, so `render.js` left it as an ordinary visible `<p>`.
+
+**Fix**: `research.md` D-I-09 added (`sr-only` technique, not `display:none`/`visibility:hidden`,
+so `aria-live` still fires for assistive technology); `dom-contract.md`'s Status region entry for
+`[data-live-region]` updated to require the `sr-only` treatment. CA-I-20 unchanged — no `spec.md`
+amendment, since no criterion's behavior changes, only an undecided visual detail is now decided.
+`tasks.md` extended with T-103 (RED, `1dc7f5a`) / T-104 (GREEN, `7665580`), with no `CA-I-nn` tag
+(same precedent as `001-engine`'s T-001/T-002 and this feature's own T-060: a task can exist
+without a CA-ID when it fixes a contract/tooling detail rather than a criterion).
+
+**Result**: `npm test` 117/117 green after the fix.
+
+**Lesson**: a contract/plan artifact can have a gap independent of any spec gap — two criteria can
+each be individually satisfied while their combined, unplanned interaction still produces a
+defect no criterion forbids. Found by manual play; nothing in the automated suite ever asserted
+the two elements' texts against each other or checked either element's visual (non-accessibility)
+treatment.
+
+---
+
+## BUG-010: scoreboard counts have no identifying label
+
+**Found**: 2026-07-27 | **Status**: Fixed (commits `6f5c800`/`b468269`)
+
+**Classification**: spec gap.
+
+**Detection**: Manual play-testing showed the scoreboard renders as three bare numbers ("3 0 0")
+with no text indicating which is X's win count, O's win count, or the draw count.
+
+**Diagnosis**: **Spec gap.** CA-I-14 and CA-I-15 only required the count to increment correctly;
+neither ever asserted the count must be identifiable. `dom-contract.md` mirrored that gap —
+`[data-score="X"]` etc. were only ever specified as "text content is the current count," no label.
+Not a contract non-compliance (`render.js` does exactly what the contract said) and not an
+implementation defect of an existing criterion (both criteria's own literal behavior — increment
+on `FINISHED` — was, and remains, correctly implemented).
+
+**Fix** (spec-first, per constitution P3/P7): CA-I-14 and CA-I-15 amended in `spec.md` (not split
+into a new CA-ID — labeling is part of the same scoreboard-entry behavior, and a separate CA-ID
+for a label alone would fragment traceability for one combined observable) to require a label
+identifying each count, in Spanish (`"X"`, `"O"`, `"Empates"`) per the game UI's language
+convention; `dom-contract.md` extended with `[data-score-label="X"|"O"|"draw"]`. `tasks.md`
+extended with T-101 (RED, `6f5c800`) / T-102 (GREEN, `b468269`).
+
+**Result**: `npm test` 115/115 green after the fix.
+
+**Lesson**: same shape as BUG-008 — the automated suite was internally consistent (asserting only
+`[data-score].textContent`) but never encoded what a human observer needs to identify each value.
+None of BUG-010/011/012 were reachable by `/speckit-analyze` either: analyze checks artifacts
+against each other for internal consistency, not the product's actual on-screen output against a
+human's expectations — that gap only manual play-testing closes.
+
+---
+
 ## BUG-009: `render.js` collapsed `dom-contract.md`'s `"own" | "opponent"` cell-state enum into just `"own"`
 
 **Found**: 2026-07-27 | **Status**: Fixed

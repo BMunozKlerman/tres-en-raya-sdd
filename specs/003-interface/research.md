@@ -293,3 +293,25 @@ indicator's presence/absence across two `chooseMove` calls in the same session w
 
 All four are fully jsdom-testable: they depend only on DOM event dispatch, `document.
 activeElement`, and attribute/text-content reads — none require real layout or paint.
+
+## D-I-09 — Visually hiding the live region (BUG-011)
+
+**Decision**: `[data-live-region]` (CA-I-20's assistive-technology announcement target) is given
+the standard `sr-only` CSS technique (absolute positioning, 1×1px clip, `overflow: hidden`) rather
+than `display: none` or `visibility: hidden`. The latter two remove an element from the
+accessibility tree entirely, which would silently break CA-I-20 for the exact audience it exists
+for; `sr-only` keeps the node in the tree (so `aria-live` still fires) while removing it from the
+sighted visual layout.
+
+**Why this was needed**: manual play-testing found `[data-result-indicator]` (CA-I-04/CA-I-11)
+and `[data-live-region]` (CA-I-20) both rendering the same "Gana X"/"Empate" text as plain,
+visible `<p>` elements — nothing in `spec.md`, this file, or `dom-contract.md` had ever specified
+the live region's visual treatment, so `render.js` left it as an ordinary visible paragraph.
+
+**Rejected alternative**: removing the duplicated text from `[data-result-indicator]` instead and
+relying on the live region alone — rejected because `[data-result-indicator]` is the one CA-I-04/
+CA-I-11 explicitly require to be a persistent, readable status element (not just a
+transiently-announced one), and `dom-contract.md` already documents it as such.
+
+**Scope**: this is a plan-level fix (`dom-contract.md`, `render.js`/CSS), not a `spec.md`
+amendment — CA-I-20's EARS text does not change. Tracked as **BUG-011** in `docs/bugs.md`.

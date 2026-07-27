@@ -635,7 +635,7 @@ for CA-A-13/CA-A-14.
 
 ### Full game completable via keyboard alone (CA-N-03)
 
-- [ ] T-101 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
+- [ ] T-107 [Non-Functional] [AC: CA-N-03] RED — Add to `non-functional.test.js`:
   `describe('CA-N-03 — full game completable via keyboard alone', ...)`: complete a full game —
   tab through configuration controls (`change` events triggered via keyboard-equivalent
   interaction), select/activate board cells via `ArrowKey`+`Enter`/`Space` (T-088/T-090), restart
@@ -643,9 +643,9 @@ for CA-A-13/CA-A-14.
   this test. Expected to fail only if some action lacks a keyboard path. Expected commit:
   `test(CA-N-03): failing/asserting test — full game completable via keyboard alone`
 
-- [ ] T-102 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
+- [ ] T-108 [Non-Functional] [AC: CA-N-03] GREEN — Run `npm test`; if any action lacks a keyboard
   path, add it (per whichever of T-086/T-088/T-090/T-092's mechanisms it belongs to); otherwise no
-  production change is needed. `npm test` must be fully green. Expected commit: `T-102: confirm
+  production change is needed. `npm test` must be fully green. Expected commit: `T-108: confirm
   CA-N-03 — full game completable via keyboard alone`
 
 ---
@@ -684,17 +684,72 @@ after T-100, so `git log --grep="CA-I-33"` returns only commits that satisfy tha
 
 ---
 
+## Phase 7.6: Amendments — Scoreboard Labels, Live-Region Visual Hiding, Turn Indicator Scope
+(BUG-010 / BUG-011 / BUG-012)
+
+**Goal**: close three gaps found by manual play-testing after `T-100` (BUG-008/BUG-009 already
+fixed): the scoreboard has no labels (BUG-010, spec gap — extends CA-I-14/CA-I-15), the live
+region duplicates visible text (BUG-011, plan gap — no new CA-ID), and the turn indicator keeps
+showing a pending turn after `FINISHED` (BUG-012, spec gap — new CA-I-34).
+
+**Prerequisite**: T-100 GREEN and the BUG-009 fix commit complete.
+
+### Scoreboard labels (CA-I-14, CA-I-15 amended — BUG-010)
+
+- [x] T-101 [US-I-3] [AC: CA-I-14, CA-I-15] RED — Add to `us-i3-scoreboard.test.js`:
+  `describe('CA-I-14/CA-I-15 (amended) — scoreboard counts are identifiable by label', ...)`:
+  assert `[data-score-label="X"]`, `[data-score-label="O"]`, `[data-score-label="draw"]` exist
+  and their `textContent` is `"X"`, `"O"`, `"Empates"` respectively. Fails because `render.js`'s
+  `renderScoreboard` only creates `[data-score]` spans, no label elements. Expected commit:
+  `test(CA-I-14,CA-I-15): failing test — scoreboard counts are identifiable by label`
+
+- [x] T-102 [US-I-3] [AC: CA-I-14, CA-I-15] GREEN — In `render.js`'s `renderScoreboard`, create a
+  `[data-score-label]` element per entry (`"X"`, `"O"`, `"Empates"`) alongside the existing
+  `[data-score]` span. `npm test` must be fully green. Expected commit: `T-102: scoreboard counts
+  display an identifying label (CA-I-14, CA-I-15)`
+
+### Live-region visually hidden (BUG-011 — plan-level, no CA-ID; CA-I-20 unchanged)
+
+- [x] T-103 [Amendment] [Contract: dom-contract.md `[data-live-region]`] RED — Add to
+  `us-i4-keyboard.test.js`: assert `[data-live-region]` carries the `sr-only` class and that
+  `src/styles.css` defines `.sr-only` using the clip/absolute-positioning technique, not
+  `display: none` or `visibility: hidden` (regex-based static-CSS-source check, same technique as
+  `responsive-static.test.js`). Fails because `render.js` never adds the class and `styles.css`
+  has no such rule. Expected commit: `test: failing test — live region is visually hidden without
+  leaving the accessibility tree (BUG-011)`
+
+- [x] T-104 [Amendment] [Contract: dom-contract.md `[data-live-region]`] GREEN — Add `.sr-only` to
+  `styles.css` (per `research.md` D-I-09) and the class to `[data-live-region]` in `render.js`'s
+  `buildStructure`. `npm test` must be fully green. Expected commit: `T-104: hide live region
+  visually without removing it from the accessibility tree (BUG-011)`
+
+### Turn indicator scope when FINISHED (new CA-I-34 — BUG-012)
+
+- [x] T-105 [US-I-2] [AC: CA-I-34] RED — Add to `us-i2-state-feedback.test.js`:
+  `describe('CA-I-34 — turn indicator states the game has ended once FINISHED', ...)`: drive a
+  game to a win; assert `[data-turn-indicator]`'s `textContent` states the game has ended (e.g.
+  `'Partida terminada'`), not `'Turno de X'`/`'Turno de O'`, once `uiState === 'FINISHED'`. Fails
+  because `renderStatus` unconditionally writes `Turno de ${state.engineState.turn}`. Expected
+  commit: `test(CA-I-34): failing test — turn indicator states the game has ended once FINISHED`
+
+- [x] T-106 [US-I-2] [AC: CA-I-34] GREEN — In `render.js`'s `renderStatus`, set
+  `turnIndicator.textContent = 'Partida terminada'` when `state.uiState === 'FINISHED'`,
+  otherwise keep the existing `Turno de ${turn}` behavior. `npm test` must be fully green.
+  Expected commit: `T-106: turn indicator states the game has ended once FINISHED (CA-I-34)`
+
+---
+
 ## Final Phase: Traceability Closure
 
-- [ ] T-103 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
+- [ ] T-109 [AC: CA-I-01, CA-I-02, CA-I-03, CA-I-04, CA-I-05, CA-I-06, CA-I-07, CA-I-08, CA-I-09,
   CA-I-10, CA-I-11, CA-I-12, CA-I-13, CA-I-14, CA-I-15, CA-I-16, CA-I-17, CA-I-18, CA-I-19,
   CA-I-20, CA-I-21, CA-I-22, CA-I-23, CA-I-24, CA-I-25, CA-I-26, CA-I-27, CA-I-28, CA-I-29,
-  CA-I-30, CA-I-31, CA-I-32, CA-I-33, CA-N-02, CA-N-03] Run `npm run verify:traceability`; fill the
-  Task column (T-NNN) and Commit SHA column for all 35 rows in `specs/003-interface/
+  CA-I-30, CA-I-31, CA-I-32, CA-I-33, CA-I-34, CA-N-02, CA-N-03] Run `npm run verify:traceability`;
+  fill the Task column (T-NNN) and Commit SHA column for all 36 rows in `specs/003-interface/
   traceability.md` using real SHAs from `git log`; execute `manual-verification.md`'s procedure
   for CA-I-17 (rendered-visibility half), CA-I-28–CA-I-32, and record the result in that file;
-  verify `npm run verify:traceability` exits 0 for all three features (37 + 35 = 72 CA-IDs
-  combined) after the commit. Expected commit: `T-103: record real SHAs in traceability matrix —
+  verify `npm run verify:traceability` exits 0 for all three features (37 + 36 = 73 CA-IDs
+  combined) after the commit. Expected commit: `T-109: record real SHAs in traceability matrix —
   003-interface complete`
 
 ---
@@ -716,8 +771,8 @@ after T-100, so `git log --grep="CA-I-33"` returns only commits that satisfy tha
 | CA-I-11 | T-067 | T-068 | us-i2-state-feedback.test.js | Grouped with CA-I-15 — `applyPlayerMove` draw branch |
 | CA-I-12 | T-075 | T-076 | us-i2-waiting-state.test.js | Grouped with CA-I-06, CA-I-22 |
 | CA-I-13 | T-077 | T-078 | us-i2-waiting-state.test.js | Grouped with CA-I-10 |
-| CA-I-14 | T-065 | T-066 | us-i3-scoreboard.test.js | Grouped with CA-I-04 |
-| CA-I-15 | T-067 | T-068 | us-i3-scoreboard.test.js | Grouped with CA-I-11 |
+| CA-I-14 | T-065 (base); T-101 (label, amended) | T-066 (base); T-102 (label, amended) | us-i3-scoreboard.test.js | Grouped with CA-I-04; extended by BUG-010's T-101/T-102 for the identifying label |
+| CA-I-15 | T-067 (base); T-101 (label, amended) | T-068 (base); T-102 (label, amended) | us-i3-scoreboard.test.js | Grouped with CA-I-11; extended by BUG-010's T-101/T-102 for the identifying label |
 | CA-I-16 | T-083 | T-084 | us-i3-scoreboard.test.js | Grouped with CA-I-23 — `restart`'s covered criteria |
 | CA-I-17 | T-085 | T-086 | us-i4-keyboard.test.js | ⚠️ Behavioral proxy only — rendered visibility closed by manual-verification.md |
 | CA-I-18 | T-087 | T-088 | us-i4-keyboard.test.js | Own pair — arrow-key navigation |
@@ -737,13 +792,14 @@ after T-100, so `git log --grep="CA-I-33"` returns only commits that satisfy tha
 | CA-I-32 | T-095 | T-096 | responsive-static.test.js | ⚠️ Structural proxy only — see CA-I-28 |
 | CA-N-02 | T-097 | T-098 | non-functional.test.js | Corollary of every click handler built in Phases 2–5 |
 | CA-I-33 | T-099 | T-100 | us-i2-state-feedback.test.js | Added post-implementation (BUG-008, Amendment A1) — own pair, board mark visibility |
-| CA-N-03 | T-101 | T-102 | non-functional.test.js | Corollary of every keyboard handler built in Phase 5 |
+| CA-I-34 | T-105 | T-106 | us-i2-state-feedback.test.js | Added post-implementation (BUG-012, Amendment A3) — own pair, turn-indicator scope for FINISHED |
+| CA-N-03 | T-107 | T-108 | non-functional.test.js | Corollary of every keyboard handler built in Phase 5 |
 
 ---
 
 ## Dependencies & Execution Order
 
-All 44 tasks are strictly sequential (every GREEN task touches at least one of
+All 50 tasks are strictly sequential (every GREEN task touches at least one of
 `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js`, or `src/styles.css`, each grown
 incrementally; no `[P]` markers).
 
@@ -770,8 +826,11 @@ T-060 (setup)
   → T-097(RED) → T-098(GREEN)  CA-N-02
   → T-099(RED) → T-100(GREEN)  CA-I-33 (Amendment, BUG-008)
   → (fix, no T-NNN)             BUG-009 — dom-contract.md own/opponent compliance
-  → T-101(RED) → T-102(GREEN)  CA-N-03
-  → T-103                      traceability closure
+  → T-101(RED) → T-102(GREEN)  CA-I-14, CA-I-15 (amended, BUG-010) — scoreboard labels
+  → T-103(RED) → T-104(GREEN)  BUG-011 — live-region sr-only (no CA-ID, CA-I-20 unchanged)
+  → T-105(RED) → T-106(GREEN)  CA-I-34 (Amendment, BUG-012) — turn indicator scope
+  → T-107(RED) → T-108(GREEN)  CA-N-03
+  → T-109                      traceability closure
 ```
 
 **Phase gates**:
@@ -786,8 +845,9 @@ T-060 (setup)
 | Phase 6 (T-093) | T-092 GREEN — every interactive control exists to style |
 | Phase 7 (T-097) | T-096 GREEN — styles complete |
 | Phase 7.5 (T-099) | T-098 GREEN — CA-N-02 confirmed |
-| Phase 7 cont'd (T-101) | T-100 GREEN, plus BUG-009 fixed — CA-I-33 and the DOM contract are both correct before the keyboard-only playthrough exercises them |
-| Final (T-103) | T-102 GREEN — `npm test` fully green |
+| Phase 7.6 (T-101) | T-100 GREEN, plus BUG-009 fixed — CA-I-33 and the DOM contract are both correct before these three amendments build on them |
+| Phase 7 cont'd (T-107) | T-106 GREEN — scoreboard labels, live-region hiding, and turn-indicator scope all correct before the keyboard-only playthrough exercises them |
+| Final (T-109) | T-108 GREEN — `npm test` fully green |
 
 ---
 
@@ -795,8 +855,8 @@ T-060 (setup)
 
 | Check | Result |
 |-------|--------|
-| CA-ID with no task | None — 35/35 covered (see Coverage Audit; CA-I-33 added post-implementation, BUG-008) |
-| Task with no CA-ID | Only T-060 (Phase 1 tooling/scaffold) — same documented exception `001-engine`'s T-001/T-002 established; explicitly labeled "no behavioral CA-ID" in its phase header, per project precedent, not a deviation invented here |
+| CA-ID with no task | None — 36/36 covered (see Coverage Audit; CA-I-33 added post-implementation, BUG-008; CA-I-34 added post-implementation, BUG-012) |
+| Task with no CA-ID | T-060 (Phase 1 tooling/scaffold, same documented exception `001-engine`'s T-001/T-002 established) and T-103/T-104 (Phase 7.6, BUG-011 — a `dom-contract.md`-level fix with no `CA-I-nn` of its own, since CA-I-20 does not change) |
 | GREEN preceding its RED | None — every pair is listed RED-then-GREEN in both the task list and the dependency graph above |
 | Tasks likely to exceed one commit | Flagged and pre-emptively split during generation: the original single "all 5 responsive criteria" pair was split into T-093/T-094 (CA-I-28, CA-I-29 — page layout) and T-095/T-096 (CA-I-30, CA-I-31, CA-I-32 — component-level), mirroring `002-agents`'s T-047/T-048 split. Remaining borderline case: **T-062** (the first behavioral GREEN task) creates all three of `src/ui/app-state.js`, `src/ui/render.js`, `src/ui/events.js` in one commit — larger than a typical single-criterion GREEN, but judged acceptable because it mirrors `002-agents`'s T-035 (first commit creating the entire `src/agents.js` file) and the three files' *content* here is scoped tightly to configuration only (no gameplay logic yet); flagged here for the user's review rather than split further, since splitting "create app-state.js" from "create render.js" from "create events.js" would leave two of the three commits unable to pass any test on their own (an untestable intermediate commit is a worse traceability outcome than one slightly larger commit, per P5's red-before-green intent). |
 | CA-ID with unclear test strategy | None outright unclear, but three are worth flagging: **CA-I-19** (T-089/T-090) — GREEN may end up requiring zero production code if jsdom's native `<button>` keyboard semantics already dispatch `click` on Enter/Space; the task is written to handle either outcome, but the actual result is only knowable at implementation time. **CA-I-17/CA-I-28–CA-I-32** — test strategy is deliberately partial by design (documented proxy + manual procedure, per `research.md` D-I-04), not unclear; flagged here only so the distinction between "partial by design" and "unclear" is explicit. **CA-I-09**'s T-081/T-082 — the real cross-game integration test's feasibility inside jsdom (no wall clock, deterministic transposition-table cache hit) is not yet proven; T-082's description carries an explicit contingency to fall back to a documented `traceability.md` limitation, same pattern as the six partial criteria, if it turns out infeasible. |

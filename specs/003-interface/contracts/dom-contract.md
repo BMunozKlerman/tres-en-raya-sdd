@@ -31,7 +31,8 @@ in `src/ui/render.js` and referenced verbatim by tests — not illustrative exam
 ## Status region
 
 - `[data-turn-indicator]` — text content always states whose turn it is and their mark
-  (CA-I-03).
+  (CA-I-03); while `uiState === 'FINISHED'`, text content instead states that the game has ended
+  (CA-I-34, Amendment BUG-012 — no player has a pending turn once the game is over).
 - `[data-waiting-indicator]` — present (and board cells carry `disabled`) while
   `uiState === 'WAITING_FOR_AGENT'` (CA-I-06, CA-I-22).
 - `[data-memory-indicator]` — present only when `lastDecision.resolvedFromMemory === true`
@@ -42,7 +43,10 @@ in `src/ui/render.js` and referenced verbatim by tests — not illustrative exam
   attempt (CA-I-05, CA-I-21); cleared on the next successful action.
 - `[role="status"][aria-live="polite"]` (`[data-live-region]`) — the sole assistive-technology
   announcement target; its `textContent` is replaced (not appended) on every turn change and on
-  reaching a result (CA-I-20). No other element in the document carries `aria-live`.
+  reaching a result (CA-I-20). No other element in the document carries `aria-live`. Visually
+  hidden via the `sr-only` technique — clip-based, not `display:none`/`visibility:hidden` — so it
+  stays in the accessibility tree while not duplicating `[data-result-indicator]`'s text on
+  screen (`research.md` D-I-09, Amendment BUG-011).
 
 ## Configuration
 
@@ -59,6 +63,10 @@ in `src/ui/render.js` and referenced verbatim by tests — not illustrative exam
 
 - `[data-score="X"]`, `[data-score="O"]`, `[data-score="draw"]` — text content is the current
   count (CA-I-14, CA-I-15).
+- `[data-score-label="X"]`, `[data-score-label="O"]`, `[data-score-label="draw"]` — one label
+  element per score entry, text content `"X"`, `"O"`, `"Empates"` respectively (Spanish, per
+  `CLAUDE.md`'s game-UI exception), so each count is identifiable without relying on position
+  alone (CA-I-14, CA-I-15, amended — see `spec.md` Amendments, BUG-010).
 
 ## Restart
 
