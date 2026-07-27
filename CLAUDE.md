@@ -178,8 +178,11 @@ never decide on your own.
 ## Current Status
 
 - [x] `specify init` executed
-- [ ] `/speckit-constitution` committed
-- [ ] Spec 001-engine (specify/clarify/plan/tasks/analyze)
+- [x] `/speckit-constitution` committed
+- [x] Spec 001-engine artifacts complete (specify/clarify/plan/tasks/analyze) — 20 criteria
+      CA-M-01–CA-M-20, 33 tasks T-001–T-033
+- [ ] Spec 001-engine implementation — T-001–T-010 done and committed (`npm test` 7/7 green);
+      next task: T-011
 - [ ] Spec 002-agents (specify/clarify/plan/tasks/analyze)
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
@@ -194,3 +197,12 @@ never decide on your own.
 - 2026-07-26: specs/001-engine/spec.md written. 18 criteria CA-M-01–CA-M-18 (EARS, no
   prohibited words). Group decisions D1–D4 resolved and encoded in spec. D5–D8 still
   pending (block specs/002-agents).
+- 2026-07-26: plan.md and tasks.md for 001-engine committed (19 criteria, 29 tasks).
+  `/speckit-analyze` corrections applied: CA-M-20 added (wrong_phase symmetric case),
+  T-021/T-022 split into CA-M-16/CA-M-17 pairs, D2/D3 documented in traceability.md —
+  spec now at 20 criteria, tasks.md at 33 tasks (T-001–T-033).
+- 2026-07-26: T-001–T-010 implemented and committed, one commit per task, RED before GREEN.
+  `npm test` green (7/7). BUG-001 found and fixed during this block: the traceability
+  verifier accepted `docs:` commits as implementation evidence (false positives on
+  CA-M-15/CA-M-20); corrected in plan.md (commit 706bafc) and in
+  `scripts/verify-traceability.mjs` (commit 809f0d8) — see `docs/bugs.md`. Next task: T-011.
