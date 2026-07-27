@@ -176,15 +176,15 @@ _Split from CA-M-16 (see "Exception to D9" note). This pair covers the global sa
 
 ### CA-M-07 — deferred from US-M-1 (requires movement path from T-024)
 
-- [ ] T-027 [US-M-1] [AC: CA-M-07] RED — Add to `tests/engine/us-m1-rules.test.js`: `describe('CA-M-07 — illegal: opponent mark', ...)`: build a movement-phase state with X at [0,2,4] and O at [1,3,5]; call `applyMove` with `{type:'move', player:'X', from:1, to:6}` (cell 1 holds O); assert `{error: true, reason: 'not_own_mark'}` and state unchanged. Expected commit: `test(CA-M-07): failing test — opponent mark guard in movement path`
+- [X] T-027 [US-M-1] [AC: CA-M-07] RED — Add to `tests/engine/us-m1-rules.test.js`: `describe('CA-M-07 — illegal: opponent mark', ...)`: build a movement-phase state with X at [0,2,4] and O at [1,3,5]; call `applyMove` with `{type:'move', player:'X', from:1, to:6}` (cell 1 holds O); assert `{error: true, reason: 'not_own_mark'}` and state unchanged. Expected commit: `test(CA-M-07): failing test — opponent mark guard in movement path`
 
-- [ ] T-028 [US-M-1] [AC: CA-M-07] GREEN — In `src/engine.js`, add guard to the movement path before board mutation: `if (state.board[move.from] !== move.player) return {error: true, reason: 'not_own_mark'}`; `npm test` must be fully green. Expected commit: `T-028: not_own_mark guard in movement path (CA-M-07)`
+- [X] T-028 [US-M-1] [AC: CA-M-07] GREEN — In `src/engine.js`, add guard to the movement path before board mutation: `if (state.board[move.from] !== move.player) return {error: true, reason: 'not_own_mark'}`; `npm test` must be fully green. Expected commit: `T-028: not_own_mark guard in movement path (CA-M-07)`
 
 ### CA-M-10 — deferred from US-M-1 (requires movement path from T-024)
 
-- [ ] T-029 [US-M-1] [AC: CA-M-10] RED — Add to `tests/engine/us-m1-rules.test.js`: `describe('CA-M-10 — legalMoves in movement phase', ...)`: reach movement phase (X at [0,2,4], O at [1,3,5], turn X, empty [6,7,8]); call `legalMoves(state)`; assert it returns an array of 9 elements (3 own marks × 3 empty cells), each `{type:'move', from:i, to:j}` where `board[i]==='X'` and `board[j]===null`. Expected commit: `test(CA-M-10): failing test — legalMoves movement phase cross-product`
+- [X] T-029 [US-M-1] [AC: CA-M-10] RED — Add to `tests/engine/us-m1-rules.test.js`: `describe('CA-M-10 — legalMoves in movement phase', ...)`: reach movement phase (X at [0,2,4], O at [1,3,5], turn X, empty [6,7,8]); call `legalMoves(state)`; assert it returns an array of 9 elements (3 own marks × 3 empty cells), each `{type:'move', from:i, to:j}` where `board[i]==='X'` and `board[j]===null`. Expected commit: `test(CA-M-10): failing test — legalMoves movement phase cross-product`
 
-- [ ] T-030 [US-M-1] [AC: CA-M-10] GREEN — In `src/engine.js`, extend `legalMoves`: add `else if (state.phase === 'movement')` branch iterating all (i,j) pairs where `state.board[i] === state.turn` and `state.board[j] === null` and `i !== j`, returning `{type:'move', from:i, to:j}` for each; `npm test` must be fully green. Expected commit: `T-030: legalMoves movement phase cross-product (CA-M-10)`
+- [X] T-030 [US-M-1] [AC: CA-M-10] GREEN — In `src/engine.js`, extend `legalMoves`: add `else if (state.phase === 'movement')` branch iterating all (i,j) pairs where `state.board[i] === state.turn` and `state.board[j] === null` and `i !== j`, returning `{type:'move', from:i, to:j}` for each; `npm test` must be fully green. Expected commit: `T-030: legalMoves movement phase cross-product (CA-M-10)`
 
 ---
 
@@ -196,12 +196,12 @@ _CA-M-18 (source null) and CA-M-19 (destination occupied) are both guards in the
 
 **Prerequisite**: T-030 GREEN complete.
 
-- [ ] T-031 [AC: CA-M-18, CA-M-19] RED — Create `tests/engine/edge-cases.test.js`:
+- [X] T-031 [AC: CA-M-18, CA-M-19] RED — Create `tests/engine/edge-cases.test.js`:
   - `describe('CA-M-18 — illegal: empty source cell', ...)`: movement-phase state (X at [0,2,4], O at [1,3,5]); call `applyMove` with `{type:'move', player:'X', from:6, to:7}` (cell 6 is null); assert `{error:true, reason:'no_mark_at_source'}` and state unchanged.
   - `describe('CA-M-19 — illegal: occupied destination', ...)`: same state; call `applyMove` with `{type:'move', player:'X', from:0, to:1}` (cell 1 holds O); assert `{error:true, reason:'cell_occupied'}` and state unchanged.
   Expected commit: `test(CA-M-18,CA-M-19): failing tests — empty source and occupied destination`
 
-- [ ] T-032 [AC: CA-M-18, CA-M-19] GREEN — In `src/engine.js`, add two guards to the movement path in this order (before board mutation): `if (state.board[move.from] === null) return {error:true, reason:'no_mark_at_source'}`; `if (state.board[move.to] !== null) return {error:true, reason:'cell_occupied'}`; `npm test` must be fully green; run `npm run verify:traceability` — expect only "missing in: git log" orphans at this point (SHAs recorded in T-033). Expected commit: `T-032: no_mark_at_source and cell_occupied guards in movement path (CA-M-18, CA-M-19)`
+- [X] T-032 [AC: CA-M-18, CA-M-19] GREEN — In `src/engine.js`, add two guards to the movement path in this order (before board mutation): `if (state.board[move.from] === null) return {error:true, reason:'no_mark_at_source'}`; `if (state.board[move.to] !== null) return {error:true, reason:'cell_occupied'}`; `npm test` must be fully green; run `npm run verify:traceability` — expect only "missing in: git log" orphans at this point (SHAs recorded in T-033). Expected commit: `T-032: no_mark_at_source and cell_occupied guards in movement path (CA-M-18, CA-M-19)`
 
 ---
 

@@ -181,8 +181,9 @@ never decide on your own.
 - [x] `/speckit-constitution` committed
 - [x] Spec 001-engine artifacts complete (specify/clarify/plan/tasks/analyze) — 20 criteria
       CA-M-01–CA-M-20, 33 tasks T-001–T-033
-- [ ] Spec 001-engine implementation — T-001–T-026 done and committed (`npm test` 31/31 green);
-      `verify:traceability` orphans remaining: CA-M-07, CA-M-10, CA-M-18, CA-M-19; next task: T-027
+- [ ] Spec 001-engine implementation — T-001–T-032 done and committed (`npm test` 35/35 green);
+      `npm run verify:traceability` exits 0 (all 20 CA-IDs traced via commit messages); only
+      T-033 (record real SHAs in traceability.md) remains before the feature is closed
 - [ ] Spec 002-agents (specify/clarify/plan/tasks/analyze)
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
@@ -218,3 +219,10 @@ never decide on your own.
   separate commit (`bfe0a61`, T-023 left untouched) and logged in `docs/bugs.md`.
   `verify:traceability` orphans remaining: CA-M-07, CA-M-10, CA-M-18, CA-M-19 (Phase 4/5,
   deferred pending the movement guards). Next task: T-027.
+- 2026-07-27: T-027–T-032 implemented and committed, one commit per task, RED before GREEN.
+  `npm test` green (35/35). Covers CA-M-07 (not_own_mark guard), CA-M-10 (legalMoves
+  cross-product in movement phase), CA-M-18/CA-M-19 (no_mark_at_source and cell_occupied
+  guards on movement destination, new `tests/engine/edge-cases.test.js`). No spec or process
+  deviations; no bugs found in this block. `npm run verify:traceability` now exits 0 (all
+  20 CA-IDs traced). Only T-033 (real SHAs in traceability.md) remains, deferred per user
+  request to a separate session with clear context. Next task: T-033.
