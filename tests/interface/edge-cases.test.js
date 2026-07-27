@@ -106,6 +106,29 @@ describe('CA-I-26 — destination selection applies the move', () => {
   });
 });
 
+function startHumanVsAgent(root) {
+  startGame(root, { opponent: 'agent', agentLevel: 'simple' });
+}
+
+describe('CA-I-22 — input ignored during WAITING_FOR_AGENT', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('leaves the board unchanged when a cell is clicked while waiting for the agent', () => {
+    const root = mount();
+    startHumanVsAgent(root);
+
+    root.querySelector('[data-cell="0"]').click();
+    const before = Array.from(root.querySelectorAll('[data-cell]')).map((c) => c.dataset.cellState);
+
+    root.querySelector('[data-cell="1"]').click();
+
+    const after = Array.from(root.querySelectorAll('[data-cell]')).map((c) => c.dataset.cellState);
+    expect(after).toEqual(before);
+  });
+});
+
 describe('CA-I-21 — occupied cell rejected', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
