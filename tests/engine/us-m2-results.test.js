@@ -33,3 +33,49 @@ describe('CA-M-12 — win detection all 8 lines', () => {
     expect(next.result).toBe('O');
   });
 });
+
+function playSequence(moves) {
+  let state = createGame('classic');
+  for (const { player, cell } of moves) {
+    state = applyMove(state, { type: 'place', player, cell });
+  }
+  return state;
+}
+
+describe('CA-M-13 — classic draw', () => {
+  it('sets result to draw when the ninth placement fills the board with no winner', () => {
+    const sequence = [
+      { player: 'X', cell: 0 },
+      { player: 'O', cell: 4 },
+      { player: 'X', cell: 1 },
+      { player: 'O', cell: 3 },
+      { player: 'X', cell: 5 },
+      { player: 'O', cell: 2 },
+      { player: 'X', cell: 7 },
+      { player: 'O', cell: 8 },
+      { player: 'X', cell: 6 },
+    ];
+    const final = playSequence(sequence);
+    expect(final.board).not.toContain(null);
+    expect(final.result).toBe('draw');
+  });
+});
+
+describe('CA-M-14 — win over draw precedence', () => {
+  it('sets result to the winning mark, not draw, when the ninth placement both fills the board and completes a line', () => {
+    const sequence = [
+      { player: 'X', cell: 0 },
+      { player: 'O', cell: 3 },
+      { player: 'X', cell: 1 },
+      { player: 'O', cell: 4 },
+      { player: 'X', cell: 5 },
+      { player: 'O', cell: 6 },
+      { player: 'X', cell: 7 },
+      { player: 'O', cell: 8 },
+      { player: 'X', cell: 2 },
+    ];
+    const final = playSequence(sequence);
+    expect(final.board).not.toContain(null);
+    expect(final.result).toBe('X');
+  });
+});
