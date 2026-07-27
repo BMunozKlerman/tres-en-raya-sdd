@@ -41,3 +41,21 @@ describe('CA-A-16 — medium blocks one of two simultaneous threats', () => {
     expect(threatCells).toContain(decision.move.cell);
   });
 });
+
+describe('CA-A-14 — single legal move returned at every level', () => {
+  it('returns the only legal move for simple, medium, and complex', () => {
+    const state = {
+      board: ['X', 'O', 'X', 'X', 'O', 'O', 'O', 'X', null],
+      turn: 'X',
+      mode: 'classic',
+      phase: 'placement',
+      piecesPlaced: 8,
+      result: null,
+    };
+    const expectedMove = { type: 'place', cell: 8 };
+
+    expect(chooseMove(state, 'simple', null).move).toEqual(expectedMove);
+    expect(chooseMove(state, 'medium', null).move).toEqual(expectedMove);
+    expect(chooseMove(state, 'complex', {}).move).toEqual(expectedMove);
+  });
+});
