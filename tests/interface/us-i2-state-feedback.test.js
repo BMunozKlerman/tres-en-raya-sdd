@@ -74,3 +74,26 @@ describe('CA-I-05 — illegal move rejected with reason', () => {
     expect(next.engineState.board).toEqual(before);
   });
 });
+
+describe('CA-I-04 — winning line highlighted, moves blocked', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('marks the three winning cells and blocks further clicks', () => {
+    const root = mount();
+    startHumanVsHuman(root);
+
+    // Hand-verified sequence: X takes the top row (0,1,2), O takes 3,4.
+    ['0', '3', '1', '4', '2'].forEach((cellIndex) => {
+      root.querySelector(`[data-cell="${cellIndex}"]`).click();
+    });
+
+    ['0', '1', '2'].forEach((cellIndex) => {
+      expect(root.querySelector(`[data-cell="${cellIndex}"]`).dataset.winning).toBe('true');
+    });
+
+    root.querySelector('[data-cell="5"]').click();
+    expect(root.querySelector('[data-cell="5"]').dataset.cellState).toBe('empty');
+  });
+});
