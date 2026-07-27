@@ -9,7 +9,7 @@ is pushed. Numbering continues from `001-engine`'s `T-033` (single linear commit
 `main`, no dedicated feature branch — see `CLAUDE.md` session log, 2026-07-27); the first task
 here is `T-034`.
 
-**Total tasks**: 23 (T-034 to T-056)
+**Total tasks**: 24 (T-034 to T-057)
 
 **Setup**: Not needed. Per `plan.md § Technical Context`, no new dependency, no new npm script,
 and `vitest.config.js`'s existing glob (`tests/**/*.test.js`) already matches `tests/agents/**`.
@@ -44,6 +44,16 @@ yet, and the single GREEN commit that adds the branch satisfies every bundled cr
 This keeps every criterion individually traceable (its own `describe`, its own CA-ID in the
 commit message) without manufacturing a RED that could never actually fail.
 
+**Post-`/speckit-analyze` correction (2026-07-27)**: the original T-047 bundled a genuinely new
+code layer (static evaluation + horizon cutoff for CA-A-09) with an open-ended, iterative
+measurement procedure (the `HORIZON_DEPTH` calibration loop). `/speckit-analyze` flagged this as
+the task most likely to exceed a single commit. It is now split into T-047 (implementation only,
+`HORIZON_DEPTH` left at its starting value) and T-048 (calibration), and every task after it is
+renumbered by one. This also motivated the constitution amendment to 2.0.0 (see
+`.specify/memory/constitution.md § Amendment History`): the analysis found P2's ratified
+`chooseMove` contract still describing the pre-D7 shape while `plan.md`/`contracts/agents-api.md`
+already implemented the wider one.
+
 ---
 
 ## Phase 1: US-A-1 — Simple Level (Priority: P1)
@@ -77,8 +87,11 @@ is introduced here as the test-determinism seam (D-R-01/02, `data-model.md`)._
   level, memory, options = {})`: for `level === 'simple'`, `const moves = legalMoves(state)`,
   `const random = options.random ?? Math.random`, `const move = moves[Math.floor(random() *
   moves.length)]`, return `{move, memory, nodesEvaluated: moves.length, resolvedFromMemory:
-  false}`. `npm test` must be fully green. Expected commit: `T-035: chooseMove simple level —
-  uniform random pick (CA-A-01, CA-A-02)`
+  false}`. This is the first commit to materialize the D7 `Decision` shape
+  (`{move, memory, nodesEvaluated, resolvedFromMemory}`, constitution P2 as amended to 2.0.0) —
+  every level's dispatch branch returns this same shape from here on. `npm test` must be fully
+  green. Expected commit: `T-035: chooseMove simple level — uniform random pick (CA-A-01,
+  CA-A-02, D7)`
 
 ---
 
@@ -110,9 +123,11 @@ require grouping the test file._
 
 - [ ] T-037 [US-A-1] [AC: CA-A-03, CA-A-06, CA-A-11] GREEN — In `src/agents.js`, add a
   `level === 'medium'` branch: `const moves = legalMoves(state); const move = moves[0]; return
-  {move, memory: null, nodesEvaluated: moves.length, resolvedFromMemory: false}`. `npm test` must
-  be fully green. Expected commit: `T-037: chooseMove medium level — base dispatch, always
-  memoryless (CA-A-03, CA-A-06, CA-A-11)`
+  {move, memory: null, nodesEvaluated: moves.length, resolvedFromMemory: false}`. This
+  establishes the medium level's own instance of the D7 `Decision` shape (always
+  `resolvedFromMemory: false`, since the medium level is memoryless by design — CA-A-06, option
+  C). `npm test` must be fully green. Expected commit: `T-037: chooseMove medium level — base
+  dispatch, always memoryless (CA-A-03, CA-A-06, CA-A-11, D7)`
 
 ### Medium: win-this-turn (CA-A-04)
 
@@ -177,7 +192,7 @@ in classic mode, bounded by `HORIZON_DEPTH` in continuous mode, backed by a tran
 ### Complex: legality and determinism (CA-A-07, CA-A-12)
 
 _Grouped: both are properties of the same minimal deterministic stub — see "Documented
-exception" above. Real minimax is added incrementally in T-044/T-046/T-048; this stub is
+exception" above. Real minimax is added incrementally in T-044/T-046/T-047; this stub is
 intentionally naive (`legalMoves(state)[0]`) and gets replaced, not extended, by T-045's search._
 
 - [ ] T-042 [US-A-1] [AC: CA-A-07, CA-A-12] RED — Add to `tests/agents/us-a1-legality.test.js`:
@@ -191,8 +206,10 @@ intentionally naive (`legalMoves(state)[0]`) and gets replaced, not extended, by
 - [ ] T-043 [US-A-1] [AC: CA-A-07, CA-A-12] GREEN — In `src/agents.js`, add a `level ===
   'complex'` branch with a deterministic placeholder: `const moves = legalMoves(state); const
   move = moves[0]; return {move, memory, nodesEvaluated: moves.length, resolvedFromMemory:
-  false}`. `npm test` must be fully green. Expected commit: `T-043: chooseMove complex level —
-  deterministic base dispatch (CA-A-07, CA-A-12)`
+  false}`. This establishes the complex level's own instance of the D7 `Decision` shape — the
+  placeholder always reports `resolvedFromMemory: false`; the transposition table that can flip
+  it to `true` is added later in T-050. `npm test` must be fully green. Expected commit: `T-043:
+  chooseMove complex level — deterministic base dispatch (CA-A-07, CA-A-12, D7)`
 
 ### Complex: classic-mode optimality (CA-A-08)
 
@@ -210,7 +227,7 @@ intentionally naive (`legalMoves(state)[0]`) and gets replaced, not extended, by
   `legalMoves`/`applyMove`, terminal values `WIN_SCORE = 1000` / `LOSS_SCORE = -1000` /
   draw `0` (`data-model.md`), maximize for the current player, deterministic tie-break by
   `legalMoves` order; increment `nodesEvaluated` per node visited; no transposition table yet
-  (added in T-048/T-049), no horizon (classic mode always reaches a terminal state). `npm test`
+  (added in T-049/T-050), no horizon (classic mode always reaches a terminal state). `npm test`
   must be fully green. Expected commit: `T-045: complex classic-mode minimax with alpha-beta
   (CA-A-08)`
 
@@ -230,15 +247,34 @@ intentionally naive (`legalMoves(state)[0]`) and gets replaced, not extended, by
   and the static evaluation function (sum over the 8 winning lines, `+1`/`-1`/`0` per line, per
   `data-model.md`); when `state.mode === 'continuous'` and the recursion reaches
   `HORIZON_DEPTH` without a terminal state, return the static evaluation instead of recursing
-  further. Run the calibration procedure from `plan.md § Search Horizon`: measure the worst-case
-  continuous-mode position with a cold transposition table; if the worst time exceeds ~700 ms,
-  decrement `HORIZON_DEPTH` and re-measure, recording the final value here if it differs from 6.
-  `npm test` must be fully green. Expected commit: `T-047: complex continuous-mode search bounded
-  by HORIZON_DEPTH with static evaluation cutoff (CA-A-09)`
+  further. `HORIZON_DEPTH` stays at its starting value of 6 in this commit — the calibration
+  procedure that may adjust it is a separate task (T-048), since it measures timing against
+  CA-N-01's budget, not CA-A-09's own safety property, which holds at whatever depth is actually
+  searched. `npm test` must be fully green. Expected commit: `T-047: complex continuous-mode
+  search bounded by HORIZON_DEPTH with static evaluation cutoff (CA-A-09)`
+
+_Split from a single task after `/speckit-analyze` (2026-07-27) flagged the original T-047 as the
+task most likely to exceed one commit: it bundled a genuinely new code layer (static evaluation +
+horizon cutoff) with an open-ended, iterative measurement procedure (repeated
+decrement-and-remeasure). Splitting keeps each commit to one concern._
+
+- [ ] T-048 [US-A-1] [AC: CA-A-09] GREEN — Run the calibration procedure from `plan.md § Search
+  Horizon` (steps 2–5) against the continuous-mode position built in T-046: measure the
+  worst-case position with a cold transposition table; if the worst observed time exceeds ~700
+  ms, decrement `HORIZON_DEPTH` and re-measure; if there is comfortable headroom, depth may be
+  increased for stronger play, re-measuring each time. Record the final `HORIZON_DEPTH` value in
+  `plan.md § Search Horizon` if it differs from 6. No new production code beyond the constant's
+  value, if it changes — CA-A-09's test (T-046) already asserts the safety property at whatever
+  depth is configured; this task only tunes the depth against the timing budget. This is the
+  same measurement CA-N-01 (T-055/T-056) performs independently against the same constant; kept
+  as its own commit under its own CA-ID rather than merged with CA-N-01's calibration, per P6
+  (every `CA-*` criterion needs its own commit citing its ID). `npm test` must be fully green.
+  Expected commit: `T-048: calibrate HORIZON_DEPTH against the timing budget for continuous-mode
+  search (CA-A-09)`
 
 ### Complex: memory reuse via transposition table (CA-A-10)
 
-- [ ] T-048 [US-A-1] [AC: CA-A-10] RED — Add to `tests/agents/us-a1-complex.test.js`:
+- [ ] T-049 [US-A-1] [AC: CA-A-10] RED — Add to `tests/agents/us-a1-complex.test.js`:
   `describe('CA-A-10 — complex: cheaper resolution on a memoized position', ...)`: play a first
   complete classic-mode game at the complex level, capture the final `memory` returned by the
   last `chooseMove` call; start a second, independent game (`createGame`) and drive it to a state
@@ -251,14 +287,17 @@ intentionally naive (`legalMoves(state)[0]`) and gets replaced, not extended, by
   T-045/T-047's minimax never reads or writes any cache — `memory` is threaded through unread.
   Expected commit: `test(CA-A-10): failing test — complex reuses memory across games`
 
-- [ ] T-049 [US-A-1] [AC: CA-A-10] GREEN — In `src/agents.js`, thread `memory` through the
+- [ ] T-050 [US-A-1] [AC: CA-A-10] GREEN — In `src/agents.js`, thread `memory` through the
   complex-level minimax as a transposition table (`data-model.md`'s `ComplexMemory`): before
   recursing on a position, look up its canonical key in `memory`; on a hit at `depth ≥` the depth
   this call would otherwise search to, return the cached `move` with `resolvedFromMemory: true`
   and `nodesEvaluated: 1`; on a miss, search as normal, then write (or overwrite, if deeper) the
   resulting `{move, value, depth}` entry into a **new** memory object (no mutation of the
-  incoming `memory`, per P2) before returning it as `decision.memory`. `npm test` must be fully
-  green. Expected commit: `T-049: complex transposition table — cross-game memory reuse (CA-A-10)`
+  incoming `memory`, per P2) before returning it as `decision.memory`. This is the task that
+  makes `resolvedFromMemory` actually flip to `true` — the primary observable evidence for D7,
+  which every earlier level's stub (T-035, T-037, T-043) could only report as `false`. `npm test`
+  must be fully green. Expected commit: `T-050: complex transposition table — cross-game memory
+  reuse (CA-A-10, D7)`
 
 ---
 
@@ -267,7 +306,7 @@ intentionally naive (`legalMoves(state)[0]`) and gets replaced, not extended, by
 **Goal**: The corollary edge case that spans all three levels (CA-A-14), then the
 distinguishability simulation (CA-A-13) and the response-time NFR (CA-N-01).
 
-**Prerequisite**: T-049 GREEN complete (all three levels fully implemented).
+**Prerequisite**: T-050 GREEN complete (all three levels fully implemented).
 
 ### Single legal move at every level (CA-A-14)
 
@@ -277,7 +316,7 @@ exists to give CA-A-14 its own dedicated test and commit, per P6 (every `CA-*` c
 passing test and a commit citing its ID, independent of whether other criteria already imply
 it)._
 
-- [ ] T-050 [Edge Cases] [AC: CA-A-14] RED — Add to `tests/agents/edge-cases.test.js`:
+- [ ] T-051 [Edge Cases] [AC: CA-A-14] RED — Add to `tests/agents/edge-cases.test.js`:
   `describe('CA-A-14 — single legal move returned at every level', ...)`: build a state where
   `legalMoves(state)` has exactly one element (e.g. classic mode, 8 cells filled, no winner);
   call `chooseMove` for `'simple'`, `'medium'`, and `'complex'`; assert all three return that one
@@ -285,15 +324,15 @@ it)._
   implementation (no branch is missing, but the assertion has never been checked). Expected
   commit: `test(CA-A-14): failing test — single legal move at every level`
 
-- [ ] T-051 [Edge Cases] [AC: CA-A-14] GREEN — Run `npm test`; confirm CA-A-14 passes with no
+- [ ] T-052 [Edge Cases] [AC: CA-A-14] GREEN — Run `npm test`; confirm CA-A-14 passes with no
   changes to `src/agents.js` — direct consequence of CA-A-01/CA-A-03/CA-A-07's legality guarantee
   applied to a one-element `legalMoves` array. Record this explicitly in `traceability.md`'s
   notes column (same convention as `001-engine`'s D3 sub-test note in T-024). Expected commit:
-  `T-051: confirm single-legal-move corollary holds at every level (CA-A-14)`
+  `T-052: confirm single-legal-move corollary holds at every level (CA-A-14)`
 
 ### Distinguishability by simulation (CA-A-13)
 
-- [ ] T-052 [US-A-2] [AC: CA-A-13] RED — Create `tests/agents/us-a2-simulation.test.js` with
+- [ ] T-053 [US-A-2] [AC: CA-A-13] RED — Create `tests/agents/us-a2-simulation.test.js` with
   `describe('CA-A-13 — complex never loses to simple over 20 games', ...)`: per `plan.md`'s
   Determinism Strategy, fix 20 seeds (`1..20`), one per game; for each, seed a mulberry32
   `random` function and pass it as `options.random` to every `chooseMove` call for the simple
@@ -303,16 +342,16 @@ it)._
   20-game loop and the test itself does not exist yet. Expected commit: `test(CA-A-13): failing
   test — 20-game complex-vs-simple simulation`
 
-- [ ] T-053 [US-A-2] [AC: CA-A-13] GREEN — Run `npm test`; confirm the simulation passes with no
+- [ ] T-054 [US-A-2] [AC: CA-A-13] GREEN — Run `npm test`; confirm the simulation passes with no
   changes to `src/agents.js` — this is the perceptible-outcome confirmation of CA-A-08's
   exhaustive proof, not a new implementation requirement (`spec.md`'s note on CA-A-13). If any
   game fails, that indicates a bug in T-045's minimax, not a missing feature — fix there under
-  P7 (spec-first debugging) rather than adding special-casing here. Expected commit: `T-053:
+  P7 (spec-first debugging) rather than adding special-casing here. Expected commit: `T-054:
   confirm complex never loses to simple over 20 games (CA-A-13)`
 
 ### Response time under 1000 ms (CA-N-01)
 
-- [ ] T-054 [Non-Functional] [AC: CA-N-01] RED — Create `tests/agents/performance.test.js` with
+- [ ] T-055 [Non-Functional] [AC: CA-N-01] RED — Create `tests/agents/performance.test.js` with
   `describe('CA-N-01 — worst-case response time under 1000 ms', ...)`: for each of the two
   worst-case positions in `plan.md § Timing Test Design` (classic initial board; continuous
   maximal-branching movement position, both with a cold transposition table), and for each level
@@ -323,21 +362,23 @@ it)._
   above where the criterion is new but the underlying behavior already exists). Expected commit:
   `test(CA-N-01): failing/asserting test — worst-case response time under 1000 ms at every level`
 
-- [ ] T-055 [Non-Functional] [AC: CA-N-01] GREEN — Run `npm test`; if any measurement exceeds
+- [ ] T-056 [Non-Functional] [AC: CA-N-01] GREEN — Run `npm test`; if any measurement exceeds
   1000 ms, reduce `HORIZON_DEPTH` (`src/agents.js`) per `plan.md`'s calibration procedure step 4
   and re-measure until all six measurements (2 positions × 3 levels) are under budget; record the
-  final `HORIZON_DEPTH` value in `plan.md` if it changed from 6. `npm test` must be fully green.
-  Expected commit: `T-055: confirm CA-N-01 response-time budget at every level (CA-N-01)`
+  final `HORIZON_DEPTH` value in `plan.md` if it changed from 6 — reconcile against whatever
+  value T-048 already recorded for CA-A-09, since both tasks tune the same constant. `npm test`
+  must be fully green. Expected commit: `T-056: confirm CA-N-01 response-time budget at every
+  level (CA-N-01)`
 
 ---
 
 ## Final Phase: Traceability Closure
 
-- [ ] T-056 [AC: CA-A-01, CA-A-02, CA-A-03, CA-A-04, CA-A-05, CA-A-06, CA-A-07, CA-A-08, CA-A-09,
+- [ ] T-057 [AC: CA-A-01, CA-A-02, CA-A-03, CA-A-04, CA-A-05, CA-A-06, CA-A-07, CA-A-08, CA-A-09,
   CA-A-10, CA-A-11, CA-A-12, CA-A-13, CA-A-14, CA-A-15, CA-A-16, CA-N-01] Run `npm run
   verify:traceability`; fill the Task column (T-NNN) and Commit SHA column for all 17 rows in
   `specs/002-agents/traceability.md` using real SHAs from `git log`; verify `npm run
-  verify:traceability` exits 0 after the commit. Expected commit: `T-056: record real SHAs in
+  verify:traceability` exits 0 after the commit. Expected commit: `T-057: record real SHAs in
   traceability matrix — 002-agents complete`
 
 ---
@@ -354,22 +395,23 @@ it)._
 | CA-A-06 | T-036 | T-037 | us-a1-medium.test.js | ✅ Corollary — base stub never reads memory |
 | CA-A-07 | T-042 | T-043 | us-a1-legality.test.js | ✅ Grouped with CA-A-12 — same deterministic stub |
 | CA-A-08 | T-044 | T-045 | us-a1-complex.test.js | ✅ Real minimax replaces the stub, classic mode |
-| CA-A-09 | T-046 | T-047 | us-a1-complex.test.js | ✅ Extends T-045 with HORIZON_DEPTH + static eval |
-| CA-A-10 | T-048 | T-049 | us-a1-complex.test.js | ✅ Transposition table layered onto T-047's search |
+| CA-A-09 | T-046 | T-047, T-048 | us-a1-complex.test.js | ✅ T-047 implements the cutoff; T-048 calibrates HORIZON_DEPTH (split after /speckit-analyze) |
+| CA-A-10 | T-049 | T-050 | us-a1-complex.test.js | ✅ Transposition table layered onto T-047's search |
 | CA-A-11 | T-036 | T-037 | us-a2-determinism.test.js | ✅ Corollary of the base stub; test file per plan.md |
 | CA-A-12 | T-042 | T-043 | us-a2-determinism.test.js | ✅ Corollary of the deterministic complex stub |
-| CA-A-13 | T-052 | T-053 | us-a2-simulation.test.js | ✅ Perceptible-outcome confirmation of CA-A-08 |
-| CA-A-14 | T-050 | T-051 | edge-cases.test.js | ✅ Corollary of CA-A-01/03/07 — documented, no new code |
+| CA-A-13 | T-053 | T-054 | us-a2-simulation.test.js | ✅ Perceptible-outcome confirmation of CA-A-08 |
+| CA-A-14 | T-051 | T-052 | edge-cases.test.js | ✅ Corollary of CA-A-01/03/07 — documented, no new code |
 | CA-A-15 | T-040 | T-041 | edge-cases.test.js | ✅ Ordering consequence — win-check precedes block-check |
 | CA-A-16 | T-040 | T-041 | edge-cases.test.js | ✅ Same block-check, two-threat fixture |
-| CA-N-01 | T-054 | T-055 | performance.test.js | ✅ Calibration loop against HORIZON_DEPTH |
+| CA-N-01 | T-055 | T-056 | performance.test.js | ✅ Calibration loop against HORIZON_DEPTH |
 
 ---
 
 ## Dependencies & Execution Order
 
-All 23 tasks are strictly sequential. No `[P]` markers: every GREEN touches `src/agents.js`;
-consecutive REDs for the same test file accumulate content in the same file.
+All 24 tasks are strictly sequential. No `[P]` markers: every GREEN touches `src/agents.js`
+(except T-048, T-052, T-054, T-056, which may touch only the `HORIZON_DEPTH` constant or nothing
+at all); consecutive REDs for the same test file accumulate content in the same file.
 
 ```
 T-034(RED) → T-035(GREEN)      CA-A-01, CA-A-02
@@ -378,12 +420,12 @@ T-034(RED) → T-035(GREEN)      CA-A-01, CA-A-02
   → T-040(RED) → T-041(GREEN)  CA-A-05, CA-A-15, CA-A-16
   → T-042(RED) → T-043(GREEN)  CA-A-07, CA-A-12
   → T-044(RED) → T-045(GREEN)  CA-A-08
-  → T-046(RED) → T-047(GREEN)  CA-A-09
-  → T-048(RED) → T-049(GREEN)  CA-A-10
-  → T-050(RED) → T-051(GREEN)  CA-A-14
-  → T-052(RED) → T-053(GREEN)  CA-A-13
-  → T-054(RED) → T-055(GREEN)  CA-N-01
-  → T-056                      traceability closure
+  → T-046(RED) → T-047(GREEN) → T-048(GREEN)  CA-A-09
+  → T-049(RED) → T-050(GREEN)  CA-A-10
+  → T-051(RED) → T-052(GREEN)  CA-A-14
+  → T-053(RED) → T-054(GREEN)  CA-A-13
+  → T-055(RED) → T-056(GREEN)  CA-N-01
+  → T-057                      traceability closure
 ```
 
 **Phase gates**:
@@ -394,11 +436,12 @@ T-034(RED) → T-035(GREEN)      CA-A-01, CA-A-02
 | Phase 2 (T-036) | T-035 GREEN — simple level complete |
 | Phase 3 (T-042) | T-041 GREEN — medium level complete |
 | Phase 3, CA-A-09 (T-046) | T-045 GREEN — classic-mode minimax exists |
-| Phase 3, CA-A-10 (T-048) | T-047 GREEN — continuous-mode search exists |
-| Phase 4 (T-050) | T-049 GREEN — all three levels fully implemented |
-| Phase 4, CA-A-13 (T-052) | T-051 GREEN |
-| Phase 4, CA-N-01 (T-054) | T-053 GREEN |
-| Final (T-056) | T-055 GREEN — `npm test` fully green |
+| Phase 3, CA-A-09 calibration (T-048) | T-047 GREEN |
+| Phase 3, CA-A-10 (T-049) | T-048 GREEN — continuous-mode search exists and is calibrated |
+| Phase 4 (T-051) | T-050 GREEN — all three levels fully implemented |
+| Phase 4, CA-A-13 (T-053) | T-052 GREEN |
+| Phase 4, CA-N-01 (T-055) | T-054 GREEN |
+| Final (T-057) | T-056 GREEN — `npm test` fully green |
 
 ---
 
@@ -410,7 +453,7 @@ T-034(RED) → T-035(GREEN)      CA-A-01, CA-A-02
 | CA-ID with no GREEN task | None — 17/17 covered |
 | GREEN preceding its RED | None — verified by task sequence above |
 | Tasks without CA-ID | None — no tooling phase was needed for this feature (plan.md: no new dependency, no new script) |
-| Tasks exceeding one commit | None. The largest single implementation step is T-045 (classic-mode minimax with alpha-beta) — kept as one GREEN because CA-A-08 names a single observable property ("never loses") that minimax either satisfies or does not; splitting the algorithm into partial commits would leave an intermediate commit claiming CA-A-08 traced while the search is incomplete, the same false-positive risk BUG-001 found in 001-engine |
+| Tasks exceeding one commit | The largest single implementation step is T-045 (classic-mode minimax with alpha-beta) — kept as one GREEN because CA-A-08 names a single observable property ("never loses") that minimax either satisfies or does not; splitting the algorithm into partial commits would leave an intermediate commit claiming CA-A-08 traced while the search is incomplete, the same false-positive risk BUG-001 found in 001-engine. The original T-047 (continuous-mode cutoff + calibration) was flagged by `/speckit-analyze` (2026-07-27) as the task most likely to exceed one commit and has since been split into T-047 (implementation) and T-048 (calibration). |
 | CA-ID with unclear test strategy | CA-A-08 uses one `describe` driving a recursive helper over legal opponent sequences (per plan.md), not 9! separate `it` blocks — documented in T-044. All other criteria have a single concrete fixture or `it.each` matrix. |
 
 **Documented-exception note** (see header): CA-A-02, CA-A-06, CA-A-11, CA-A-12, and CA-A-14 are
@@ -421,11 +464,19 @@ for these pairs is genuine only in the sense that the *specific test* did not ex
 been run before that commit, not that the underlying behavior was ever absent. This mirrors
 `001-engine`'s T-023/T-024 precedent (D3: "requires no special-casing — the existing check
 already allows it") and is called out explicitly here rather than left implicit, so a reviewer
-auditing `git log --grep` understands why some GREEN commits (T-051, T-053, T-055) add no
+auditing `git log --grep` understands why some GREEN commits (T-052, T-054, T-056) add no
 production code.
 
-**Corollary GREEN commits with no code change**: T-051 (CA-A-14) and T-053 (CA-A-13) are expected
+**Corollary GREEN commits with no code change**: T-052 (CA-A-14) and T-054 (CA-A-13) are expected
 to require zero changes to `src/agents.js` if the preceding implementation is correct. If either
 fails, per P7 (spec-first debugging) the fix path is: diagnose which earlier criterion's
-implementation is actually wrong (CA-A-01/03/07 for T-051; CA-A-08 for T-053), fix that
-criterion's code, and re-verify — never add special-casing inside T-051/T-053 themselves.
+implementation is actually wrong (CA-A-01/03/07 for T-052; CA-A-08 for T-054), fix that
+criterion's code, and re-verify — never add special-casing inside T-052/T-054 themselves.
+
+**D7 traceability note** (added 2026-07-27, per `/speckit-analyze`): D7 (`spec.md § Design
+Decisions`) motivates the `nodesEvaluated`/`resolvedFromMemory` fields in every level's `Decision`
+return value. Prior to this note, no task cited "D7" by name, making it traceable only through
+`spec.md`, `plan.md`, and `contracts/agents-api.md`. The literal string `D7` now appears in the
+expected commit messages of T-035, T-037, T-043 (the three tasks that first establish the shape
+for each level) and T-050 (the task that makes `resolvedFromMemory` actually become `true`), so a
+`git log --grep D7` search surfaces the same commits a reviewer would expect from `spec.md`.

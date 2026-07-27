@@ -23,6 +23,63 @@ by hand). Each entry uses the format below; add new bugs at the top.
 
 ---
 
+## BUG-003: `/speckit-analyze` found a derived artifact contradicting the ratified constitution
+
+**Found**: 2026-07-27 | **Status**: Fixed
+
+**Detection**: Running `/speckit-analyze` on `002-agents` (spec, plan, tasks, traceability, and
+`contracts/agents-api.md` all complete, no code written yet) surfaced a CRITICAL finding: P2 of
+`.specify/memory/constitution.md` (v1.0.0) states verbatim `chooseMove(state, level, memory) →
+{move, memory'} — MUST be deterministic`, with no per-level qualification. `plan.md` and
+`contracts/agents-api.md` had already declared a "contract change" — a 4-field `Decision` return
+shape plus an optional `options` parameter, and a `simple` level that is intentionally
+non-deterministic (uniform random pick, D-R-01) — but both documents only addressed superseding
+`CLAUDE.md`'s informal sketch of the same contract, never the identical text embedded in the
+constitution itself. `plan.md`'s Complexity Tracking section, where any exception to a principle
+must be documented per Governance, was left empty ("No constitution violations").
+
+**Diagnosis**: This is not a spec-first bug in the gameplay sense — no test was wrong and no
+criterion was ambiguous. The root cause is procedural: the constitution is supposed to be the
+highest artifact in the hierarchy (`Constitution > spec.md > plan.md > tasks.md > code`), but a
+downstream artifact (`plan.md`) had drifted from it without going through the Amendment Procedure
+(Governance § Amendment Procedure: issue with `governance` label, ≥3/4 approval, semver bump).
+Two options were on the table: (a) document the mismatch as an exception in `plan.md`'s
+Complexity Tracking section, or (b) amend the constitution itself, since it was the one asserting
+a contract the project had already stopped honoring. The group chose (b): per Governance's own
+rationale (constitution is the source of truth), leaving it stating something false is worse than
+correcting it through the defined procedure.
+
+**Fix**: `.specify/memory/constitution.md` amended to v2.0.0 (MAJOR — backward-incompatible
+redefinition of an existing principle's normative contract): P2's `chooseMove` contract updated
+to `(state, level, memory, options?) → {move, memory, nodesEvaluated, resolvedFromMemory}`, MUST
+be deterministic narrowed to `medium`/`complex` only, with `simple`'s non-determinism (CA-A-02,
+D-R-01) and the `nodesEvaluated`/`resolvedFromMemory` fields (D7) called out by name. A new
+`SYNC IMPACT REPORT` addendum and a new "Amendment History" section under Governance record the
+version change, the date, and the motivating decision (D7, `specs/002-agents/spec.md`). No
+exception was added to `plan.md`'s Complexity Tracking — the constitution was corrected instead,
+per explicit group instruction. Commit `f6a8c62798c595e634cd07b37105587ff4580f9e`.
+
+Separately (not a constitution issue, but found in the same analysis pass): `tasks.md`'s original
+T-047 bundled a new code layer (continuous-mode static evaluation + horizon cutoff, CA-A-09) with
+an open-ended calibration loop, flagged as the task most likely to exceed a single commit. Split
+into T-047 (implementation) and T-048 (calibration); every task after it renumbered by one
+(23 → 24 tasks, T-034–T-057). Recorded in this same commit as this log entry.
+
+**Result**: The constitution and `tasks.md` are internally consistent again — P2 now describes
+the contract `plan.md`/`contracts/agents-api.md` already implement, and every criterion in
+`spec.md` still maps to exactly one RED task and one GREEN task in `tasks.md` (verified by the
+Coverage Audit table). No code exists yet for `002-agents`, so no `npm test`/`verify:traceability`
+run was affected.
+
+**Lesson**: a spec-first workflow's derived artifacts (`plan.md`, contracts) can legitimately
+declare a "supersedes" note against an *informal* sketch like `CLAUDE.md`'s Contracts section, but
+the same text living inside the *ratified constitution* is not informal — it is the artifact
+Governance calls authoritative. `/speckit-analyze` should be run against the constitution
+explicitly, not only against spec/plan/tasks consistency, whenever a plan declares any contract
+change — the drift here existed for a full planning cycle before being caught.
+
+---
+
 ## BUG-002: CA-M-16 test fixture (T-023) used a movement that completed a winning line
 
 **Found**: 2026-07-26 | **Status**: Fixed
