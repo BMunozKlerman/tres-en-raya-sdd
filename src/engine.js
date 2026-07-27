@@ -44,6 +44,8 @@ export function applyMove(state, move) {
   newBoard[move.cell] = move.player;
   const newPiecesPlaced = state.piecesPlaced + 1;
   const newTurn = state.turn === 'X' ? 'O' : 'X';
+  const newPhase =
+    state.mode === 'continuous' && newPiecesPlaced === 6 ? 'movement' : state.phase;
   const hasWinner = WINNING_LINES.some((line) =>
     line.every((i) => newBoard[i] === move.player)
   );
@@ -58,6 +60,7 @@ export function applyMove(state, move) {
     board: newBoard,
     piecesPlaced: newPiecesPlaced,
     turn: newTurn,
+    phase: newPhase,
     result: newResult,
   };
 }
