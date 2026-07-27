@@ -98,6 +98,50 @@ describe('CA-I-18 — arrow keys move cell selection', () => {
   });
 });
 
+describe('CA-I-39 — focus moves to the board on CONFIGURATION to IN_GAME transition', () => {
+  function startViaUi(root) {
+    root.querySelector('[data-config-opponent]').value = 'human';
+    root
+      .querySelector('[data-config-opponent]')
+      .dispatchEvent(new Event('change', { bubbles: true }));
+    root.querySelector('[data-config-mark]').value = 'X';
+    root.querySelector('[data-config-mark]').dispatchEvent(new Event('change', { bubbles: true }));
+    root.querySelector('[data-config-mode]').value = 'classic';
+    root.querySelector('[data-config-mode]').dispatchEvent(new Event('change', { bubbles: true }));
+    root.querySelector('[data-start-button]').click();
+  }
+
+  it('moves focus to a board cell immediately after starting a game', () => {
+    const { root } = mount();
+    startViaUi(root);
+
+    const focused = document.activeElement;
+    expect(focused).toBe(root.querySelector('[data-cell="0"]'));
+  });
+
+  it('gives the focused cell an accessible name stating its position and state', () => {
+    const { root } = mount();
+    startViaUi(root);
+
+    const focused = document.activeElement;
+    expect(focused.getAttribute('aria-label')).toBeTruthy();
+    expect(focused.getAttribute('aria-label').length).toBeGreaterThan(0);
+  });
+
+  it('does not move focus again on a later render once the player has moved it elsewhere', () => {
+    const { root } = mount();
+    startViaUi(root);
+
+    const restartButton = root.querySelector('[data-restart-button]');
+    restartButton.focus();
+    expect(document.activeElement).toBe(restartButton);
+
+    root.querySelector('[data-cell="1"]').click();
+
+    expect(document.activeElement).toBe(restartButton);
+  });
+});
+
 describe('CA-I-38 — visible keyboard instruction', () => {
   it('states how to operate the board while a game is in progress', () => {
     const { root, setState, getState } = mount();
