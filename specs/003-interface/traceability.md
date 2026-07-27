@@ -94,3 +94,15 @@ Following the same discipline `specs/001-engine/traceability.md` uses for CA-M-1
 event handling, and state-machine transitions are all real jsdom (or, for `chooseMove`'s
 synchronous-timer criteria, fake-timer-driven) assertions, with no manual-verification
 counterpart needed.
+
+## CA-I-11/CA-I-15 — corollary confirmation, no production code (T-068)
+
+`tasks.md`'s T-067/T-068 description assumed `applyPlayerMove` would branch on a winning mark
+only and need a distinct `'draw'` arm added in T-068. T-064/T-066's actual implementation already
+branches generically on `result.result` being truthy (any non-null result, mark or `'draw'`), so
+CA-I-11's draw indicator and CA-I-15's scoreboard increment were already satisfied the moment
+T-066 landed. Both tests (`us-i2-state-feedback.test.js`, `us-i3-scoreboard.test.js`) passed on
+first run at T-067; T-068 required no change to `src/ui/*.js`. Same convention as
+`specs/002-agents/traceability.md`'s CA-A-14 note and this spec's own CA-I-08/CA-I-19/CA-N-02/
+CA-N-03 documented-exception pattern: the RED/GREEN pair still exists so CA-I-11/CA-I-15 each
+have their own commit citing their ID (P6), not because the behavior was ever missing.
