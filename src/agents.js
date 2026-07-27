@@ -27,6 +27,11 @@ function staticEvaluation(board, player) {
   return score;
 }
 
+function positionKey(state) {
+  const board = state.board.map((cell) => (cell === null ? '_' : cell)).join('');
+  return `${state.mode}|${state.phase}|${state.turn}|${board}`;
+}
+
 function minimax(state, player, alpha, beta, depth) {
   if (state.result !== null) {
     if (state.result === 'draw') return { value: 0, nodes: 1 };
@@ -102,7 +107,18 @@ export function chooseMove(state, level, memory, options = {}) {
   }
 
   if (level === 'complex') {
+    const key = positionKey(state);
+    const cached = memory[key];
+    if (cached) {
+      return { move: cached.move, memory, nodesEvaluated: 1, resolvedFromMemory: true };
+    }
+
     const result = minimax(state, state.turn, -Infinity, Infinity, 0);
-    return { move: result.move, memory, nodesEvaluated: result.nodes, resolvedFromMemory: false };
+    const depth = state.mode === 'continuous' ? HORIZON_DEPTH : Infinity;
+    const newMemory = {
+      ...memory,
+      [key]: { move: result.move, value: result.value, depth },
+    };
+    return { move: result.move, memory: newMemory, nodesEvaluated: result.nodes, resolvedFromMemory: false };
   }
 }
