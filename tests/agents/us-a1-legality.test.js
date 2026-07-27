@@ -38,3 +38,11 @@ describe('CA-A-01 — simple: legal move in every mode × phase', () => {
     expect(legalMoves(state)).toContainEqual(decision.move);
   });
 });
+
+describe('CA-A-03 — medium: legal move in every mode × phase', () => {
+  it.each(modePhaseCombos)('returns a legal move in %s mode during %s phase', (mode, phase) => {
+    const state = buildState(mode, phase);
+    const decision = chooseMove(state, 'medium', null);
+    expect(legalMoves(state)).toContainEqual(decision.move);
+  });
+});
