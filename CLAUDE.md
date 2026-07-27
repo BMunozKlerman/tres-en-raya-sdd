@@ -170,10 +170,10 @@ never decide on your own.
 | 2 | What happens if a position repeats indefinitely? | ✅ Game continues; no repetition rule. Ending by repetition would produce a terminal state without a winning line, contradicting the "no draw" rule. | 2026-07-26 |
 | 3 | Can a player return the next turn to the cell just vacated? | ✅ Allowed. Prohibiting it would require storing the previous move in state, breaking P2 immutability. | 2026-07-26 |
 | 4 | Who opens the movement phase after the 6th placement? | ✅ The player who did NOT place the 6th mark — follows naturally from turn alternation, no new rule needed. | 2026-07-26 |
-| 5 | Do all 3 levels also play in continuous mode? | _pending_ | |
-| 6 | "Persistent memory": browser session only or across reloads? | _pending_ | |
-| 7 | How is memory observable if minimax already plays optimally without it? | _pending_ | |
-| 8 | What does "optimal" mean in continuous mode, where the tree never ends and there is no draw? | _pending_ | |
+| 5 | Do all 3 levels also play in continuous mode? | ✅ Yes; the assignment does not restrict any level by mode. See `specs/002-agents/spec.md` Design Decisions. | 2026-07-27 |
+| 6 | "Persistent memory": browser session only or across reloads? | ✅ Session only. A session already contains multiple games, satisfying "persistent across games." | 2026-07-27 |
+| 7 | How is memory observable if minimax already plays optimally without it? | ✅ `chooseMove` returns `nodesEvaluated` and `resolvedFromMemory` alongside the move. | 2026-07-27 |
+| 8 | What does "optimal" mean in continuous mode, where the tree never ends and there is no draw? | ✅ Exact (never lose) in classic; bounded by a search horizon (never let the opponent complete a line within it) in continuous. Horizon depth is a plan-level parameter. | 2026-07-27 |
 
 ## Current Status
 
@@ -181,10 +181,13 @@ never decide on your own.
 - [x] `/speckit-constitution` committed
 - [x] Spec 001-engine artifacts complete (specify/clarify/plan/tasks/analyze) — 20 criteria
       CA-M-01–CA-M-20, 33 tasks T-001–T-033
-- [ ] Spec 001-engine implementation — T-001–T-032 done and committed (`npm test` 35/35 green);
-      `npm run verify:traceability` exits 0 (all 20 CA-IDs traced via commit messages); only
-      T-033 (record real SHAs in traceability.md) remains before the feature is closed
-- [ ] Spec 002-agents (specify/clarify/plan/tasks/analyze)
+- [x] Spec 001-engine implementation complete — T-001–T-033 done and committed (`npm test`
+      35/35 green); `npm run verify:traceability` exits 0; `traceability.md` holds real SHAs
+      for all 20 CA-IDs (commit `2ef54af`)
+- [ ] Spec 002-agents — `/speckit-specify` done (17 criteria CA-A-01–CA-A-16 + CA-N-01, D5–D8
+      encoded); `/speckit-clarify` applied (N=20 fixed in CA-A-13, CA-A-01 split by level,
+      phase-agnostic note on CA-A-09); CA-A-06 (medium memory) left pending a wording choice —
+      see Session Log below. `/speckit-plan`, `/speckit-tasks`, `/speckit-analyze` not started.
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
@@ -226,3 +229,51 @@ never decide on your own.
   deviations; no bugs found in this block. `npm run verify:traceability` now exits 0 (all
   20 CA-IDs traced). Only T-033 (real SHAs in traceability.md) remains, deferred per user
   request to a separate session with clear context. Next task: T-033.
+- 2026-07-27: T-033 executed. `traceability.md` filled with real SHAs (full 40-char hashes)
+  for all 20 CA-IDs, plus separate tables for the two tooling tasks (T-001/T-002, no CA-ID)
+  and the three BUG-001/BUG-002 fix commits. No task lacked an identifiable commit. `npm test`
+  35/35 green, `npm run verify:traceability` exits 0. Commit `2ef54af`. **001-engine is
+  closed** (33/33 tasks).
+- 2026-07-27: `/speckit-specify` run for 002-agents. `specs/002-agents/spec.md` written: 2 user
+  stories (US-A-1 play at chosen difficulty, US-A-2 perceive levels as distinguishable), 15
+  criteria (CA-A-01–CA-A-14 + CA-N-01), group decisions D5–D8 encoded as resolved (not marked
+  NEEDS CLARIFICATION, per explicit instruction). Quality checklist passed on first iteration.
+  Commit `19925de`.
+- 2026-07-27: `/speckit-clarify` run for 002-agents (audit only, D5–D8 not reopened). Findings:
+  (1) CA-A-11's simulation criterion named "N games" without fixing N — not testable as
+  written; resolved by fixing N=20 (10+10 by first mover) directly in the EARS text, since N is
+  a test-methodology parameter with no implementation dependency, unlike the search horizon
+  (CA-A-07→CA-A-09), which genuinely needs plan-level calibration against CA-N-01. (2) CA-A-01
+  grouped the legality guarantee for all three levels under one ID; split into three
+  (CA-A-01 simple, CA-A-03 medium, CA-A-07 complex) because each level will land in its own
+  commit, and a shared ID would let the simple-level commit mark the criterion "traced" while
+  medium/complex remain unimplemented — the exact false-positive pattern BUG-001 found in
+  001-engine's traceability verifier. Renumbered CA-A-02..CA-A-14 to CA-A-02..CA-A-16 (spec now
+  has 17 criteria). (3) Added a "phase-agnostic" note to CA-A-09 (complex, continuous mode) for
+  consistency with the medium-level criteria. All three integrated and committed together
+  (commit `dc639a3`) with a new `## Clarifications` section recording the Q&A.
+  **Pending, not yet resolved**: CA-A-06 (medium level memory, ex-CA-A-05) asserts the
+  decision is independent of memory in every case, which makes RF-2's "memory limited to the
+  game in progress" capability for `medium` formally unobservable — the same problem D7 solved
+  for `complex` via decision metrics, but never solved here. Its original (flawed) wording is
+  left in place, marked `⚠️ pending correction` in both `spec.md` and
+  `checklists/requirements.md` ("Requirements are testable and unambiguous" unchecked).
+  Three replacement wordings are on the table, not yet chosen:
+  - **Option A** — decision metric symmetric with D7: expose `nodesEvaluated`/
+    `resolvedFromMemory` for `medium` too, and require that a node count accumulated in a
+    previous game's memory is discarded at the start of a new game. Test implication: `medium`
+    needs the same instrumentation as `complex`, even though its win/block algorithm doesn't
+    need it to decide.
+  - **Option B** — observable effect on an in-game tie-break: when a state has more than one
+    move that would satisfy CA-A-04/CA-A-05 equally, and memory records which one `medium`
+    picked earlier in the same game, require it to repeat that same choice. Test implication:
+    requires designing a concrete tie-break scenario with genuine ambiguity — heavier to build,
+    and in tension with the existing Assumptions bullet that leaves tie-breaking unspecified.
+  - **Option C** (recommended) — narrow the claim to non-persistence across games only: at the
+    start of a new game, the move must not depend on any memory value produced by a previous
+    game. Test implication: simplest to implement and test (two memory values, one empty one
+    not, same initial state, same move expected); honestly documents that `medium`'s algorithm
+    needs no history at all, similar in spirit to how 001-engine's D2 documented an absence of
+    behavior rather than forcing a test for it.
+  Next step: user picks A/B/C (or a custom wording), then it gets integrated, the checklist
+  re-validated, and `/speckit-plan` for 002-agents can start.
