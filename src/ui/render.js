@@ -211,6 +211,7 @@ function buildStructure(root) {
       </select>
       <button class="action-button" data-start-button type="button">start</button>
     </div>
+    <p data-keyboard-instructions>Usa las flechas para mover la selección entre casillas y Enter o espacio para jugar.</p>
     <div class="board" data-board role="grid">
       ${Array.from({ length: 9 }, (_, i) => `<button class="cell" data-cell="${i}" type="button"></button>`).join('')}
     </div>
