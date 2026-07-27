@@ -185,7 +185,21 @@ function buildStructure(root) {
     <div data-board role="grid">
       ${Array.from({ length: 9 }, (_, i) => `<button data-cell="${i}" type="button"></button>`).join('')}
     </div>
+    <p data-live-region role="status" aria-live="polite"></p>
   `;
+}
+
+function renderLiveRegion(root, state) {
+  const liveRegion = root.querySelector('[data-live-region]');
+  const result = state.engineState ? state.engineState.result : null;
+
+  if (result) {
+    liveRegion.textContent = result === 'draw' ? 'Empate' : `Gana ${result}`;
+  } else if (state.engineState) {
+    liveRegion.textContent = `Turno de ${state.engineState.turn}`;
+  } else {
+    liveRegion.textContent = '';
+  }
 }
 
 export function render(root, state) {
@@ -197,4 +211,5 @@ export function render(root, state) {
   renderBoard(root, state);
   renderStatus(root, state);
   renderScoreboard(root, state);
+  renderLiveRegion(root, state);
 }

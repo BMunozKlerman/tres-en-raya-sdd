@@ -207,13 +207,14 @@ describe('CA-I-20 — turn/result announced without moving focus', () => {
       state = applyPlayerMove(state, { type: 'place', player, cell });
     }
     setState(state);
+    // `[data-restart-button]` is never disabled (dom-contract.md), unlike the board cells CA-I-04
+    // disables on a win — so it is the stable element to assert focus retention against.
+    const restartButton = root.querySelector('[data-restart-button]');
+    restartButton.focus();
     render(root, getState());
-
-    const cell = root.querySelector('[data-cell="2"]');
-    cell.focus();
 
     const liveRegion = root.querySelector('[data-live-region]');
     expect(liveRegion.textContent).not.toBe('');
-    expect(document.activeElement).toBe(cell);
+    expect(document.activeElement).toBe(restartButton);
   });
 });
