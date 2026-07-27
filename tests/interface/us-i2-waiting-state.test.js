@@ -41,6 +41,36 @@ describe('CA-I-06 — waiting state shown, board disabled', () => {
   });
 });
 
+function startAgentVsHuman(root) {
+  root.querySelector('[data-config-opponent]').value = 'agent';
+  root.querySelector('[data-config-opponent]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-agent-level]').value = 'simple';
+  root
+    .querySelector('[data-config-agent-level]')
+    .dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-mark]').value = 'O';
+  root.querySelector('[data-config-mark]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-config-mode]').value = 'classic';
+  root.querySelector('[data-config-mode]').dispatchEvent(new Event('change', { bubbles: true }));
+  root.querySelector('[data-start-button]').click();
+}
+
+describe('CA-I-12 (BUG-017) — agent opens the game when it holds the first turn', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('transitions to WAITING_FOR_AGENT right after starting, without any human click', () => {
+    const root = mount();
+    startAgentVsHuman(root);
+
+    expect(root.querySelector('[data-waiting-indicator]')).not.toBeNull();
+    for (let i = 0; i < 9; i += 1) {
+      expect(root.querySelector(`[data-cell="${i}"]`).disabled).toBe(true);
+    }
+  });
+});
+
 describe('CA-I-12 — IN_GAME to WAITING_FOR_AGENT transition', () => {
   beforeEach(() => {
     document.body.innerHTML = '';
