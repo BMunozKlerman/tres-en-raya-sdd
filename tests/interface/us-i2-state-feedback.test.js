@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach } from 'vitest';
 import { mountApp } from '../../src/ui.js';
-import { createAppState, startGame, applyPlayerMove } from '../../src/ui/app-state.js';
+import { createAppState, startGame, applyPlayerMove, resolveAgentMove } from '../../src/ui/app-state.js';
+import { render } from '../../src/ui/render.js';
 
 function mount() {
   document.body.innerHTML = '<div id="app"></div>';
@@ -175,6 +176,47 @@ describe('CA-I-07 — movement-phase legal marks and destinations indicated', ()
     ['1', '3', '5'].forEach((cellIndex) => {
       expect(root.querySelector(`[data-cell="${cellIndex}"]`).dataset.movable).toBeUndefined();
     });
+  });
+});
+
+describe('CA-I-09 — resolvedFromMemory indicator', () => {
+  beforeEach(() => {
+    document.body.innerHTML = '';
+  });
+
+  it('shows the indicator only for a decision resolved from memory', () => {
+    const root = document.createElement('div');
+    document.body.appendChild(root);
+
+    let state = createAppState();
+    state = startGame(state, {
+      opponentType: 'agent',
+      agentLevel: 'complex',
+      marks: { player1: 'X' },
+      mode: 'classic',
+    });
+
+    state = { ...state, uiState: 'WAITING_FOR_AGENT' };
+    const freshDecision = {
+      move: { type: 'place', cell: 4 },
+      memory: {},
+      nodesEvaluated: 10,
+      resolvedFromMemory: false,
+    };
+    state = resolveAgentMove(state, freshDecision);
+    render(root, state);
+    expect(root.querySelector('[data-memory-indicator]')).toBeNull();
+
+    state = { ...state, uiState: 'WAITING_FOR_AGENT' };
+    const cachedDecision = {
+      move: { type: 'place', cell: 0 },
+      memory: {},
+      nodesEvaluated: 1,
+      resolvedFromMemory: true,
+    };
+    state = resolveAgentMove(state, cachedDecision);
+    render(root, state);
+    expect(root.querySelector('[data-memory-indicator]')).not.toBeNull();
   });
 });
 
