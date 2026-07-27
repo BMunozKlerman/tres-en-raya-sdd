@@ -17,6 +17,10 @@ export function applyMove(state, move) {
     return { error: true, reason: 'wrong_turn' };
   }
 
+  if (state.board[move.cell] !== null) {
+    return { error: true, reason: 'cell_occupied' };
+  }
+
   const newBoard = [...state.board];
   newBoard[move.cell] = move.player;
   const newPiecesPlaced = state.piecesPlaced + 1;
