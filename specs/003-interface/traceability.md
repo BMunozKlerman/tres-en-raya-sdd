@@ -135,6 +135,17 @@ preserving the scoreboard) remain fully covered by T-083/T-084 as planned; this 
 why T-081 did not literally click it. No `traceability.md` "Test-strategy limitations" entry was
 needed — the integration is fully exercised, not partially.
 
+## CA-N-02 — corollary confirmation, no production code (T-098)
+
+Every action reachable in a real game (configuration via `change` on the four `select` controls,
+starting via `[data-start-button]`, placing/moving via board-cell `click`, movement-phase
+selection/destination via `click`, and `[data-restart-button]`) was already wired to a mouse-only
+event (`click` or `change`) as part of its own base RED/GREEN pair — none of that wiring depends
+on a `keydown` listener. T-097's test drove a full classic game to a win and back to
+`CONFIGURATION` via restart, plus a full continuous-mode game through movement-phase selection and
+destination clicks, using only `click`/`change` events, and passed on first run. T-098 required no
+change to `src/ui/*.js`. Same convention as this file's CA-I-08/CA-I-11/CA-I-15 notes above.
+
 ## CA-I-11/CA-I-15 — corollary confirmation, no production code (T-068)
 
 `tasks.md`'s T-067/T-068 description assumed `applyPlayerMove` would branch on a winning mark
