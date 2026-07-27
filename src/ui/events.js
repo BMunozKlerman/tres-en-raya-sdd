@@ -82,16 +82,28 @@ export function attachEvents(root, getState, setState) {
     }
   });
 
-  root.querySelector('[data-start-button]').addEventListener('click', () => {
+  function activateOnEnterOrSpace(button) {
+    button.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      button.click();
+    });
+  }
+
+  const startButton = root.querySelector('[data-start-button]');
+  startButton.addEventListener('click', () => {
     const state = getState();
     setState(startGame(state, readConfig()));
     rerender();
   });
+  activateOnEnterOrSpace(startButton);
 
-  root.querySelector('[data-restart-button]').addEventListener('click', () => {
+  const restartButton = root.querySelector('[data-restart-button]');
+  restartButton.addEventListener('click', () => {
     setState(restart(getState()));
     rerender();
   });
+  activateOnEnterOrSpace(restartButton);
 
   const ARROW_DELTAS = { ArrowUp: -3, ArrowDown: 3, ArrowLeft: -1, ArrowRight: 1 };
 
