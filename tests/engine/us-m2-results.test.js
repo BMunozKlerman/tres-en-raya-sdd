@@ -25,12 +25,21 @@ describe('CA-M-12 — win detection all 8 lines', () => {
     const state = buildStateWithTwoMarks(line, 'X');
     const next = applyMove(state, { type: 'place', player: 'X', cell: line[2] });
     expect(next.result).toBe('X');
+    expect([...next.winningLine].sort((a, b) => a - b)).toEqual([...line].sort((a, b) => a - b));
   });
 
   it.each([lines[0], lines[3]])('CA-M-12 — O wins on line %s (%s)', (line) => {
     const state = buildStateWithTwoMarks(line, 'O');
     const next = applyMove(state, { type: 'place', player: 'O', cell: line[2] });
     expect(next.result).toBe('O');
+    expect([...next.winningLine].sort((a, b) => a - b)).toEqual([...line].sort((a, b) => a - b));
+  });
+
+  it('CA-M-12 — winningLine is null on a non-terminal state', () => {
+    const state = createGame('classic');
+    const next = applyMove(state, { type: 'place', player: 'X', cell: 0 });
+    expect(next.result).toBeNull();
+    expect(next.winningLine).toBeNull();
   });
 });
 
@@ -58,6 +67,7 @@ describe('CA-M-13 — classic draw', () => {
     const final = playSequence(sequence);
     expect(final.board).not.toContain(null);
     expect(final.result).toBe('draw');
+    expect(final.winningLine).toBeNull();
   });
 });
 
