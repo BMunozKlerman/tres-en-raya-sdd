@@ -193,12 +193,10 @@ never decide on your own.
       phase-agnostic note on CA-A-09); CA-A-06 (medium memory) resolved with option C — see
       Session Log below. `/speckit-plan` done (commit `eb7ac58`): technique per level, D7
       contract change (`chooseMove` now returns `nodesEvaluated`/`resolvedFromMemory`), search
-      horizon calibration procedure, test strategy. **⚠️ Branch note**: `spec.md`/`plan.md`
-      declare `Branch: 002-agents`, but all work so far (including this plan) has actually been
-      committed directly to `main` — no `002-agents` git branch exists yet (`git branch -a`
-      shows only `main`). Do not forget to create it and reconcile before closing this feature
-      if a separate branch is still intended; otherwise update the spec/plan headers to say
-      `main` instead. `/speckit-tasks`, `/speckit-analyze` not started.
+      horizon calibration procedure, test strategy. Spec and plan both complete; headers say
+      `Branch: main` (group decision, 2026-07-27 — see Session Log: no dedicated `002-agents`
+      git branch, to keep 001-engine's linear history unbroken). **Next step: `/speckit-tasks`
+      for 002-agents.** `/speckit-analyze` not started.
 - [ ] Spec 003-interface (specify/clarify/plan/tasks/analyze)
 - [ ] `traceability.md` with real SHAs up to date
 - [ ] README cold-tested (fresh clone, 3 steps or fewer)
@@ -297,7 +295,16 @@ never decide on your own.
   `nodesEvaluated`/`resolvedFromMemory` alongside the move — this supersedes the `{move, memory'}`
   sketch previously in this file's Contracts section; that section has now been updated to match
   (see above) and points to `specs/002-agents/contracts/agents-api.md` for the full signature.
-  **Note on branching**: this session's work (spec, clarify, plan) was committed directly to
-  `main`, even though `spec.md`/`plan.md` declare `Branch: 002-agents` — see the ⚠️ under
-  Current Status above. Flagging now so the merge/reconciliation isn't forgotten when this
-  feature closes. Next step: `/speckit-tasks` for 002-agents.
+  **Note on branching (flagged, resolved same day — see next entry)**: this session's work
+  (spec, clarify, plan) was committed directly to `main`, even though `spec.md`/`plan.md`
+  declared `Branch: 002-agents` at the time.
+- 2026-07-27: Group decision on the branching mismatch flagged above: **no dedicated
+  `002-agents` git branch will be created**. The engine feature (`001-engine`) already lives
+  entirely on `main` with a linear commit history; opening a feature branch partway through a
+  second feature would only fragment that history without adding process value the assignment's
+  grading criteria (process traceability via commit history) actually rewards. `spec.md` and
+  `plan.md` headers corrected to read `Branch: main`, with a one-line pointer back to this log
+  entry so the correction itself is auditable. This is a workflow decision, not a spec content
+  change — no CA-ID or D-number is affected, and `.specify` branch-naming conventions elsewhere
+  in the repo are left as-is (they name the feature, not a literal git ref).
+  **002-agents spec and plan are both complete. Next step: `/speckit-tasks` for 002-agents.**

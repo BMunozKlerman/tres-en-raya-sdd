@@ -1,6 +1,6 @@
 # Feature Specification: Game Agents
 
-**Feature Branch**: `002-agents`
+**Feature Branch**: `main` (this feature has no dedicated git branch — see `CLAUDE.md` session log, 2026-07-27)
 **ID Area**: `A` — all acceptance criteria in this spec use the prefix `CA-A-nn`. This spec
 also carries `CA-N-01`, the response-time criterion the constitution (P9) assigns to
 `002-agents`.

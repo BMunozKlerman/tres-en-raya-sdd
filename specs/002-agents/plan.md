@@ -1,6 +1,6 @@
 # Implementation Plan: Game Agents
 
-**Branch**: `002-agents` | **Date**: 2026-07-27 | **Spec**: [spec.md](spec.md)
+**Branch**: `main` (this feature has no dedicated git branch — see `CLAUDE.md` session log, 2026-07-27) | **Date**: 2026-07-27 | **Spec**: [spec.md](spec.md)
 
 **Input**: Feature specification from `specs/002-agents/spec.md`
 
