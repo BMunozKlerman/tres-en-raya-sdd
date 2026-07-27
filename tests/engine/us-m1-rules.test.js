@@ -123,6 +123,26 @@ describe('CA-M-11 — legalMoves after game over', () => {
   });
 });
 
+describe('CA-M-10 — legalMoves in movement phase', () => {
+  it('returns one movement action for each own-mark/empty-cell combination', () => {
+    const state = {
+      board: ['X', 'O', 'X', 'O', 'X', 'O', null, null, null],
+      turn: 'X',
+      mode: 'continuous',
+      phase: 'movement',
+      piecesPlaced: 6,
+      result: null,
+    };
+    const moves = legalMoves(state);
+    expect(moves).toHaveLength(9);
+    for (const from of [0, 2, 4]) {
+      for (const to of [6, 7, 8]) {
+        expect(moves).toContainEqual({ type: 'move', from, to });
+      }
+    }
+  });
+});
+
 describe('CA-M-07 — illegal: opponent mark', () => {
   it('rejects a movement action whose source cell holds the other player\'s mark', () => {
     const state = {
