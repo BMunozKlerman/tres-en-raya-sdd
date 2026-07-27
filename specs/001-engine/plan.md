@@ -106,11 +106,8 @@ Illegal movements:
 | move is a placement action during movement phase | `"wrong_phase"` (plan-level decision; no CA-ID covers it — see note below) |
 
 > Note on the last row: CA-M-08 covers "movement action during placement phase." The reverse
-> (placement action during movement phase) is not covered by any criterion — it is not a
-> required behavior. The engine MUST NOT accept it as a movement (it has no `from` field),
-> and MUST NOT silently succeed. The plan's decision: reject with `"wrong_phase"` for
-> symmetry, but this is a plan-level decision, not a spec criterion; no CA-ID covers it and
-> no test is required for it.
+> (placement action during movement phase) is covered by **CA-M-20**, added to `spec.md` as
+> the exact symmetric case of CA-M-08. Reject with `"wrong_phase"`; see `tasks.md` T-013/T-014.
 
 ### legalMoves output
 
@@ -159,6 +156,7 @@ Vitest will report it in the failure output, making orphan detection trivial.
 | CA-M-17 | us-m3-phases.test.js | `'CA-M-17 — no draw in continuous mode'` |
 | CA-M-18 | edge-cases.test.js | `'CA-M-18 — illegal: empty source cell'` |
 | CA-M-19 | edge-cases.test.js | `'CA-M-19 — illegal: occupied destination'` |
+| CA-M-20 | us-m1-rules.test.js | `'CA-M-20 — illegal: placement during movement phase'` |
 
 CA-M-12 requires 8 `it` blocks (one per winning line) plus 2 `it` blocks for X and O.
 All within the same `describe('CA-M-12', ...)`.

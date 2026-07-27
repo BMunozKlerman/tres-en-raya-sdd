@@ -93,8 +93,8 @@ The engine applies checks in this order and stops at the first match:
 
 1. `state.result ≠ null` → `{error:true, reason:'game_over'}`
 2. `move.player ≠ state.turn` → `{error:true, reason:'wrong_turn'}`
-3. `move.type === 'move'` and `state.phase === 'placement'` → `{error:true, reason:'wrong_phase'}`
-4. `move.type === 'place'` and `state.phase === 'movement'` → `{error:true, reason:'wrong_phase'}`
+3. `move.type === 'move'` and `state.phase === 'placement'` → `{error:true, reason:'wrong_phase'}` (CA-M-08)
+4. `move.type === 'place'` and `state.phase === 'movement'` → `{error:true, reason:'wrong_phase'}` (CA-M-20)
 5. **Placement path** (`move.type === 'place'`):
    - `state.board[move.cell] ≠ null` → `{error:true, reason:'cell_occupied'}`
    - Otherwise: apply placement (see below)
@@ -134,4 +134,4 @@ The engine applies checks in this order and stops at the first match:
 ### Covered criteria
 
 CA-M-02, CA-M-03, CA-M-04, CA-M-05, CA-M-06, CA-M-07, CA-M-08,
-CA-M-12, CA-M-13, CA-M-14, CA-M-15, CA-M-16, CA-M-17, CA-M-18, CA-M-19
+CA-M-12, CA-M-13, CA-M-14, CA-M-15, CA-M-16, CA-M-17, CA-M-18, CA-M-19, CA-M-20

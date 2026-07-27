@@ -76,8 +76,7 @@ Used during the movement phase of continuous mode only.
 ```
 
 The engine dispatches on `move.type`. A `'place'` move during the movement phase is
-rejected with `"wrong_phase"` (plan-level decision, not a CA requirement; documented in
-`plan.md`).
+rejected with `"wrong_phase"` (CA-M-20, the symmetric case of CA-M-08).
 
 ---
 
@@ -96,7 +95,7 @@ Returned by `applyMove` when the move is illegal. The state is not returned.
 | `"game_over"` | any move when `state.result ≠ null` (CA-M-06) |
 | `"wrong_turn"` | `move.player ≠ state.turn` (CA-M-05) |
 | `"cell_occupied"` | placement targeting occupied cell (CA-M-04); movement targeting occupied destination (CA-M-19) |
-| `"wrong_phase"` | movement action during placement phase (CA-M-08); placement action during movement phase (plan-level) |
+| `"wrong_phase"` | movement action during placement phase (CA-M-08); placement action during movement phase (CA-M-20) |
 | `"no_mark_at_source"` | movement from a null cell (CA-M-18) |
 | `"not_own_mark"` | movement from a cell owned by the opponent (CA-M-07) |
 

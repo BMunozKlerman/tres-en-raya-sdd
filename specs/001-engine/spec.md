@@ -111,6 +111,13 @@ and verify a win is detected without the game ever ending in draw.
 |----|-----------|----------------|
 | CA-M-18 | Source cell is empty during movement phase | WHEN a player submits a movement action specifying a source cell whose board value is null during the movement phase, THE SYSTEM SHALL return an error with reason "no_mark_at_source" and leave the input state unchanged. |
 | CA-M-19 | Destination cell is occupied during movement phase | WHEN a player submits a movement action specifying a destination cell whose board value is not null during the movement phase, THE SYSTEM SHALL return an error with reason "cell_occupied" and leave the input state unchanged. |
+| CA-M-20 | Placement action attempted during movement phase | WHEN a player submits a placement action during the movement phase, THE SYSTEM SHALL return an error with reason "wrong_phase" and leave the input state unchanged. |
+
+CA-M-20 is the exact symmetric case of CA-M-08 (movement action during placement phase).
+`plan.md` and `contracts/engine-api.md` already documented this rejection as part of the
+`applyMove` dispatch order, but no criterion covered it — a gap surfaced by `/speckit-analyze`.
+CA-M-20 closes that gap; it does not introduce new behavior beyond what was already specified
+in the contract.
 
 ### Out of Scope
 
@@ -165,6 +172,7 @@ a governance amendment.
 | CA-M-17 | US-M-3 | WHEN in continuous mode result is null and no winning line is fully occupied by a single player's mark after a legal movement, THE SYSTEM SHALL keep result as null in the returned state. | ✅ ready |
 | CA-M-18 | Edge Cases | WHEN a player submits a movement action specifying a source cell whose board value is null during the movement phase, THE SYSTEM SHALL return an error with reason "no_mark_at_source" and leave the input state unchanged. | ✅ ready |
 | CA-M-19 | Edge Cases | WHEN a player submits a movement action specifying a destination cell whose board value is not null during the movement phase, THE SYSTEM SHALL return an error with reason "cell_occupied" and leave the input state unchanged. | ✅ ready |
+| CA-M-20 | Edge Cases | WHEN a player submits a placement action during the movement phase, THE SYSTEM SHALL return an error with reason "wrong_phase" and leave the input state unchanged. | ✅ ready |
 
 ### Key Entities *(include if feature involves data)*
 
@@ -185,7 +193,7 @@ a governance amendment.
 | ID | Measurable Outcome | CA-IDs Covered |
 |----|--------------------|----------------|
 | SC-M-01 | A new game state for either mode can be produced from a single mode specification with all fields at their defined initial values. | CA-M-01 |
-| SC-M-02 | Every illegal move attempt returns a rejection that identifies the specific rule violated; the input state is identical before and after the attempt. | CA-M-04, CA-M-05, CA-M-06, CA-M-07, CA-M-08, CA-M-18, CA-M-19 |
+| SC-M-02 | Every illegal move attempt returns a rejection that identifies the specific rule violated; the input state is identical before and after the attempt. | CA-M-04, CA-M-05, CA-M-06, CA-M-07, CA-M-08, CA-M-18, CA-M-19, CA-M-20 |
 | SC-M-03 | A winner is detected on the turn the winning line is completed; no additional move is required to confirm the result. | CA-M-12 |
 | SC-M-04 | In classic mode, a full board with no winner produces result "draw"; a full board where the final placement completes a winning line produces result equal to the placing player's mark, not "draw". | CA-M-13, CA-M-14 |
 | SC-M-05 | In continuous mode, no sequence of legal movements ever produces result "draw"; the game continues until a winning line is completed. | CA-M-17 |
